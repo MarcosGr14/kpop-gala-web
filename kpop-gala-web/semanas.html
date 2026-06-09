@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>✨ KPop Gala · Semanas</title>
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/semanas.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     NAVBAR
+════════════════════════════════════════════════════ -->
+<nav class="navbar">
+  <a href="index.html" class="nav-logo">
+    <span>🌸</span> KPop Gala
+  </a>
+  <ul class="nav-links">
+    <li>
+      <a href="index.html">
+        🏆 <span>Ranking</span>
+      </a>
+    </li>
+    <li>
+      <a href="registro.html">
+        ✍️ <span>Registrar</span>
+      </a>
+    </li>
+    <li class="nav-dropdown">
+      <a href="semanas.html" class="active">
+        📅 <span>Semanas</span>
+      </a>
+      <div class="dropdown-menu">
+        <a href="semanas.html">📋 Ver todas</a>
+        <a href="semanas.html?filtro=p1">🌸 Persona 1</a>
+        <a href="semanas.html?filtro=p2">💙 Persona 2</a>
+      </div>
+    </li>
+  </ul>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════
+     CONTENIDO PRINCIPAL
+════════════════════════════════════════════════════ -->
+<main class="page-wrapper">
+
+  <!-- Header -->
+  <div class="page-header fade-up">
+    <div class="emoji-badge">📅 HISTORIAL</div>
+    <h1>Registro por Semanas</h1>
+    <p>Consulta y filtra todos los registros · Junio – Diciembre 2025</p>
+  </div>
+
+  <!-- Resumen de personas -->
+  <div class="resumen-personas fade-up delay-1">
+    <div class="resumen-persona-card rp1">
+      <div class="rp-name">🌸 Persona 1</div>
+      <div class="rp-pts" id="res-pts-p1">0</div>
+      <div class="rp-sub" id="res-ent-p1">0 entradas</div>
+    </div>
+    <div class="resumen-persona-card rp2">
+      <div class="rp-name">💙 Persona 2</div>
+      <div class="rp-pts" id="res-pts-p2">0</div>
+      <div class="rp-sub" id="res-ent-p2">0 entradas</div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filtros-bar card fade-up delay-2">
+    <label for="filtro-semana">📅 Semana:</label>
+    <select id="filtro-semana">
+      <option value="todas">Todas las semanas</option>
+      <!-- Poblado por semanas.js -->
+    </select>
+
+    <label for="filtro-persona" style="margin-left:0.5rem;">👤 Persona:</label>
+    <select id="filtro-persona">
+      <option value="todas">Ambas</option>
+      <option value="p1">🌸 Persona 1</option>
+      <option value="p2">💙 Persona 2</option>
+    </select>
+
+    <a href="registro.html" class="btn btn-primary btn-sm" style="margin-left:auto;">
+      ✍️ Registrar
+    </a>
+  </div>
+
+  <!-- Semanas container -->
+  <div id="semanas-container">
+    <!-- Generado por semanas.js -->
+  </div>
+
+</main>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<script src="js/data.js"></script>
+<script src="js/semanas.js"></script>
+</body>
+</html>

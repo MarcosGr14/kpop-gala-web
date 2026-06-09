@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>✨ KPop Gala · Ranking</title>
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     NAVBAR
+════════════════════════════════════════════════════ -->
+<nav class="navbar">
+  <a href="index.html" class="nav-logo">
+    <span>🌸</span> KPop Gala
+  </a>
+  <ul class="nav-links">
+    <li>
+      <a href="index.html" class="active">
+        🏆 <span>Ranking</span>
+      </a>
+    </li>
+    <li>
+      <a href="registro.html">
+        ✍️ <span>Registrar</span>
+      </a>
+    </li>
+    <li class="nav-dropdown">
+      <a href="#">
+        📅 <span>Semanas</span>
+      </a>
+      <div class="dropdown-menu">
+        <a href="semanas.html">📋 Ver todas</a>
+        <a href="semanas.html?filtro=p1">🌸 Persona 1</a>
+        <a href="semanas.html?filtro=p2">💙 Persona 2</a>
+      </div>
+    </li>
+  </ul>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════
+     CONTENIDO PRINCIPAL
+════════════════════════════════════════════════════ -->
+<main class="page-wrapper">
+
+  <!-- ── SECCIÓN: RANKING CANCIONES ──────────────────────── -->
+  <div class="page-header fade-up">
+    <div class="emoji-badge">🎶 REGISTRO 2026</div>
+    <h1>Ranking Global</h1>
+    <p>Puntaje acumulado de todas las semanas · Junio – Diciembre 2026</p>
+  </div>
+
+  <!-- Stats bar -->
+  <div class="stats-bar fade-up delay-1">
+    <div class="stat-chip">
+      <span class="stat-num" id="stat-total">0</span>
+      <span class="stat-label">Puntos totales</span>
+    </div>
+    <div class="stat-chip">
+      <span class="stat-num" id="stat-p1">0</span>
+      <span class="stat-label">🌸 Persona 1</span>
+    </div>
+    <div class="stat-chip">
+      <span class="stat-num cyan" id="stat-p2">0</span>
+      <span class="stat-label">💙 Persona 2</span>
+    </div>
+    <div class="stat-chip">
+      <span class="stat-num" id="stat-semanas">0</span>
+      <span class="stat-label">Semanas activas</span>
+    </div>
+    <div class="stat-chip">
+      <span class="stat-num" id="stat-canciones">0</span>
+      <span class="stat-label">Canciones rankeadas</span>
+    </div>
+  </div>
+
+  <hr class="neon-divider fade-up delay-2">
+
+  <!-- Tabs de filtro (Canciones) -->
+  <div class="tabs fade-up delay-2">
+    <button class="tab-btn active" data-filtro="all">🎵 Todas</button>
+    <button class="tab-btn" data-filtro="con-puntos">✨ Con puntos</button>
+    <button class="tab-btn" data-filtro="sin-puntos">⏳ Sin registros</button>
+  </div>
+
+  <!-- Ranking list (Canciones) -->
+  <div class="ranking-list fade-up delay-3" id="ranking-list">
+    <!-- Generado por app.js -->
+  </div>
+
+  <!-- ── SECCIÓN: RANKING ÁLBUMES ───────────────────────── -->
+  <hr class="neon-divider fade-up delay-2" style="margin: 4rem 0 2rem 0;">
+
+  <div class="page-header fade-up">
+    <h2>💿 Ranking de Álbumes</h2>
+    <p>Top acumulado de puntajes en Spotify, Instafest y Reproducciones</p>
+  </div>
+
+  <div class="tabs fade-up" id="tabs-albumes" style="margin-bottom: 1.5rem;">
+    <button class="tab-btn active" data-filtro="all">💿 Todos</button>
+    <button class="tab-btn" data-filtro="con-puntos">✨ Con puntos</button>
+    <button class="tab-btn" data-filtro="sin-puntos">⏳ Sin registros</button>
+  </div>
+
+  <div class="ranking-list fade-up" id="ranking-albumes-list"></div>
+
+
+  <!-- ── SECCIÓN: RANKING ARTISTAS ───────────────────────── -->
+  <hr class="neon-divider fade-up delay-2" style="margin: 4rem 0 2rem 0;">
+
+  <div class="page-header fade-up">
+    <h2>⭐ Ranking de Artistas</h2>
+    <p>Top acumulado de puntajes en Spotify e Instafest</p>
+  </div>
+
+  <!-- Tabs de filtro (Artistas) -->
+  <div class="tabs fade-up" id="tabs-artistas" style="margin-bottom: 1.5rem;">
+    <button class="tab-btn active" data-cat="boy_group">Boy Groups</button>
+    <button class="tab-btn" data-cat="girl_group">Girl Groups</button>
+    <button class="tab-btn" data-cat="solista_m">Solistas Masculinos</button>
+    <button class="tab-btn" data-cat="solista_f">Solistas Femeninos</button>
+  </div>
+
+  <!-- Ranking list (Artistas) -->
+  <div class="ranking-list fade-up" id="ranking-artistas-list">
+    <!-- Generado por app.js -->
+  </div>
+
+</main>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

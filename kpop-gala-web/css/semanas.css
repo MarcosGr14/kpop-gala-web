@@ -1,0 +1,252 @@
+/* ============================================================
+   KPOP GALA — SEMANAS.CSS
+   Estilos de la vista de semanas y filtros
+   ============================================================ */
+
+/* ── Filtros de semana ───────────────────────────────────────── */
+.filtros-bar {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+.filtros-bar label {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.82rem;
+  color: var(--text-soft);
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.filtros-bar select {
+  padding: 0.6rem 2.5rem 0.6rem 1rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23f472b6' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  min-width: 180px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.filtros-bar select:focus {
+  border-color: var(--rosa);
+  box-shadow: 0 0 0 3px var(--rosa-glow);
+}
+
+/* ── Semana container ────────────────────────────────────────── */
+.semana-bloque {
+  margin-bottom: 2.5rem;
+  animation: fadeUp 0.45s var(--ease-out) both;
+}
+.semana-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.semana-num-badge {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.85rem;
+  background: linear-gradient(135deg, var(--rosa), var(--violeta));
+  color: #fff;
+  border-radius: 99px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.semana-header h2 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--text-soft);
+}
+.semana-pts-total {
+  margin-left: auto;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.semana-pts-total strong {
+  color: var(--rosa);
+  font-size: 1rem;
+}
+
+/* ── Tabla de entradas por semana ────────────────────────────── */
+.semana-tabla {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.semana-tabla-header {
+  display: grid;
+  grid-template-columns: 48px 56px 1fr 80px 80px 90px;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  background: var(--surface2);
+  border-bottom: 1.5px solid var(--border);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.semana-tabla-row {
+  display: grid;
+  grid-template-columns: 48px 56px 1fr 80px 80px 90px;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.8rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+}
+.semana-tabla-row:last-child { border-bottom: none; }
+.semana-tabla-row:hover { background: var(--surface2); }
+
+.str-pos {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+.str-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.str-img img { width: 100%; height: 100%; object-fit: cover; }
+.str-img-placeholder {
+  width: 100%; height: 100%;
+  background: linear-gradient(135deg, var(--rosa-glow), var(--violeta-glow));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+.str-info .str-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.str-info .str-artist {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.str-persona {
+  display: flex;
+  justify-content: center;
+}
+.str-rep {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--text-soft);
+  text-align: center;
+}
+.str-pts {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.95rem;
+  color: var(--rosa);
+  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+.str-pts.p2 { color: var(--cyan); }
+
+/* Botón eliminar inline */
+.str-del-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(244,114,182,0.1);
+  color: var(--rosa);
+  font-size: 0.7rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.str-del-btn:hover { background: var(--rosa); color: #fff; }
+
+/* ── Sin entradas ────────────────────────────────────────────── */
+.semana-vacia {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+/* ── Resumen de dos personas ─────────────────────────────────── */
+.resumen-personas {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+.resumen-persona-card {
+  flex: 1;
+  min-width: 200px;
+  background: var(--surface);
+  border: 2px solid;
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+.resumen-persona-card.rp1 { border-color: rgba(244,114,182,0.35); }
+.resumen-persona-card.rp2 { border-color: rgba(34,211,238,0.35); }
+
+.rp-name {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+.rp1 .rp-name { color: var(--rosa); }
+.rp2 .rp-name { color: var(--cyan); }
+.rp-pts {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 2rem;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 0.2rem;
+}
+.rp-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}

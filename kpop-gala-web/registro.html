@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>✨ KPop Gala · Registrar Semana</title>
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/registro.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="nav-logo">
+    <span>🌸</span> KPop Gala
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">🏆 <span>Ranking</span></a></li>
+    <li><a href="registro.html" class="active">✍️ <span>Registrar</span></a></li>
+    <li class="nav-dropdown">
+      <a href="#">📅 <span>Semanas</span></a>
+      <div class="dropdown-menu">
+        <a href="semanas.html">📋 Ver todas</a>
+        <a href="semanas.html?filtro=p1">🌸 Persona 1</a>
+        <a href="semanas.html?filtro=p2">💙 Persona 2</a>
+      </div>
+    </li>
+  </ul>
+</nav>
+
+<main class="page-wrapper">
+
+  <div class="page-header fade-up">
+    <div class="emoji-badge">✍️ REGISTRO SEMANAL</div>
+    <h1>Añadir Canciones y Artistas</h1>
+    <p>Registra tus puntuaciones semanales</p>
+  </div>
+
+  <div class="semana-selector card fade-up delay-1">
+    <label for="semana-global">📅 Semana activa:</label>
+    <select id="semana-global"></select>
+    <span class="semana-chip" id="semana-chip">Cargando...</span>
+  </div>
+
+  <div class="form-container fade-up delay-2">
+    <!-- ───── PERSONA 1 ─────────────────────────────────────── -->
+    <div class="form-card p1-card">
+      <div class="form-card-title"><div class="person-icon">P1</div><div><h2>Persona 1</h2></div></div>
+      <form id="form-p1">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="cancion-p1">🎵 Canción</label>
+            <select id="cancion-p1" class="form-select" required>
+              <option value="">Selecciona...</option>
+            </select>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="pos-spotify-p1">🟢 Pos. Spotify</label>
+              <input type="number" id="pos-spotify-p1" class="form-input" min="0" max="15" value="0" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="pos-instafest-p1">🎪 Pos. Instafest</label>
+              <input type="number" id="pos-instafest-p1" class="form-input" min="0" max="15" value="0" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="reproducciones-p1">▶ Reproducciones</label>
+            <input type="number" id="reproducciones-p1" class="form-input" min="0" max="9999" value="0">
+          </div>
+
+          <div class="pts-preview" style="margin: 0.5rem 0;">
+            <div>
+              <div class="pts-val" id="pts-preview-p1">0</div>
+              <div class="pts-label">puntos a sumar</div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">✨ Guardar entrada</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- ───── PERSONA 2 ─────────────────────────────────────── -->
+    <div class="form-card p2-card">
+      <div class="form-card-title"><div class="person-icon">P2</div><div><h2>Persona 2</h2></div></div>
+      <form id="form-p2">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="cancion-p2">🎵 Canción</label>
+            <select id="cancion-p2" class="form-select" required>
+              <option value="">Selecciona...</option>
+            </select>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="pos-spotify-p2">🟢 Pos. Spotify</label>
+              <input type="number" id="pos-spotify-p2" class="form-input" min="0" max="15" value="0" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="pos-instafest-p2">🎪 Pos. Instafest</label>
+              <input type="number" id="pos-instafest-p2" class="form-input" min="0" max="15" value="0" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="reproducciones-p2">▶ Reproducciones</label>
+            <input type="number" id="reproducciones-p2" class="form-input" min="0" max="9999" value="0">
+          </div>
+
+          <div class="pts-preview" style="margin: 0.5rem 0;">
+            <div>
+              <div class="pts-val" id="pts-preview-p2">0</div>
+              <div class="pts-label">puntos a sumar</div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-cyan">✨ Guardar entrada</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ───── FORMULARIOS ÁLBUMES ─────────────────────────────── -->
+  <div class="page-header fade-up delay-2" style="margin-top: 3rem; margin-bottom: 1rem;">
+    <h2>💿 Añadir Álbumes</h2>
+  </div>
+  <div class="form-container fade-up delay-2">
+    
+    <!-- Álbum P1 -->
+    <div class="form-card p1-card" style="border-top-color: var(--violeta);">
+      <div class="form-card-title">
+        <div class="person-icon" style="background: var(--violeta);">P1</div>
+        <div><h2>Persona 1 (Álbum)</h2></div>
+      </div>
+      <form id="form-album-p1">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="album-p1">💿 Álbum</label>
+            <select id="album-p1" class="form-select" required><option value="">Selecciona...</option></select>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label" for="pos-spotify-album-p1">🟢 Pos. Spotify</label><input type="number" id="pos-spotify-album-p1" class="form-input" min="0" max="15" value="0" required></div>
+            <div class="form-group"><label class="form-label" for="pos-instafest-album-p1">🎪 Pos. Instafest</label><input type="number" id="pos-instafest-album-p1" class="form-input" min="0" max="15" value="0" required></div>
+          </div>
+          <div class="form-group"><label class="form-label" for="reproducciones-album-p1">▶ Reproducciones</label><input type="number" id="reproducciones-album-p1" class="form-input" min="0" max="9999" value="0"></div>
+          <div class="pts-preview" style="margin: 0.5rem 0;"><div><div class="pts-val" id="pts-preview-album-p1">0</div><div class="pts-label">puntos a sumar</div></div></div>
+          <button type="submit" class="btn" style="background: var(--violeta); color: #fff; width: 100%;">💿 Guardar Álbum</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Álbum P2 -->
+    <div class="form-card p2-card" style="border-top-color: var(--violeta);">
+      <div class="form-card-title">
+        <div class="person-icon" style="background: var(--violeta);">P2</div>
+        <div><h2>Persona 2 (Álbum)</h2></div>
+      </div>
+      <form id="form-album-p2">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="album-p2">💿 Álbum</label>
+            <select id="album-p2" class="form-select" required><option value="">Selecciona...</option></select>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label" for="pos-spotify-album-p2">🟢 Pos. Spotify</label><input type="number" id="pos-spotify-album-p2" class="form-input" min="0" max="15" value="0" required></div>
+            <div class="form-group"><label class="form-label" for="pos-instafest-album-p2">🎪 Pos. Instafest</label><input type="number" id="pos-instafest-album-p2" class="form-input" min="0" max="15" value="0" required></div>
+          </div>
+          <div class="form-group"><label class="form-label" for="reproducciones-album-p2">▶ Reproducciones</label><input type="number" id="reproducciones-album-p2" class="form-input" min="0" max="9999" value="0"></div>
+          <div class="pts-preview" style="margin: 0.5rem 0;"><div><div class="pts-val" id="pts-preview-album-p2">0</div><div class="pts-label">puntos a sumar</div></div></div>
+          <button type="submit" class="btn" style="background: var(--violeta); color: #fff; width: 100%;">💿 Guardar Álbum</button>
+        </div>
+      </form>
+    </div>
+    
+  </div>
+
+  <!-- ───── FORMULARIO ARTISTAS ─────────────────────────────── -->
+  <div class="page-header fade-up delay-3" style="margin-top: 3rem; margin-bottom: 1rem;">
+    <h2>⭐ Añadir Artistas</h2>
+    <p>Puntos por posición en Ranking (1°=15 pts, 15°=1 pt)</p>
+  </div>
+  <div class="form-container fade-up delay-3">
+    
+    <div class="form-card p1-card" style="border-top-color: var(--amarillo);">
+      <div class="form-card-title">
+        <div class="person-icon" style="background: var(--amarillo); color: #000;">P1</div>
+        <div><h2>Persona 1 (Artista)</h2></div>
+      </div>
+      <form id="form-artista-p1">
+        <div class="form-grid">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="categoria-artista-p1">📌 Categoría</label>
+              <select id="categoria-artista-p1" class="form-select">
+                <option value="solista_m">Solista Masc.</option>
+                <option value="solista_f">Solista Fem.</option>
+                <option value="boy_group">Boy Group</option>
+                <option value="girl_group">Girl Group</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="artista-p1">🎤 Artista</label>
+              <select id="artista-p1" class="form-select"></select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label" for="pos-spotify-artista-p1">🟢 Pos. Spotify</label><input type="number" id="pos-spotify-artista-p1" class="form-input" min="0" max="15" value="0" required></div>
+            <div class="form-group"><label class="form-label" for="pos-instafest-artista-p1">🎪 Pos. Instafest</label><input type="number" id="pos-instafest-artista-p1" class="form-input" min="0" max="15" value="0" required></div>
+          </div>
+          <div class="pts-preview" style="margin: 0.5rem 0;"><div><div class="pts-val" id="pts-preview-artista-p1">0</div><div class="pts-label">puntos a sumar</div></div></div>
+          <button type="submit" class="btn" style="background: var(--amarillo); color: #000; width: 100%;">⭐ Guardar Artista</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="form-card p2-card" style="border-top-color: var(--amarillo);">
+      <div class="form-card-title">
+        <div class="person-icon" style="background: var(--amarillo); color: #000;">P2</div>
+        <div><h2>Persona 2 (Artista)</h2></div>
+      </div>
+      <form id="form-artista-p2">
+        <div class="form-grid">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="categoria-artista-p2">📌 Categoría</label>
+              <select id="categoria-artista-p2" class="form-select">
+                <option value="solista_m">Solista Masc.</option>
+                <option value="solista_f">Solista Fem.</option>
+                <option value="boy_group">Boy Group</option>
+                <option value="girl_group">Girl Group</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="artista-p2">🎤 Artista</label>
+              <select id="artista-p2" class="form-select"></select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label" for="pos-spotify-artista-p2">🟢 Pos. Spotify</label><input type="number" id="pos-spotify-artista-p2" class="form-input" min="0" max="15" value="0" required></div>
+            <div class="form-group"><label class="form-label" for="pos-instafest-artista-p2">🎪 Pos. Instafest</label><input type="number" id="pos-instafest-artista-p2" class="form-input" min="0" max="15" value="0" required></div>
+          </div>
+          <div class="pts-preview" style="margin: 0.5rem 0;"><div><div class="pts-val" id="pts-preview-artista-p2">0</div><div class="pts-label">puntos a sumar</div></div></div>
+          <button type="submit" class="btn" style="background: var(--amarillo); color: #000; width: 100%;">⭐ Guardar Artista</button>
+        </div>
+      </form>
+    </div>
+    
+  </div>
+
+  <!-- ───── HISTORIALES ─────────────────────────────────────── -->
+  <div class="historial-section fade-up delay-4">
+    <hr class="neon-divider">
+    <div class="historial-title">📋 Canciones (Esta semana)</div>
+    <div class="historial-list" id="historial-list"></div>
+    
+    <div class="historial-title" style="margin-top:2rem;">⭐ Artistas (Esta semana)</div>
+    <div class="historial-list" id="historial-artistas-list"></div>
+  </div>
+
+</main>
+
+<div id="toast-container"></div>
+<script src="js/data.js"></script>
+<script src="js/registro.js"></script>
+</body>
+</html>

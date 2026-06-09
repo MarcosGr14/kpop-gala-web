@@ -1,0 +1,277 @@
+/* ============================================================
+   KPOP GALA — INDEX.CSS
+   Estilos del ranking global / página principal
+   ============================================================ */
+
+/* ── Hero stats bar ──────────────────────────────────────────── */
+.stats-bar {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+.stat-chip {
+  flex: 1;
+  min-width: 140px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.25s, transform 0.25s var(--ease);
+}
+.stat-chip:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+.stat-chip .stat-num {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.9rem;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--rosa), var(--violeta));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.stat-chip .stat-num.cyan {
+  background: linear-gradient(135deg, var(--cyan), var(--verde));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.stat-chip .stat-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── Ranking list ────────────────────────────────────────────── */
+.ranking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.rank-card {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.25rem;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s var(--ease);
+  position: relative;
+  overflow: hidden;
+}
+.rank-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(to bottom, var(--rosa), var(--violeta));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.rank-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateX(4px);
+  border-color: rgba(244, 114, 182, 0.3);
+}
+.rank-card:hover::before { opacity: 1; }
+
+/* Top 3 especiales */
+.rank-card.pos-1 {
+  border-color: rgba(250, 204, 21, 0.4);
+  background: linear-gradient(135deg, #fffbeb 0%, #fff 100%);
+}
+.rank-card.pos-1::before {
+  background: linear-gradient(to bottom, var(--amarillo), #f59e0b);
+  opacity: 1;
+}
+.rank-card.pos-2 {
+  border-color: rgba(148, 163, 184, 0.4);
+  background: linear-gradient(135deg, #f8fafc 0%, #fff 100%);
+}
+.rank-card.pos-2::before {
+  background: linear-gradient(to bottom, #94a3b8, #64748b);
+  opacity: 1;
+}
+.rank-card.pos-3 {
+  border-color: rgba(180, 120, 60, 0.3);
+  background: linear-gradient(135deg, #fdf6f0 0%, #fff 100%);
+}
+.rank-card.pos-3::before {
+  background: linear-gradient(to bottom, #cd7f32, #a0522d);
+  opacity: 1;
+}
+
+/* Número de posición */
+.rank-pos {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.4rem;
+  min-width: 2rem;
+  text-align: center;
+  color: var(--text-muted);
+  line-height: 1;
+}
+.rank-card.pos-1 .rank-pos { color: var(--amarillo); text-shadow: 0 0 12px var(--amarillo-glow); }
+.rank-card.pos-2 .rank-pos { color: #94a3b8; }
+.rank-card.pos-3 .rank-pos { color: #cd7f32; }
+
+/* Imagen canción */
+.rank-img-wrap {
+  width: 58px;
+  height: 58px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  position: relative;
+}
+.rank-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s var(--ease);
+}
+.rank-card:hover .rank-img-wrap img { transform: scale(1.1); }
+.rank-img-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--rosa-glow), var(--violeta-glow));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+}
+
+/* Info de canción */
+.rank-info {
+  flex: 1;
+  min-width: 0;
+}
+.rank-info .song-name {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 0.15rem;
+}
+.rank-info .song-artist {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Puntajes */
+.rank-scores {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+.rank-total {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.5rem;
+  color: var(--text);
+  line-height: 1;
+}
+.rank-total small {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-left: 2px;
+}
+.rank-persona-scores {
+  display: flex;
+  gap: 0.4rem;
+}
+.rank-persona-scores .ps {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 99px;
+}
+.rank-persona-scores .ps.p1 {
+  background: rgba(244, 114, 182, 0.12);
+  color: var(--rosa);
+  border: 1px solid var(--rosa-glow);
+}
+.rank-persona-scores .ps.p2 {
+  background: rgba(34, 211, 238, 0.12);
+  color: var(--cyan);
+  border: 1px solid var(--cyan-glow);
+}
+
+/* Barra de progreso */
+.rank-bar-wrap {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--border);
+}
+.rank-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--rosa), var(--violeta), var(--cyan));
+  border-radius: 99px;
+  transition: width 1s var(--ease-out);
+}
+
+/* ── Estado vacío ────────────────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-muted);
+}
+.empty-state .empty-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+.empty-state h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: var(--text-soft);
+  margin-bottom: 0.5rem;
+}
+.empty-state p { font-size: 0.875rem; }
+
+/* ── Tabs de filtro ──────────────────────────────────────────── */
+.tabs {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+.tab-btn {
+  padding: 0.5rem 1.2rem;
+  border-radius: 99px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.82rem;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  color: var(--text-soft);
+  transition: all 0.2s var(--ease);
+  cursor: pointer;
+}
+.tab-btn:hover { border-color: var(--rosa); color: var(--rosa); }
+.tab-btn.active {
+  background: linear-gradient(135deg, var(--rosa), var(--violeta));
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 4px 16px var(--rosa-glow);
+}
