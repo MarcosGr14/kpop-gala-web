@@ -162,6 +162,7 @@ const ARTISTAS = [
   { id: 'sf2', nombre: 'Chuu', categoria: 'solista_f', img: 'assets/artistas/Chuu.jpg' },
   { id: 'sf3', nombre: 'Yena', categoria: 'solista_f', img: 'assets/artistas/Yena.jpg' },
   { id: 'sf4', nombre: 'Milli', categoria: 'solista_f', img: 'assets/artistas/Milli.jpg' },
+  { id: 'sf5', nombre: 'Jihyo', categoria: 'solista_f', img: 'assets/artistas/Jihyo.jpg' },
   
 
   // Boy Groups
@@ -240,7 +241,8 @@ const ALBUMES = [
   { id: 8, nombre: "MY FIRST KICK", artista: "KICKFLIP", img: "assets/albumes/KICKFLIP.jpg" },
   { id: 9, nombre: "WE ON FIRE", artista: "ANDTEAM", img: "assets/albumes/ANDTEAM.jpg" },
   { id: 10, nombre: "4SHO 4SHO VILLE", artista: "JAY PARK", img: "assets/albumes/JAYPARK.png" },
-  { id: 11, nombre: "NEW WAV", artista: "TREASURE", img: "assets/albumes/TREASURE.jpg" }
+  { id: 11, nombre: "NEW WAV", artista: "TREASURE", img: "assets/albumes/TREASURE.jpg" },
+  { id: 12, nombre: "LEMONADE", artista: "AESPA", img: "assets/albumes/LEMON.jpg" }
 ];
 
 const STORAGE_ALBUMES_KEY = "kpop_gala_albumes_registros";
@@ -272,6 +274,64 @@ function calcularRankingAlbumes() {
     mapa[r.albumId].puntajeTotal += pts;
     if (r.personaId === "p1") { mapa[r.albumId].p1 += pts; mapa[r.albumId].entradasP1++; }
     if (r.personaId === "p2") { mapa[r.albumId].p2 += pts; mapa[r.albumId].entradasP2++; }
+  });
+
+  return Object.values(mapa).sort((a, b) => b.puntajeTotal - a.puntajeTotal);
+}
+
+// ── BASE DE DATOS DE B-SIDES ────────────────────────────────
+const BSIDES = [
+  // Pon aquí tus B-Sides reales, esto es un ejemplo:
+  { id: 'bs1', nombre: "Basics", artista: "TWICE", img: "assets/canciones/twice.jpg" },
+  { id: 'bs2', nombre: "Blue Flame", artista: "LE SSERAFIM", img: "assets/canciones/lesserafim.jpg" }
+];
+
+const STORAGE_BSIDES_KEY = "kpop_gala_bsides_registros";
+
+function cargarRegistrosBsides() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_BSIDES_KEY)) || []; } 
+  catch { return []; }
+}
+
+function guardarRegistrosBsides(registros) {
+  localStorage.setItem(STORAGE_BSIDES_KEY, JSON.stringify(registros));
+}
+
+// ── BASE DE DATOS DE B-SIDES ────────────────────────────────
+const BSIDES = [
+  // Pon aquí tus B-Sides reales, esto es un ejemplo:
+  { id: 'bs1', nombre: "Basics", artista: "TWICE", img: "assets/canciones/twice.jpg" },
+  { id: 'bs2', nombre: "Blue Flame", artista: "LE SSERAFIM", img: "assets/canciones/lesserafim.jpg" }
+];
+
+const STORAGE_BSIDES_KEY = "kpop_gala_bsides_registros";
+
+function cargarRegistrosBsides() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_BSIDES_KEY)) || []; } 
+  catch { return []; }
+}
+
+function guardarRegistrosBsides(registros) {
+  localStorage.setItem(STORAGE_BSIDES_KEY, JSON.stringify(registros));
+}
+
+// ── Obtener puntaje acumulado por B-Side ──
+function calcularRankingBsides() {
+  const registros = cargarRegistrosBsides();
+  const mapa = {};
+
+  BSIDES.forEach(b => {
+    mapa[b.id] = { bside: b, puntajeTotal: 0, p1: 0, p2: 0, entradasP1: 0, entradasP2: 0 };
+  });
+
+  registros.forEach(r => {
+    if (!mapa[r.bsideId]) return;
+    // Usa la MISMA función de cálculo que las canciones y álbumes
+    const pts = calcularPuntajeEntrada(r.posSpotify, r.posInstafest, r.reproducciones);
+    
+    mapa[r.bsideId].puntajeTotal += pts;
+    if (r.personaId === "p1") { mapa[r.bsideId].p1 += pts; mapa[r.bsideId].entradasP1++; }
+    if (r.personaId === "p2") { mapa[r.bsideId].p2 += pts; mapa[r.bsideId].entradasP2++; }
   });
 
   return Object.values(mapa).sort((a, b) => b.puntajeTotal - a.puntajeTotal);

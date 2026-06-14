@@ -6,6 +6,7 @@
 let editandoCancionId = null, personaEditando = null;
 let editandoAlbumId = null, personaEditandoAlbum = null;
 let editandoArtistaId = null, personaEditandoArtista = null;
+let editandoBsideId = null, personaEditandoBside = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   const semanaSelect = document.getElementById("semana-global");
@@ -17,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderHistorial();
     renderHistorialAlbumes();
     renderHistorialArtistas();
+    renderHistorialBsides();
   });
   actualizarChipSemana();
 
@@ -61,6 +63,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const formArt = document.getElementById(`form-artista-${pid}`);
     if (formArt) formArt.addEventListener("submit", (e) => { e.preventDefault(); guardarEntradaArtista(pid); });
   });
+
+  // Poblar B-Sides
+    const selBside = document.getElementById(`bside-${pid}`);
+    if (selBside) BSIDES.forEach(b => { const opt = document.createElement("option"); opt.value = b.id; opt.textContent = `${b.nombre} — ${b.artista}`; selBside.appendChild(opt); });
+
+    // Preview B-sides
+    ["bside", "pos-spotify-bside", "pos-instafest-bside", "reproducciones-bside"].forEach(c => {
+      const el = document.getElementById(`${c}-${pid}`); if (el) el.addEventListener("input", () => actualizarPreviewBside(pid));
+    });
+
+    // Submit B-Sides
+    const formBside = document.getElementById(`form-bside-${pid}`);
+    if (formBside) formBside.addEventListener("submit", (e) => { e.preventDefault(); guardarEntradaBside(pid); });
 
   renderHistorial();
   renderHistorialAlbumes();
@@ -254,3 +269,75 @@ function mostrarToast(msg, tipo = "success") {
   container.appendChild(toast);
   setTimeout(() => { toast.style.opacity = "0"; toast.style.transform = "translateY(20px)"; setTimeout(() => toast.remove(), 300); }, 4000);
 }
+
+// ── ACTUALIZAR PREVIEW B-SIDES ──
+function actualizarPreviewBside(pid) {
+  const preview = document.getElementById(`pts-preview-bside-${pid}`);
+  if (preview) {
+    preview.textContent = calcularPuntajeEntrada(
+      parseInt(document.getElementById(`pos-spotify-bside-${pid}`).value)||0, 
+      parseInt(document.getElementById(`pos-instafest-bside-${pid}`).value)||0, 
+      parseInt(document.getElementById(`reproducciones-bside-${pid}`).value)||0
+    );
+  }
+}
+
+// ── GUARDAR B-SIDES ──
+function guardarEntradaBside(pid) {
+  const semanaId = document.getElementById("semana-global").value;
+  const bsideId = document.getElementById(`bside-${pid}`).value;
+  const pS = parseInt(document.getElementById(`pos-spotify-bside-${pid}`).value)||0;
+  const pI = parseInt(document.getElementById(`pos-instafest-bside-${pid}`).value)||0; 
+  const rep = parseInt(document.getElementById(`reproducciones-bside-${pid}`).value)||0;
+  
+  if (!semanaId || !bsideId) return;
+
+  const bsideActual = BSIDES.find(b => b.id === bsideId);
+  const registros = cargarRegistrosBsides();
+
+  const chequearDups = (ignorarId) => {
+    if (registros.find(r => r.semanaId === semanaId && r.personaId === pid && r.bsideId === bsideId && r.id !== ignorarId)) return `❌ Ya registraste este B-Side.`;
+    if (registros.find(r => r.semanaId === semanaId && r.personaId === pid && r.id !== ignorarId && BSIDES.find(x => x.id === r.bsideId)?.artista === bsideActual.artista)) return `❌ Ya registraste un B-Side de ${bsideActual.artista}.`;
+    return null;
+  };
+
+  if (editandoBsideId && personaEditandoBside === pid) {
+    const error = chequearDups(editandoBsideId); if (error) { mostrarToast(error, "error"); return; }
+    const idx = registros.findIndex(r => r.id === editandoBsideId);
+    if (idx !== -1) { registros[idx] = { ...registros[idx], bsideId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep) }; }
+    guardarRegistrosBsides(registros); mostrarToast("🎧 B-Side actualizado", "success");
+    editandoBsideId = null; document.querySelector(`#form-bside-${pid} button[type="submit"]`).innerHTML = "🎧 Guardar B-Side";
+  } else {
+    const error = chequearDups(null); if (error) { mostrarToast(error, "error"); return; }
+    registros.push({ id: `bs_${Date.now()}`, semanaId, personaId: pid, bsideId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep), timestamp: Date.now() });
+    guardarRegistrosBsides(registros); mostrarToast("🎧 B-Side guardado", "success");
+  }
+  document.getElementById(`form-bside-${pid}`).reset(); actualizarPreviewBside(pid); renderHistorialBsides();
+}
+
+// ── CARGAR EDICIÓN B-SIDES ──
+function cargarEdicionBside(id) {
+  const r = cargarRegistrosBsides().find(x => x.id === id); if (!r) return;
+  editandoBsideId = id; personaEditandoBside = r.personaId;
+  document.getElementById(`bside-${r.personaId}`).value = r.bsideId;
+  document.getElementById(`pos-spotify-bside-${r.personaId}`).value = r.posSpotify || 0;
+  document.getElementById(`pos-instafest-bside-${r.personaId}`).value = r.posInstafest || 0;
+  document.getElementById(`reproducciones-bside-${r.personaId}`).value = r.reproducciones || 0;
+  actualizarPreviewBside(r.personaId); document.querySelector(`#form-bside-${r.personaId} button[type="submit"]`).innerHTML = "✏️ Actualizar"; window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── RENDERIZAR HISTORIAL B-SIDES ──
+function renderHistorialBsides() {
+  const registros = cargarRegistrosBsides().filter(r => r.semanaId === document.getElementById("semana-global").value).sort((a,b) => b.puntaje - a.puntaje);
+  const container = document.getElementById("historial-bsides-list"); if (!container) return;
+  container.innerHTML = registros.length ? "" : "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Vacío</p>";
+  registros.forEach(r => {
+    const b = BSIDES.find(x => x.id === r.bsideId); if (!b) return;
+    const div = document.createElement("div"); div.className = `historial-item ${r.personaId === "p2" ? "p2-item" : ""}`;
+    div.innerHTML = `<div style="font-size:0.75rem; color:var(--text-muted);">🟢${r.posSpotify||0}<br>🎪${r.posInstafest||0}</div><span class="${r.personaId==="p2"?"badge-p2":"badge-p1"}">${r.personaId.toUpperCase()}</span><span class="hi-name">🎧 ${b.nombre}<br><span style="font-size:0.7rem;color:var(--text-muted);">${b.artista}</span></span><span class="hi-rep">▶ ${r.reproducciones||0}x</span><span class="hi-pts">+${r.puntaje} pts</span><div class="historial-actions"><button class="btn-edit" onclick="cargarEdicionBside('${r.id}')">✏️</button><button class="btn-delete" onclick="eliminarRegistroBside('${r.id}')">✕</button></div>`;
+    container.appendChild(div);
+  });
+}
+
+// ── ELIMINAR B-SIDE ──
+function eliminarRegistroBside(id) { if(confirm("¿Eliminar B-Side?")) { guardarRegistrosBsides(cargarRegistrosBsides().filter(r => r.id !== id)); renderHistorialBsides(); } }
