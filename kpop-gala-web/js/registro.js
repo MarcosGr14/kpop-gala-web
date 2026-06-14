@@ -209,13 +209,14 @@ function guardarEntradaBside(pid) {
   
   if (!semanaId || !bsideId) return;
 
-  const bsideActual = BSIDES.find(b => b.id === bsideId);
   const registros = cargarRegistrosBsides();
 
   const chequearDups = (ignorarId) => {
+    // AHORA SOLO BLOQUEA SI INTENTAS METER LA MISMA CANCIÓN EXACTA.
+    // Ya no importa si el grupo (artista) se repite.
     if (registros.find(r => r.semanaId === semanaId && r.personaId === pid && r.bsideId === bsideId && r.id !== ignorarId)) return `❌ Ya registraste este B-Side.`;
-    if (registros.find(r => r.semanaId === semanaId && r.personaId === pid && r.id !== ignorarId && BSIDES.find(x => x.id === r.bsideId)?.artista === bsideActual.artista)) return `❌ Ya registraste un B-Side de ${bsideActual.artista}.`;
-    return null;
+    
+    return null; // Todo bien, permite guardar
   };
 
   if (editandoBsideId && personaEditandoBside === pid) {

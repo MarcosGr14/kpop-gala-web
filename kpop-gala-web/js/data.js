@@ -263,8 +263,23 @@ function calcularRankingAlbumes() {
 // ── BASE DE DATOS DE B-SIDES ────────────────────────────────
 const BSIDES = [
   // Pon aquí tus B-Sides reales, esto es un ejemplo:
-  { id: 'bs1', nombre: "Basics", artista: "TWICE", img: "assets/canciones/twice.jpg" },
-  { id: 'bs2', nombre: "Blue Flame", artista: "LE SSERAFIM", img: "assets/canciones/lesserafim.jpg" }
+  { id: 'bs1', nombre: "Zoom Zoom", artista: "Treasure", img: "assets/canciones/TREASURE.jpg" },
+  { id: 'bs2', nombre: "Nally Na", artista: "Treasure", img: "assets/canciones/TREASURE.jpg" },
+  { id: 'bs3', nombre: "Danger", artista: "Treasure", img: "assets/canciones/TREASURE.jpg" },
+  { id: 'bs4', nombre: "4SHO 4SHO", artista: "Jay Park & Lngshot", img: "assets/canciones/JAYPARK.png" },
+  { id: 'bs5', nombre: "Moya", artista: "Jay Park & Lngshot", img: "assets/canciones/JAYPARK.png" },
+  { id: 'bs6', nombre: "Saucin", artista: "Lngshot", img: "assets/canciones/LNGSHOT.jpg" },
+  { id: 'bs7', nombre: "Never let go", artista: "Lngshot", img: "assets/canciones/LNGSHOT.jpg" },
+  { id: 'bs8', nombre: "Facetime", artista: "Lngshot", img: "assets/canciones/LNGSHOT.jpg" },
+  { id: 'bs9', nombre: "2.0", artista: "BTS", img: "assets/canciones/BTS.jpg" },
+  { id: 'bs10', nombre: "Normal", artista: "BTS", img: "assets/canciones/BTS.jpg" },
+  { id: 'bs11', nombre: "One More Night", artista: "BTS", img: "assets/canciones/BTS.jpg" },
+  { id: 'bs12', nombre: "Like Animals", artista: "BTS", img: "assets/canciones/BTS.jpg" },
+  { id: 'bs13', nombre: "Camouflage", artista: "Aespa", img: "assets/canciones/AESPA.jpg" },
+  { id: 'bs14', nombre: "Take my Breath", artista: "XG", img: "assets/canciones/XG.jpg" },
+  { id: 'bs15', nombre: "Adore U", artista: "NMIXX", img: "assets/canciones/NMIXX.jpg" },
+  { id: 'bs16', nombre: "Spinning Out", artista: "NMIXX", img: "assets/canciones/NMIXX.jpg" },
+
 ];
 
 const STORAGE_BSIDES_KEY = "kpop_gala_bsides_registros";
