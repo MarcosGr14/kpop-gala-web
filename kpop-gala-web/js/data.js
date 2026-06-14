@@ -32,7 +32,6 @@ const PERSONAS = [
 ];
 
 // ── Semanas: Junio 1 → primera semana de Diciembre 2025 ───────
-// Formato: { id, label, inicio (Date) }
 function generarSemanas() {
   const semanas = [];
   const inicio = new Date(2025, 5, 2); // Lunes 2 de Junio 2025
@@ -57,7 +56,7 @@ function generarSemanas() {
 
     actual.setDate(actual.getDate() + 7);
     num++;
-    if (num > 27) break; // máx ~27 semanas
+    if (num > 27) break; 
   }
   return semanas;
 }
@@ -65,7 +64,6 @@ const SEMANAS = generarSemanas();
 
 // ── Puntaje total de una entrada (ACTUALIZADO) ───────────────
 function calcularPuntajeEntrada(posSpotify, posInstafest, reproducciones) {
-  // Soporte para registros viejos que solo tenían un campo "posicion"
   if (reproducciones === undefined) {
     let viejaPos = posSpotify;
     let viejaRep = posInstafest;
@@ -73,10 +71,9 @@ function calcularPuntajeEntrada(posSpotify, posInstafest, reproducciones) {
     return pts + Math.min(Number(viejaRep) || 0, 200);
   }
 
-  // Nueva lógica: Puntos por Spotify + Puntos por Instafest + Reproducciones
   let ptsSpot = posSpotify >= 1 && posSpotify <= 15 ? (16 - posSpotify) : 0;
   let ptsInsta = posInstafest >= 1 && posInstafest <= 15 ? (16 - posInstafest) : 0;
-  let pRep = Math.min(Number(reproducciones) || 0, 200); // Límite de 200 reps
+  let pRep = Math.min(Number(reproducciones) || 0, 200); 
   
   return ptsSpot + ptsInsta + pRep;
 }
@@ -96,33 +93,23 @@ function guardarRegistros(registros) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(registros));
 }
 
-// ── Obtener puntaje acumulado por canción (ACTUALIZADO) ───────
+// ── Obtener puntaje acumulado por canción ───────
 function calcularRanking() {
   const registros = cargarRegistros();
   const mapa = {};
 
   CANCIONES.forEach(c => {
-    mapa[c.id] = {
-      cancion: c,
-      puntajeTotal: 0,
-      p1: 0,
-      p2: 0,
-      entradasP1: 0,
-      entradasP2: 0,
-    };
+    mapa[c.id] = { cancion: c, puntajeTotal: 0, p1: 0, p2: 0, entradasP1: 0, entradasP2: 0 };
   });
 
   registros.forEach(r => {
     if (!mapa[r.cancionId]) return;
-    
-    // Si tiene campos nuevos usa la nueva lógica, sino la vieja
     let pts = 0;
     if (r.posSpotify !== undefined) {
       pts = calcularPuntajeEntrada(r.posSpotify, r.posInstafest, r.reproducciones);
     } else {
       pts = calcularPuntajeEntrada(r.posicion, r.reproducciones);
     }
-    
     mapa[r.cancionId].puntajeTotal += pts;
     if (r.personaId === "p1") { mapa[r.cancionId].p1 += pts; mapa[r.cancionId].entradasP1++; }
     if (r.personaId === "p2") { mapa[r.cancionId].p2 += pts; mapa[r.cancionId].entradasP2++; }
@@ -131,7 +118,6 @@ function calcularRanking() {
   return Object.values(mapa).sort((a, b) => b.puntajeTotal - a.puntajeTotal);
 }
 
-// ── Buscar canción por id ─────────────────────────────────────
 function cancionPorId(id) {
   return CANCIONES.find(c => c.id === Number(id));
 }
@@ -156,7 +142,6 @@ const ARTISTAS = [
   { id: 'sm6', nombre: 'Haon', categoria: 'solista_m', img: 'assets/artistas/Haon.jpg' },
   { id: 'sm7', nombre: 'Loco', categoria: 'solista_m', img: 'assets/artistas/Loco.jpg' },
   
-
   // Solistas Femeninos
   { id: 'sf1', nombre: 'Yves', categoria: 'solista_f', img: 'assets/artistas/Yves.jpg' },
   { id: 'sf2', nombre: 'Chuu', categoria: 'solista_f', img: 'assets/artistas/Chuu.jpg' },
@@ -164,7 +149,6 @@ const ARTISTAS = [
   { id: 'sf4', nombre: 'Milli', categoria: 'solista_f', img: 'assets/artistas/Milli.jpg' },
   { id: 'sf5', nombre: 'Jihyo', categoria: 'solista_f', img: 'assets/artistas/Jihyo.jpg' },
   
-
   // Boy Groups
   { id: 'bg1', nombre: 'Stray Kids', categoria: 'boy_group', img: 'assets/artistas/skz.jpg' },
   { id: 'bg2', nombre: 'BTS', categoria: 'boy_group', img: 'assets/artistas/bts.jpg' },
@@ -180,9 +164,7 @@ const ARTISTAS = [
   { id: 'bg12', nombre: 'CRAVITY', categoria: 'boy_group', img: 'assets/artistas/cravity.jpg' },
   { id: 'bg13', nombre: 'XDINARY HEROES', categoria: 'boy_group', img: 'assets/artistas/xdh.jpg' },
 
-
   // Girl Groups
-  
   { id: 'gg1', nombre: 'TWICE', categoria: 'girl_group', img: 'assets/artistas/twice.jpg' },
   { id: 'gg2', nombre: 'LE SSERAFIM', categoria: 'girl_group', img: 'assets/artistas/lesserafim.jpg' },
   { id: 'gg3', nombre: 'KIIIKIII', categoria: 'girl_group', img: 'assets/artistas/kk.jpg' },
@@ -196,6 +178,7 @@ const ARTISTAS = [
   { id: 'gg11', nombre: 'NIZIU', categoria: 'girl_group', img: 'assets/artistas/niziu.jpg' },
   { id: 'gg12', nombre: 'BABYMONSTER', categoria: 'girl_group', img: 'assets/artistas/bm.jpg' },
 ];
+
 const STORAGE_ARTISTAS_KEY = "kpop_gala_artistas_registros";
 
 function cargarRegistrosArtistas() {
@@ -207,7 +190,6 @@ function guardarRegistrosArtistas(registros) {
   localStorage.setItem(STORAGE_ARTISTAS_KEY, JSON.stringify(registros));
 }
 
-// ── Obtener puntaje acumulado por artista (ACTUALIZADO PARA P1 Y P2) ──
 function calcularRankingArtistas(categoria) {
   const registros = cargarRegistrosArtistas();
   const mapa = {};
@@ -219,7 +201,6 @@ function calcularRankingArtistas(categoria) {
   registros.forEach(r => {
     if (mapa[r.artistaId]) {
       mapa[r.artistaId].puntajeTotal += r.puntaje;
-      // Compatibilidad con registros viejos que no tenían personaId (se asignan a P1 por defecto)
       const persona = r.personaId || "p1";
       if (persona === "p1") { mapa[r.artistaId].p1 += r.puntaje; mapa[r.artistaId].entradasP1++; }
       if (persona === "p2") { mapa[r.artistaId].p2 += r.puntaje; mapa[r.artistaId].entradasP2++; }
@@ -297,25 +278,6 @@ function guardarRegistrosBsides(registros) {
   localStorage.setItem(STORAGE_BSIDES_KEY, JSON.stringify(registros));
 }
 
-// ── BASE DE DATOS DE B-SIDES ────────────────────────────────
-const BSIDES = [
-  // Pon aquí tus B-Sides reales, esto es un ejemplo:
-  { id: 'bs1', nombre: "Basics", artista: "TWICE", img: "assets/canciones/twice.jpg" },
-  { id: 'bs2', nombre: "Blue Flame", artista: "LE SSERAFIM", img: "assets/canciones/lesserafim.jpg" }
-];
-
-const STORAGE_BSIDES_KEY = "kpop_gala_bsides_registros";
-
-function cargarRegistrosBsides() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_BSIDES_KEY)) || []; } 
-  catch { return []; }
-}
-
-function guardarRegistrosBsides(registros) {
-  localStorage.setItem(STORAGE_BSIDES_KEY, JSON.stringify(registros));
-}
-
-// ── Obtener puntaje acumulado por B-Side ──
 function calcularRankingBsides() {
   const registros = cargarRegistrosBsides();
   const mapa = {};
@@ -326,7 +288,6 @@ function calcularRankingBsides() {
 
   registros.forEach(r => {
     if (!mapa[r.bsideId]) return;
-    // Usa la MISMA función de cálculo que las canciones y álbumes
     const pts = calcularPuntajeEntrada(r.posSpotify, r.posInstafest, r.reproducciones);
     
     mapa[r.bsideId].puntajeTotal += pts;

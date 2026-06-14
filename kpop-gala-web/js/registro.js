@@ -1,6 +1,6 @@
 // ============================================================
 //  KPOP GALA — REGISTRO.JS
-//  Lógica de Canciones, Álbumes y Artistas (Unificada con P1 y P2)
+//  Lógica de Canciones, Álbumes, Artistas y B-Sides (Unificada con P1 y P2)
 // ============================================================
 
 let editandoCancionId = null, personaEditando = null;
@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   actualizarChipSemana();
 
-  // ── INICIALIZAR P1 Y P2 (CANCIONES, ÁLBUMES Y ARTISTAS) ──
+  // ── INICIALIZAR P1 Y P2 (CANCIONES, ÁLBUMES, ARTISTAS Y B-SIDES) ──
   ["p1", "p2"].forEach(pid => {
     // Poblar Canciones
     const selCancion = document.getElementById(`cancion-${pid}`);
@@ -42,6 +42,10 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     if (catSelect && artSelect) { catSelect.addEventListener("change", poblarArt); poblarArt(); }
 
+    // Poblar B-Sides
+    const selBside = document.getElementById(`bside-${pid}`);
+    if (selBside) BSIDES.forEach(b => { const opt = document.createElement("option"); opt.value = b.id; opt.textContent = `${b.nombre} — ${b.artista}`; selBside.appendChild(opt); });
+
     // Previews (Cálculo automático de puntos)
     ["cancion", "pos-spotify", "pos-instafest", "reproducciones"].forEach(c => {
       const el = document.getElementById(`${c}-${pid}`); if (el) el.addEventListener("input", () => actualizarPreview(pid));
@@ -51,6 +55,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     ["pos-spotify-artista", "pos-instafest-artista"].forEach(c => {
       const el = document.getElementById(`${c}-${pid}`); if (el) el.addEventListener("input", () => actualizarPreviewArtista(pid));
+    });
+    ["bside", "pos-spotify-bside", "pos-instafest-bside", "reproducciones-bside"].forEach(c => {
+      const el = document.getElementById(`${c}-${pid}`); if (el) el.addEventListener("input", () => actualizarPreviewBside(pid));
     });
 
     // Submits
@@ -62,24 +69,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const formArt = document.getElementById(`form-artista-${pid}`);
     if (formArt) formArt.addEventListener("submit", (e) => { e.preventDefault(); guardarEntradaArtista(pid); });
-  });
 
-  // Poblar B-Sides
-    const selBside = document.getElementById(`bside-${pid}`);
-    if (selBside) BSIDES.forEach(b => { const opt = document.createElement("option"); opt.value = b.id; opt.textContent = `${b.nombre} — ${b.artista}`; selBside.appendChild(opt); });
-
-    // Preview B-sides
-    ["bside", "pos-spotify-bside", "pos-instafest-bside", "reproducciones-bside"].forEach(c => {
-      const el = document.getElementById(`${c}-${pid}`); if (el) el.addEventListener("input", () => actualizarPreviewBside(pid));
-    });
-
-    // Submit B-Sides
     const formBside = document.getElementById(`form-bside-${pid}`);
     if (formBside) formBside.addEventListener("submit", (e) => { e.preventDefault(); guardarEntradaBside(pid); });
+  });
 
   renderHistorial();
   renderHistorialAlbumes();
   renderHistorialArtistas();
+  renderHistorialBsides();
 });
 
 function actualizarChipSemana() {
@@ -99,10 +97,19 @@ function actualizarPreviewAlbum(pid) {
   );
 }
 function actualizarPreviewArtista(pid) {
-  // Para artistas usamos la misma regla: pos 1=15, pero sin reproducciones.
   document.getElementById(`pts-preview-artista-${pid}`).textContent = calcularPuntajeEntrada(
     parseInt(document.getElementById(`pos-spotify-artista-${pid}`).value)||0, parseInt(document.getElementById(`pos-instafest-artista-${pid}`).value)||0, 0
   );
+}
+function actualizarPreviewBside(pid) {
+  const preview = document.getElementById(`pts-preview-bside-${pid}`);
+  if (preview) {
+    preview.textContent = calcularPuntajeEntrada(
+      parseInt(document.getElementById(`pos-spotify-bside-${pid}`).value)||0, 
+      parseInt(document.getElementById(`pos-instafest-bside-${pid}`).value)||0, 
+      parseInt(document.getElementById(`reproducciones-bside-${pid}`).value)||0
+    );
+  }
 }
 
 // ── GUARDAR CANCIONES ──
@@ -192,6 +199,39 @@ function guardarEntradaArtista(pid) {
   document.getElementById(`form-artista-${pid}`).reset(); actualizarPreviewArtista(pid); renderHistorialArtistas();
 }
 
+// ── GUARDAR B-SIDES ──
+function guardarEntradaBside(pid) {
+  const semanaId = document.getElementById("semana-global").value;
+  const bsideId = document.getElementById(`bside-${pid}`).value;
+  const pS = parseInt(document.getElementById(`pos-spotify-bside-${pid}`).value)||0;
+  const pI = parseInt(document.getElementById(`pos-instafest-bside-${pid}`).value)||0; 
+  const rep = parseInt(document.getElementById(`reproducciones-bside-${pid}`).value)||0;
+  
+  if (!semanaId || !bsideId) return;
+
+  const bsideActual = BSIDES.find(b => b.id === bsideId);
+  const registros = cargarRegistrosBsides();
+
+  const chequearDups = (ignorarId) => {
+    if (registros.find(r => r.semanaId === semanaId && r.personaId === pid && r.bsideId === bsideId && r.id !== ignorarId)) return `❌ Ya registraste este B-Side.`;
+    if (registros.find(r => r.semanaId === semanaId && r.personaId === pid && r.id !== ignorarId && BSIDES.find(x => x.id === r.bsideId)?.artista === bsideActual.artista)) return `❌ Ya registraste un B-Side de ${bsideActual.artista}.`;
+    return null;
+  };
+
+  if (editandoBsideId && personaEditandoBside === pid) {
+    const error = chequearDups(editandoBsideId); if (error) { mostrarToast(error, "error"); return; }
+    const idx = registros.findIndex(r => r.id === editandoBsideId);
+    if (idx !== -1) { registros[idx] = { ...registros[idx], bsideId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep) }; }
+    guardarRegistrosBsides(registros); mostrarToast("🎧 B-Side actualizado", "success");
+    editandoBsideId = null; document.querySelector(`#form-bside-${pid} button[type="submit"]`).innerHTML = "🎧 Guardar B-Side";
+  } else {
+    const error = chequearDups(null); if (error) { mostrarToast(error, "error"); return; }
+    registros.push({ id: `bs_${Date.now()}`, semanaId, personaId: pid, bsideId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep), timestamp: Date.now() });
+    guardarRegistrosBsides(registros); mostrarToast("🎧 B-Side guardado", "success");
+  }
+  document.getElementById(`form-bside-${pid}`).reset(); actualizarPreviewBside(pid); renderHistorialBsides();
+}
+
 // ── CARGAR EDICIONES ──
 function cargarEdicion(id) {
   const r = cargarRegistros().find(x => x.id === id); if (!r) return;
@@ -220,6 +260,15 @@ function cargarEdicionArtista(id) {
   document.getElementById(`pos-instafest-artista-${personaEditandoArtista}`).value = r.posInstafest || 0; 
   actualizarPreviewArtista(personaEditandoArtista); 
   document.querySelector(`#form-artista-${personaEditandoArtista} button[type='submit']`).innerHTML = "✏️ Actualizar"; window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function cargarEdicionBside(id) {
+  const r = cargarRegistrosBsides().find(x => x.id === id); if (!r) return;
+  editandoBsideId = id; personaEditandoBside = r.personaId;
+  document.getElementById(`bside-${r.personaId}`).value = r.bsideId;
+  document.getElementById(`pos-spotify-bside-${r.personaId}`).value = r.posSpotify || 0;
+  document.getElementById(`pos-instafest-bside-${r.personaId}`).value = r.posInstafest || 0;
+  document.getElementById(`reproducciones-bside-${r.personaId}`).value = r.reproducciones || 0;
+  actualizarPreviewBside(r.personaId); document.querySelector(`#form-bside-${r.personaId} button[type="submit"]`).innerHTML = "✏️ Actualizar"; window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ── RENDERIZAR HISTORIALES ──
@@ -257,76 +306,6 @@ function renderHistorialArtistas() {
     container.appendChild(div);
   });
 }
-
-// ── ELIMINAR ──
-function eliminarRegistro(id) { if(confirm("¿Eliminar?")) { guardarRegistros(cargarRegistros().filter(r => r.id !== id)); renderHistorial(); } }
-function eliminarRegistroAlbum(id) { if(confirm("¿Eliminar álbum?")) { guardarRegistrosAlbumes(cargarRegistrosAlbumes().filter(r => r.id !== id)); renderHistorialAlbumes(); } }
-function eliminarRegistroArtista(id) { if(confirm("¿Eliminar artista?")) { guardarRegistrosArtistas(cargarRegistrosArtistas().filter(r => r.id !== id)); renderHistorialArtistas(); } }
-
-function mostrarToast(msg, tipo = "success") {
-  const container = document.getElementById("toast-container"); if (!container) return;
-  const toast = document.createElement("div"); toast.className = `toast ${tipo}`; toast.innerHTML = `<span>${tipo === "success" ? "✅" : "⚠️"}</span><span>${msg}</span>`;
-  container.appendChild(toast);
-  setTimeout(() => { toast.style.opacity = "0"; toast.style.transform = "translateY(20px)"; setTimeout(() => toast.remove(), 300); }, 4000);
-}
-
-// ── ACTUALIZAR PREVIEW B-SIDES ──
-function actualizarPreviewBside(pid) {
-  const preview = document.getElementById(`pts-preview-bside-${pid}`);
-  if (preview) {
-    preview.textContent = calcularPuntajeEntrada(
-      parseInt(document.getElementById(`pos-spotify-bside-${pid}`).value)||0, 
-      parseInt(document.getElementById(`pos-instafest-bside-${pid}`).value)||0, 
-      parseInt(document.getElementById(`reproducciones-bside-${pid}`).value)||0
-    );
-  }
-}
-
-// ── GUARDAR B-SIDES ──
-function guardarEntradaBside(pid) {
-  const semanaId = document.getElementById("semana-global").value;
-  const bsideId = document.getElementById(`bside-${pid}`).value;
-  const pS = parseInt(document.getElementById(`pos-spotify-bside-${pid}`).value)||0;
-  const pI = parseInt(document.getElementById(`pos-instafest-bside-${pid}`).value)||0; 
-  const rep = parseInt(document.getElementById(`reproducciones-bside-${pid}`).value)||0;
-  
-  if (!semanaId || !bsideId) return;
-
-  const bsideActual = BSIDES.find(b => b.id === bsideId);
-  const registros = cargarRegistrosBsides();
-
-  const chequearDups = (ignorarId) => {
-    if (registros.find(r => r.semanaId === semanaId && r.personaId === pid && r.bsideId === bsideId && r.id !== ignorarId)) return `❌ Ya registraste este B-Side.`;
-    if (registros.find(r => r.semanaId === semanaId && r.personaId === pid && r.id !== ignorarId && BSIDES.find(x => x.id === r.bsideId)?.artista === bsideActual.artista)) return `❌ Ya registraste un B-Side de ${bsideActual.artista}.`;
-    return null;
-  };
-
-  if (editandoBsideId && personaEditandoBside === pid) {
-    const error = chequearDups(editandoBsideId); if (error) { mostrarToast(error, "error"); return; }
-    const idx = registros.findIndex(r => r.id === editandoBsideId);
-    if (idx !== -1) { registros[idx] = { ...registros[idx], bsideId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep) }; }
-    guardarRegistrosBsides(registros); mostrarToast("🎧 B-Side actualizado", "success");
-    editandoBsideId = null; document.querySelector(`#form-bside-${pid} button[type="submit"]`).innerHTML = "🎧 Guardar B-Side";
-  } else {
-    const error = chequearDups(null); if (error) { mostrarToast(error, "error"); return; }
-    registros.push({ id: `bs_${Date.now()}`, semanaId, personaId: pid, bsideId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep), timestamp: Date.now() });
-    guardarRegistrosBsides(registros); mostrarToast("🎧 B-Side guardado", "success");
-  }
-  document.getElementById(`form-bside-${pid}`).reset(); actualizarPreviewBside(pid); renderHistorialBsides();
-}
-
-// ── CARGAR EDICIÓN B-SIDES ──
-function cargarEdicionBside(id) {
-  const r = cargarRegistrosBsides().find(x => x.id === id); if (!r) return;
-  editandoBsideId = id; personaEditandoBside = r.personaId;
-  document.getElementById(`bside-${r.personaId}`).value = r.bsideId;
-  document.getElementById(`pos-spotify-bside-${r.personaId}`).value = r.posSpotify || 0;
-  document.getElementById(`pos-instafest-bside-${r.personaId}`).value = r.posInstafest || 0;
-  document.getElementById(`reproducciones-bside-${r.personaId}`).value = r.reproducciones || 0;
-  actualizarPreviewBside(r.personaId); document.querySelector(`#form-bside-${r.personaId} button[type="submit"]`).innerHTML = "✏️ Actualizar"; window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// ── RENDERIZAR HISTORIAL B-SIDES ──
 function renderHistorialBsides() {
   const registros = cargarRegistrosBsides().filter(r => r.semanaId === document.getElementById("semana-global").value).sort((a,b) => b.puntaje - a.puntaje);
   const container = document.getElementById("historial-bsides-list"); if (!container) return;
@@ -339,5 +318,15 @@ function renderHistorialBsides() {
   });
 }
 
-// ── ELIMINAR B-SIDE ──
+// ── ELIMINAR ──
+function eliminarRegistro(id) { if(confirm("¿Eliminar?")) { guardarRegistros(cargarRegistros().filter(r => r.id !== id)); renderHistorial(); } }
+function eliminarRegistroAlbum(id) { if(confirm("¿Eliminar álbum?")) { guardarRegistrosAlbumes(cargarRegistrosAlbumes().filter(r => r.id !== id)); renderHistorialAlbumes(); } }
+function eliminarRegistroArtista(id) { if(confirm("¿Eliminar artista?")) { guardarRegistrosArtistas(cargarRegistrosArtistas().filter(r => r.id !== id)); renderHistorialArtistas(); } }
 function eliminarRegistroBside(id) { if(confirm("¿Eliminar B-Side?")) { guardarRegistrosBsides(cargarRegistrosBsides().filter(r => r.id !== id)); renderHistorialBsides(); } }
+
+function mostrarToast(msg, tipo = "success") {
+  const container = document.getElementById("toast-container"); if (!container) return;
+  const toast = document.createElement("div"); toast.className = `toast ${tipo}`; toast.innerHTML = `<span>${tipo === "success" ? "✅" : "⚠️"}</span><span>${msg}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => { toast.style.opacity = "0"; toast.style.transform = "translateY(20px)"; setTimeout(() => toast.remove(), 300); }, 4000);
+}
