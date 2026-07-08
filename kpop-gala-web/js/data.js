@@ -23,6 +23,12 @@ const CANCIONES = [
   { id: 17, nombre: "Yeah Yeah", artista: "JAY PARK",  img: "assets/canciones/JAYPARK.png" },
   { id: 18, nombre: "If I", artista: "TREASURE",  img: "assets/canciones/TREASURE.jpg"},
   { id: 19, nombre: "Lemonade", artista: "AESPA",  img: "assets/canciones/AESPA.jpg" },
+  { id: 20, nombre: "SSAK", artista: "Show me The Money",  img: "assets/canciones/STM.jpg"},
+  { id: 21, nombre: "LOV3", artista: "SIK-K",  img: "assets/canciones/L3.jpg" },
+  { id: 22, nombre: "Ride or Die", artista: "Evan",  img: "assets/canciones/Evan.jpg" },
+  { id: 23, nombre: "Ceremony", artista: "QWER",  img: "assets/canciones/CR.jpg" },
+  { id: 24, nombre: "Tokyo High", artista: "Jmin, SIK-K",  img: "assets/canciones/Forever.jpg" },
+  { id: 25, nombre: "Breaking Through", artista: "El Capitxan",  img: "assets/canciones/Break.jpg" },
 ];
 
 // ── Personas participantes ────────────────────────────────────
@@ -141,6 +147,10 @@ const ARTISTAS = [
   { id: 'sm5', nombre: 'Osun', categoria: 'solista_m', img: 'assets/artistas/Osun.jpg' },
   { id: 'sm6', nombre: 'Haon', categoria: 'solista_m', img: 'assets/artistas/Haon.jpg' },
   { id: 'sm7', nombre: 'Loco', categoria: 'solista_m', img: 'assets/artistas/Loco.jpg' },
+  { id: 'sm8', nombre: 'Evan', categoria: 'solista_m', img: 'assets/artistas/Ev.webp' },
+  { id: 'sm9', nombre: 'Jmin', categoria: 'solista_m', img: 'assets/artistas/jmin.webp' },
+  { id: 'sm10', nombre: 'El Capitxn', categoria: 'solista_m', img: 'assets/artistas/capi.webp' },
+
   
   // Solistas Femeninos
   { id: 'sf1', nombre: 'Yves', categoria: 'solista_f', img: 'assets/artistas/Yves.jpg' },
@@ -177,6 +187,7 @@ const ARTISTAS = [
   { id: 'gg10', nombre: 'QWER', categoria: 'girl_group', img: 'assets/artistas/qwer.jpg' },
   { id: 'gg11', nombre: 'NIZIU', categoria: 'girl_group', img: 'assets/artistas/niziu.jpg' },
   { id: 'gg12', nombre: 'BABYMONSTER', categoria: 'girl_group', img: 'assets/artistas/bm.jpg' },
+  { id: 'gg13', nombre: 'Hearts 2 Hearts', categoria: 'girl_group', img: 'assets/artistas/H2HH.jpg' },
 ];
 
 const STORAGE_ARTISTAS_KEY = "kpop_gala_artistas_registros";
@@ -223,7 +234,8 @@ const ALBUMES = [
   { id: 9, nombre: "WE ON FIRE", artista: "ANDTEAM", img: "assets/albumes/ANDTEAM.jpg" },
   { id: 10, nombre: "4SHO 4SHO VILLE", artista: "JAY PARK", img: "assets/albumes/JAYPARK.png" },
   { id: 11, nombre: "NEW WAV", artista: "TREASURE", img: "assets/albumes/TREASURE.jpg" },
-  { id: 12, nombre: "LEMONADE", artista: "AESPA", img: "assets/albumes/LEMON.jpg" }
+  { id: 12, nombre: "LEMONADE", artista: "AESPA", img: "assets/albumes/LEMON.jpg" },
+  { id: 13, nombre: "LEMONON TANG", artista: "HEARTS 2 HEARTS", img: "assets/albumes/TANG.jpg" }
 ];
 
 const STORAGE_ALBUMES_KEY = "kpop_gala_albumes_registros";
@@ -279,6 +291,7 @@ const BSIDES = [
   { id: 'bs14', nombre: "Take my Breath", artista: "XG", img: "assets/canciones/XG.jpg" },
   { id: 'bs15', nombre: "Adore U", artista: "NMIXX", img: "assets/canciones/NMIXX.jpg" },
   { id: 'bs16', nombre: "Spinning Out", artista: "NMIXX", img: "assets/canciones/NMIXX.jpg" },
+  { id: 'bs17', nombre: "Amazing", artista: "Jmin, SIK-K", img: "assets/canciones/Forever.jpg" },
 
 ];
 
