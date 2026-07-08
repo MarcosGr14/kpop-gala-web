@@ -27,7 +27,7 @@ const CANCIONES = [
   { id: 21, nombre: "LOV3", artista: "SIK-K",  img: "assets/canciones/L3.jpg" },
   { id: 22, nombre: "Ride or Die", artista: "Evan",  img: "assets/canciones/Evan.jpg" },
   { id: 23, nombre: "Ceremony", artista: "QWER",  img: "assets/canciones/CR.jpg" },
-  { id: 24, nombre: "Tokyo High", artista: "Jmin, SIK-K",  img: "assets/canciones/Forever.jpg" },
+  { id: 24, nombre: "Tokyo High", artista: "Jmin, SIK-K",  img: "assets/canciones/Forever.webp" },
   { id: 25, nombre: "Breaking Through", artista: "El Capitxan",  img: "assets/canciones/Break.jpg" },
 ];
 
@@ -149,7 +149,7 @@ const ARTISTAS = [
   { id: 'sm7', nombre: 'Loco', categoria: 'solista_m', img: 'assets/artistas/Loco.jpg' },
   { id: 'sm8', nombre: 'Evan', categoria: 'solista_m', img: 'assets/artistas/Ev.webp' },
   { id: 'sm9', nombre: 'Jmin', categoria: 'solista_m', img: 'assets/artistas/jmin.webp' },
-  { id: 'sm10', nombre: 'El Capitxn', categoria: 'solista_m', img: 'assets/artistas/capi.webp' },
+  { id: 'sm10', nombre: 'El Capitxn', categoria: 'solista_m', img: 'assets/artistas/capi.jpg' },
 
   
   // Solistas Femeninos
@@ -291,7 +291,7 @@ const BSIDES = [
   { id: 'bs14', nombre: "Take my Breath", artista: "XG", img: "assets/canciones/XG.jpg" },
   { id: 'bs15', nombre: "Adore U", artista: "NMIXX", img: "assets/canciones/NMIXX.jpg" },
   { id: 'bs16', nombre: "Spinning Out", artista: "NMIXX", img: "assets/canciones/NMIXX.jpg" },
-  { id: 'bs17', nombre: "Amazing", artista: "Jmin, SIK-K", img: "assets/canciones/Forever.jpg" },
+  { id: 'bs17', nombre: "Amazing", artista: "Jmin, SIK-K", img: "assets/canciones/Forever.webp" },
 
 ];
 
