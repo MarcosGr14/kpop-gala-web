@@ -187,7 +187,8 @@ const ARTISTAS = [
   { id: 'gg10', nombre: 'QWER', categoria: 'girl_group', img: 'assets/artistas/qwer.jpg' },
   { id: 'gg11', nombre: 'NIZIU', categoria: 'girl_group', img: 'assets/artistas/niziu.jpg' },
   { id: 'gg12', nombre: 'BABYMONSTER', categoria: 'girl_group', img: 'assets/artistas/bm.jpg' },
-  { id: 'gg13', nombre: 'Hearts 2 Hearts', categoria: 'girl_group', img: 'assets/artistas/H2HH.jpg' },
+  { id: 'gg13', nombre: 'H2H', categoria: 'girl_group', img: 'assets/artistas/H2HH.jpg' },
+  { id: 'gg14', nombre: 'YOUNG POSSE', categoria: 'girl_group', img: 'assets/artistas/YP.jpg' },
 ];
 
 const STORAGE_ARTISTAS_KEY = "kpop_gala_artistas_registros";
