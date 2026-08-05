@@ -6,29 +6,15 @@
 const CANCIONES = [
   { id: 1,  nombre: "Blue Valentine",  artista: "NMIXX",  img: "assets/canciones/NMIXX.jpg"  },
   { id: 2,  nombre: "VOYAGER",  artista: "XDINARY HEROES",  img: "assets/canciones/XDINARYHEROES.png"  },
-  { id: 3,  nombre: "One More Time",  artista: "AllDAY PROJECT",  img: "assets/canciones/ALDP.jpg"  },
-  { id: 4,  nombre: "Fame",  artista: "RIIZE",  img: "assets/canciones/RIIZE.jpg"  },
-  { id: 5,  nombre: "Do It",  artista: "STRAY KIDS",  img: "assets/canciones/STRAYKIDS.jpg"  },
   { id: 6,  nombre: "Moonwalkin",  artista: "LNGSHOT",  img: "assets/canciones/LNGSHOT.jpg"  },
-  { id: 7,  nombre: "Hypnotize",  artista: "XG",  img: "assets/canciones/XG.jpg"  },
-  { id: 8,  nombre: "New Era",  artista: "KIIIKIII",  img: "assets/canciones/KIIIKIII.jpg"  },
-  { id: 9,  nombre: "Mono",  artista: "IDLE",  img: "assets/canciones/IDLE.png"  },
-  { id: 10, nombre: "Rude", artista: "H2H",  img: "assets/canciones/H2H.png" },
-  { id: 11, nombre: "Swim", artista: "BTS",  img: "assets/canciones/BTS.jpg" },
-  { id: 12, nombre: "Eye Poppin", artista: "KICKFLIP",  img: "assets/canciones/KICKFLIP.jpg" },
-  { id: 13, nombre: "Stick With You", artista: "TXT",  img: "assets/canciones/TXT.webp" },
-  { id: 14, nombre: "We On Fire", artista: "ANDTEAM",  img: "assets/canciones/ANDTEAM.jpg"},
-  { id: 15, nombre: "RedRed", artista: "CORTIS",  img: "assets/canciones/CORTIS.jpg" },
-  { id: 16, nombre: "Awake", artista: "CRAVITY",  img: "assets/canciones/CRAVITY.png" },
-  { id: 17, nombre: "Yeah Yeah", artista: "JAY PARK",  img: "assets/canciones/JAYPARK.png" },
   { id: 18, nombre: "If I", artista: "TREASURE",  img: "assets/canciones/TREASURE.jpg"},
   { id: 19, nombre: "Lemonade", artista: "AESPA",  img: "assets/canciones/AESPA.jpg" },
-  { id: 20, nombre: "SSAK", artista: "Show me The Money",  img: "assets/canciones/STM.jpg"},
   { id: 21, nombre: "LOV3", artista: "SIK-K",  img: "assets/canciones/L3.jpg" },
   { id: 22, nombre: "Ride or Die", artista: "Evan",  img: "assets/canciones/Evan.jpg" },
   { id: 23, nombre: "Ceremony", artista: "QWER",  img: "assets/canciones/CR.jpg" },
   { id: 24, nombre: "Tokyo High", artista: "Jmin, SIK-K",  img: "assets/canciones/Forever.webp" },
   { id: 25, nombre: "Breaking Through", artista: "El Capitxan",  img: "assets/canciones/Break.jpg" },
+  { id: 26, nombre: "Back to Life", artista: "Kard",  img: "assets/canciones/Kard.jpg" },
 ];
 
 // ── Personas participantes ────────────────────────────────────
@@ -142,51 +128,35 @@ const ARTISTAS = [
   // Solistas Masculinos
   { id: 'sm1', nombre: 'Jay Park', categoria: 'solista_m', img: 'assets/artistas/Jaebeom.jpg' },
   { id: 'sm2', nombre: 'B.I', categoria: 'solista_m', img: 'assets/artistas/BI.jpg' },
-  { id: 'sm3', nombre: 'Woodz', categoria: 'solista_m', img: 'assets/artistas/Woodz.jpg' },
   { id: 'sm4', nombre: 'Sik-k', categoria: 'solista_m', img: 'assets/artistas/Sikk.jpg' },
   { id: 'sm5', nombre: 'Osun', categoria: 'solista_m', img: 'assets/artistas/Osun.jpg' },
-  { id: 'sm6', nombre: 'Haon', categoria: 'solista_m', img: 'assets/artistas/Haon.jpg' },
-  { id: 'sm7', nombre: 'Loco', categoria: 'solista_m', img: 'assets/artistas/Loco.jpg' },
   { id: 'sm8', nombre: 'Evan', categoria: 'solista_m', img: 'assets/artistas/Ev.webp' },
   { id: 'sm9', nombre: 'Jmin', categoria: 'solista_m', img: 'assets/artistas/jmin.webp' },
-  { id: 'sm10', nombre: 'El Capitxn', categoria: 'solista_m', img: 'assets/artistas/capi.jpg' },
 
   
   // Solistas Femeninos
   { id: 'sf1', nombre: 'Yves', categoria: 'solista_f', img: 'assets/artistas/Yves.jpg' },
-  { id: 'sf2', nombre: 'Chuu', categoria: 'solista_f', img: 'assets/artistas/Chuu.jpg' },
-  { id: 'sf3', nombre: 'Yena', categoria: 'solista_f', img: 'assets/artistas/Yena.jpg' },
-  { id: 'sf4', nombre: 'Milli', categoria: 'solista_f', img: 'assets/artistas/Milli.jpg' },
   { id: 'sf5', nombre: 'Jihyo', categoria: 'solista_f', img: 'assets/artistas/Jihyo.jpg' },
   
   // Boy Groups
-  { id: 'bg1', nombre: 'Stray Kids', categoria: 'boy_group', img: 'assets/artistas/skz.jpg' },
+  
   { id: 'bg2', nombre: 'BTS', categoria: 'boy_group', img: 'assets/artistas/bts.jpg' },
   { id: 'bg3', nombre: 'SEVENTEEN', categoria: 'boy_group', img: 'assets/artistas/svt.jpg' },
-  { id: 'bg4', nombre: 'TXT', categoria: 'boy_group', img: 'assets/artistas/txt.jpg' },
-  { id: 'bg5', nombre: 'ENHYPEN', categoria: 'boy_group', img: 'assets/artistas/enhypen.jpg' },
   { id: 'bg6', nombre: 'LNGSHOT', categoria: 'boy_group', img: 'assets/artistas/LNGS.jpg' },
   { id: 'bg7', nombre: 'RIIZE', categoria: 'boy_group', img: 'assets/artistas/RZZ.jpg' },
-  { id: 'bg8', nombre: 'KICKFLIP', categoria: 'boy_group', img: 'assets/artistas/KICKFLIP.jpg' },
   { id: 'bg9', nombre: 'TREASURE', categoria: 'boy_group', img: 'assets/artistas/treasure.jpg' },
-  { id: 'bg10', nombre: 'CORTIS', categoria: 'boy_group', img: 'assets/artistas/cortis.jpg' },
-  { id: 'bg11', nombre: 'ANDTEAM', categoria: 'boy_group', img: 'assets/artistas/andteam.jpg' },
-  { id: 'bg12', nombre: 'CRAVITY', categoria: 'boy_group', img: 'assets/artistas/cravity.jpg' },
   { id: 'bg13', nombre: 'XDINARY HEROES', categoria: 'boy_group', img: 'assets/artistas/xdh.jpg' },
 
   // Girl Groups
   { id: 'gg1', nombre: 'TWICE', categoria: 'girl_group', img: 'assets/artistas/twice.jpg' },
   { id: 'gg2', nombre: 'LE SSERAFIM', categoria: 'girl_group', img: 'assets/artistas/lesserafim.jpg' },
   { id: 'gg3', nombre: 'KIIIKIII', categoria: 'girl_group', img: 'assets/artistas/kk.jpg' },
-  { id: 'gg4', nombre: 'ALLDAY PROJECT', categoria: 'girl_group', img: 'assets/artistas/allday.jpg' },
   { id: 'gg5', nombre: 'AESPA', categoria: 'girl_group', img: 'assets/artistas/aespa.jpg' },
   { id: 'gg6', nombre: 'XG', categoria: 'girl_group', img: 'assets/artistas/xg.jpg' },
-  { id: 'gg7', nombre: 'I-DLE', categoria: 'girl_group', img: 'assets/artistas/idle.jpg' },
   { id: 'gg8', nombre: 'NMIXX', categoria: 'girl_group', img: 'assets/artistas/nmixx.jpg' },
   { id: 'gg9', nombre: 'Red Velvet', categoria: 'girl_group', img: 'assets/artistas/redvelvet.jpg' },
   { id: 'gg10', nombre: 'QWER', categoria: 'girl_group', img: 'assets/artistas/qwer.jpg' },
   { id: 'gg11', nombre: 'NIZIU', categoria: 'girl_group', img: 'assets/artistas/niziu.jpg' },
-  { id: 'gg12', nombre: 'BABYMONSTER', categoria: 'girl_group', img: 'assets/artistas/bm.jpg' },
   { id: 'gg13', nombre: 'H2H', categoria: 'girl_group', img: 'assets/artistas/H2HH.jpg' },
   { id: 'gg14', nombre: 'YOUNG POSSE', categoria: 'girl_group', img: 'assets/artistas/YP.jpg' },
 ];
@@ -225,18 +195,11 @@ function calcularRankingArtistas(categoria) {
 // ── BASE DE DATOS DE ÁLBUMES ────────────────────────────────
 const ALBUMES = [
   { id: 1, nombre: "BLUE VALENTINE", artista: "NMIXX", img: "assets/albumes/NMIXX.jpg" },
-  { id: 2, nombre: "LOVE TO DEATH", artista: "XDINARY HEROES", img: "assets/albumes/ALBUM2.jpg" },
-  { id: 3, nombre: "ALLDAY PROJECT", artista: "ALLDAY PROJECT", img: "assets/albumes/ALDP.jpg" },
-  { id: 4, nombre: "DO IT", artista: "STRAY KIDS", img: "assets/albumes/STRAYKIDS.jpg" },
   { id: 5, nombre: "SHOT CALLERS", artista: "LNGSHOT", img: "assets/albumes/LNGSHOT.jpg" },
-  { id: 6, nombre: "THE CORE", artista: "XG", img: "assets/albumes/XG.jpg" },
   { id: 7, nombre: "ARIRANG", artista: "ARIRANG", img: "assets/albumes/BTS.jpg" },
-  { id: 8, nombre: "MY FIRST KICK", artista: "KICKFLIP", img: "assets/albumes/KICKFLIP.jpg" },
-  { id: 9, nombre: "WE ON FIRE", artista: "ANDTEAM", img: "assets/albumes/ANDTEAM.jpg" },
   { id: 10, nombre: "4SHO 4SHO VILLE", artista: "JAY PARK", img: "assets/albumes/JAYPARK.png" },
   { id: 11, nombre: "NEW WAV", artista: "TREASURE", img: "assets/albumes/TREASURE.jpg" },
   { id: 12, nombre: "LEMONADE", artista: "AESPA", img: "assets/albumes/LEMON.jpg" },
-  { id: 13, nombre: "LEMONON TANG", artista: "HEARTS 2 HEARTS", img: "assets/albumes/TANG.jpg" }
 ];
 
 const STORAGE_ALBUMES_KEY = "kpop_gala_albumes_registros";
@@ -278,20 +241,13 @@ const BSIDES = [
   // Pon aquí tus B-Sides reales, esto es un ejemplo:
   { id: 'bs1', nombre: "Zoom Zoom", artista: "Treasure", img: "assets/canciones/TREASURE.jpg" },
   { id: 'bs2', nombre: "Nally Na", artista: "Treasure", img: "assets/canciones/TREASURE.jpg" },
-  { id: 'bs3', nombre: "Danger", artista: "Treasure", img: "assets/canciones/TREASURE.jpg" },
   { id: 'bs4', nombre: "4SHO 4SHO", artista: "Jay Park & Lngshot", img: "assets/canciones/JAYPARK.png" },
-  { id: 'bs5', nombre: "Moya", artista: "Jay Park & Lngshot", img: "assets/canciones/JAYPARK.png" },
   { id: 'bs6', nombre: "Saucin", artista: "Lngshot", img: "assets/canciones/LNGSHOT.jpg" },
   { id: 'bs7', nombre: "Never let go", artista: "Lngshot", img: "assets/canciones/LNGSHOT.jpg" },
-  { id: 'bs8', nombre: "Facetime", artista: "Lngshot", img: "assets/canciones/LNGSHOT.jpg" },
   { id: 'bs9', nombre: "2.0", artista: "BTS", img: "assets/canciones/BTS.jpg" },
-  { id: 'bs10', nombre: "Normal", artista: "BTS", img: "assets/canciones/BTS.jpg" },
   { id: 'bs11', nombre: "One More Night", artista: "BTS", img: "assets/canciones/BTS.jpg" },
   { id: 'bs12', nombre: "Like Animals", artista: "BTS", img: "assets/canciones/BTS.jpg" },
   { id: 'bs13', nombre: "Camouflage", artista: "Aespa", img: "assets/canciones/AESPA.jpg" },
-  { id: 'bs14', nombre: "Take my Breath", artista: "XG", img: "assets/canciones/XG.jpg" },
-  { id: 'bs15', nombre: "Adore U", artista: "NMIXX", img: "assets/canciones/NMIXX.jpg" },
-  { id: 'bs16', nombre: "Spinning Out", artista: "NMIXX", img: "assets/canciones/NMIXX.jpg" },
   { id: 'bs17', nombre: "Amazing", artista: "Jmin, SIK-K", img: "assets/canciones/Forever.webp" },
 
 ];
