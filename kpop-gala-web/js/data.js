@@ -14,7 +14,7 @@ const CANCIONES = [
   { id: 23, nombre: "Ceremony", artista: "QWER",  img: "assets/canciones/CR.jpg" },
   { id: 24, nombre: "Tokyo High", artista: "Jmin, SIK-K",  img: "assets/canciones/Forever.webp" },
   { id: 25, nombre: "Breaking Through", artista: "El Capitxan",  img: "assets/canciones/Break.jpg" },
-  { id: 26, nombre: "Back to Life", artista: "Kard",  img: "assets/canciones/Kard.jpg" },
+  { id: 26, nombre: "Pop Off Pop Off", artista: "KIIIKIII",  img: "assets/canciones/KK.webp" },
 ];
 
 // ── Personas participantes ────────────────────────────────────
@@ -200,6 +200,7 @@ const ALBUMES = [
   { id: 10, nombre: "4SHO 4SHO VILLE", artista: "JAY PARK", img: "assets/albumes/JAYPARK.png" },
   { id: 11, nombre: "NEW WAV", artista: "TREASURE", img: "assets/albumes/TREASURE.jpg" },
   { id: 12, nombre: "LEMONADE", artista: "AESPA", img: "assets/albumes/LEMON.jpg" },
+  { id: 15, nombre: "II", artista: "RIIZE", img: "assets/albumes/RIIZE7.webp" },
 ];
 
 const STORAGE_ALBUMES_KEY = "kpop_gala_albumes_registros";
@@ -240,13 +241,9 @@ function calcularRankingAlbumes() {
 const BSIDES = [
   // Pon aquí tus B-Sides reales, esto es un ejemplo:
   { id: 'bs1', nombre: "Zoom Zoom", artista: "Treasure", img: "assets/canciones/TREASURE.jpg" },
-  { id: 'bs2', nombre: "Nally Na", artista: "Treasure", img: "assets/canciones/TREASURE.jpg" },
   { id: 'bs4', nombre: "4SHO 4SHO", artista: "Jay Park & Lngshot", img: "assets/canciones/JAYPARK.png" },
-  { id: 'bs6', nombre: "Saucin", artista: "Lngshot", img: "assets/canciones/LNGSHOT.jpg" },
   { id: 'bs7', nombre: "Never let go", artista: "Lngshot", img: "assets/canciones/LNGSHOT.jpg" },
-  { id: 'bs9', nombre: "2.0", artista: "BTS", img: "assets/canciones/BTS.jpg" },
   { id: 'bs11', nombre: "One More Night", artista: "BTS", img: "assets/canciones/BTS.jpg" },
-  { id: 'bs12', nombre: "Like Animals", artista: "BTS", img: "assets/canciones/BTS.jpg" },
   { id: 'bs13', nombre: "Camouflage", artista: "Aespa", img: "assets/canciones/AESPA.jpg" },
   { id: 'bs17', nombre: "Amazing", artista: "Jmin, SIK-K", img: "assets/canciones/Forever.webp" },
 
