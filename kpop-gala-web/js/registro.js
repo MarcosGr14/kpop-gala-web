@@ -176,7 +176,12 @@ function guardarEntradaAlbum(pid) {
 function guardarEntradaArtista(pid) {
   const semanaId = document.getElementById("semana-global").value;
   const artistaId = document.getElementById(`artista-${pid}`).value;
-  const pS = parseInt(document.getElementById(`pos-spotify-artista-${pid}`).value)||0, pI = parseInt(document.getElementById(`pos-instafest-artista-${pid}`).value)||0;
+  const pS = parseInt(document.getElementById(`pos-spotify-artista-${pid}`).value)||0;
+  const pI = parseInt(document.getElementById(`pos-instafest-artista-${pid}`).value)||0;
+  
+  // NUEVO 1: Capturamos las reproducciones (el id asume que usarás ese formato en tu HTML)
+  const rep = parseInt(document.getElementById(`reproducciones-artista-${pid}`).value)||0;
+
   if (!semanaId || !artistaId) return;
   const registros = cargarRegistrosArtistas();
 
@@ -188,12 +193,16 @@ function guardarEntradaArtista(pid) {
   if (editandoArtistaId && personaEditandoArtista === pid) {
     const error = chequearDups(editandoArtistaId); if (error) { mostrarToast(error, "error"); return; }
     const idx = registros.findIndex(r => r.id === editandoArtistaId);
-    if (idx !== -1) { registros[idx] = { ...registros[idx], artistaId, posSpotify: pS, posInstafest: pI, puntaje: calcularPuntajeEntrada(pS, pI, 0) }; }
+    if (idx !== -1) { 
+        // NUEVO 2: Guardamos "reproducciones: rep" y lo pasamos al cálculo reemplazando el 0
+        registros[idx] = { ...registros[idx], artistaId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep) }; 
+    }
     guardarRegistrosArtistas(registros); mostrarToast("⭐ Artista actualizado", "success");
     editandoArtistaId = null; document.querySelector(`#form-artista-${pid} button[type="submit"]`).innerHTML = "⭐ Guardar Artista";
   } else {
     const error = chequearDups(null); if (error) { mostrarToast(error, "error"); return; }
-    registros.push({ id: `art_${Date.now()}`, semanaId, personaId: pid, artistaId, posSpotify: pS, posInstafest: pI, puntaje: calcularPuntajeEntrada(pS, pI, 0), timestamp: Date.now() });
+    // NUEVO 3: Guardamos "reproducciones: rep" y lo pasamos al cálculo reemplazando el 0
+    registros.push({ id: `art_${Date.now()}`, semanaId, personaId: pid, artistaId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep), timestamp: Date.now() });
     guardarRegistrosArtistas(registros); mostrarToast("⭐ Artista guardado", "success");
   }
   document.getElementById(`form-artista-${pid}`).reset(); actualizarPreviewArtista(pid); renderHistorialArtistas();
