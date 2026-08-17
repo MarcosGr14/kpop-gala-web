@@ -140,7 +140,6 @@ const ARTISTAS = [
   
   // Boy Groups
   
-  { id: 'bg2', nombre: 'BTS', categoria: 'boy_group', img: 'assets/artistas/bts.jpg' },
   { id: 'bg3', nombre: 'SEVENTEEN', categoria: 'boy_group', img: 'assets/artistas/svt.jpg' },
   { id: 'bg6', nombre: 'LNGSHOT', categoria: 'boy_group', img: 'assets/artistas/LNGS.jpg' },
   { id: 'bg7', nombre: 'RIIZE', categoria: 'boy_group', img: 'assets/artistas/RZZ.jpg' },
@@ -196,11 +195,11 @@ function calcularRankingArtistas(categoria) {
 const ALBUMES = [
   { id: 1, nombre: "BLUE VALENTINE", artista: "NMIXX", img: "assets/albumes/NMIXX.jpg" },
   { id: 5, nombre: "SHOT CALLERS", artista: "LNGSHOT", img: "assets/albumes/LNGSHOT.jpg" },
-  { id: 7, nombre: "ARIRANG", artista: "ARIRANG", img: "assets/albumes/BTS.jpg" },
   { id: 10, nombre: "4SHO 4SHO VILLE", artista: "JAY PARK", img: "assets/albumes/JAYPARK.png" },
   { id: 11, nombre: "NEW WAV", artista: "TREASURE", img: "assets/albumes/TREASURE.jpg" },
   { id: 12, nombre: "LEMONADE", artista: "AESPA", img: "assets/albumes/LEMON.jpg" },
   { id: 15, nombre: "II", artista: "RIIZE", img: "assets/albumes/RIIZE7.webp" },
+  { id: 16, nombre: "WHY KIIIKIII", artista: "KIIIKIII", img: "assets/albumes/KK.jpg" },
 ];
 
 const STORAGE_ALBUMES_KEY = "kpop_gala_albumes_registros";
@@ -243,7 +242,6 @@ const BSIDES = [
   { id: 'bs1', nombre: "Zoom Zoom", artista: "Treasure", img: "assets/canciones/TREASURE.jpg" },
   { id: 'bs4', nombre: "4SHO 4SHO", artista: "Jay Park & Lngshot", img: "assets/canciones/JAYPARK.png" },
   { id: 'bs7', nombre: "Never let go", artista: "Lngshot", img: "assets/canciones/LNGSHOT.jpg" },
-  { id: 'bs11', nombre: "One More Night", artista: "BTS", img: "assets/canciones/BTS.jpg" },
   { id: 'bs13', nombre: "Camouflage", artista: "Aespa", img: "assets/canciones/AESPA.jpg" },
   { id: 'bs17', nombre: "Amazing", artista: "Jmin, SIK-K", img: "assets/canciones/Forever.webp" },
 
