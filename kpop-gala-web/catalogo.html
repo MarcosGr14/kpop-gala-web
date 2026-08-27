@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📚 KPop Gala · Catálogo</title>
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/registro.css">
+  <link rel="stylesheet" href="css/catalogo.css">
+</head>
+<body>
+<nav class="navbar">
+  <a href="index.html" class="nav-logo"><span>🌸</span> KPop Gala</a>
+  <ul class="nav-links">
+    <li><a href="index.html">🏆 <span>Ranking</span></a></li>
+    <li><a href="registro.html">✍️ <span>Registrar</span></a></li>
+    <li class="nav-dropdown">
+      <a href="semanas.html">📅 <span>Semanas</span></a>
+      <div class="dropdown-menu">
+        <a href="semanas.html">📋 Ver todas</a>
+        <a href="semanas.html?filtro=p1">🌸 Persona 1</a>
+        <a href="semanas.html?filtro=p2">💙 Persona 2</a>
+      </div>
+    </li>
+    <li><a href="catalogo.html" class="active">📚 <span>Catálogo</span></a></li>
+  </ul>
+</nav>
+
+<main class="page-wrapper catalog-page">
+  <div class="page-header fade-up">
+    <div class="emoji-badge">📚 GESTOR DE CATÁLOGO</div>
+    <h1>Tu biblioteca de KPop Gala</h1>
+    <p>Añade, edita y archiva contenido sin volver a tocar <code>data.js</code>.</p>
+  </div>
+
+  <section class="catalog-summary fade-up delay-1" id="catalog-summary"></section>
+
+  <section class="catalog-panel card fade-up delay-2">
+    <div class="catalog-tabs" id="catalog-tabs">
+      <button class="catalog-tab active" data-type="canciones">🎵 Canciones</button>
+      <button class="catalog-tab" data-type="artistas">⭐ Artistas</button>
+      <button class="catalog-tab" data-type="albumes">💿 Álbumes</button>
+      <button class="catalog-tab" data-type="bsides">🎧 B-Sides</button>
+    </div>
+
+    <div class="catalog-toolbar">
+      <div class="catalog-search-wrap">
+        <span>🔎</span>
+        <input id="catalog-search" type="search" placeholder="Buscar por nombre o artista..." autocomplete="off">
+      </div>
+      <select id="catalog-status" aria-label="Estado">
+        <option value="activos">Activos</option>
+        <option value="todos">Todos</option>
+        <option value="archivados">Archivados</option>
+      </select>
+      <button id="btn-add-catalog" class="btn btn-primary">＋ Añadir</button>
+    </div>
+
+    <div class="catalog-list" id="catalog-list"></div>
+  </section>
+</main>
+
+<dialog id="catalog-dialog" class="catalog-dialog">
+  <form id="catalog-form" method="dialog">
+    <div class="dialog-head">
+      <div>
+        <div class="dialog-kicker" id="dialog-kicker">NUEVO</div>
+        <h2 id="dialog-title">Añadir canción</h2>
+      </div>
+      <button type="button" class="dialog-close" id="btn-close-dialog" aria-label="Cerrar">✕</button>
+    </div>
+
+    <input type="hidden" id="catalog-edit-id">
+
+    <div class="dialog-body">
+      <div class="form-group">
+        <label class="form-label" for="catalog-name">Nombre</label>
+        <input id="catalog-name" class="form-input" maxlength="80" required placeholder="Nombre">
+      </div>
+
+      <div class="form-group" id="field-category">
+        <label class="form-label" for="catalog-category">Categoría</label>
+        <select id="catalog-category" class="form-select">
+          <option value="boy_group">Boy Group</option>
+          <option value="girl_group">Girl Group</option>
+          <option value="solista_m">Solista Masculino</option>
+          <option value="solista_f">Solista Femenina</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="field-artist">
+        <label class="form-label" for="catalog-artist">Artista</label>
+        <select id="catalog-artist" class="form-select"></select>
+        <div class="catalog-hint">Para contenido nuevo, primero agrega el artista al catálogo.</div>
+      </div>
+
+      <div class="form-group" id="field-album">
+        <label class="form-label" for="catalog-album">Álbum <span class="optional">opcional</span></label>
+        <select id="catalog-album" class="form-select"></select>
+        <label class="catalog-check"><input type="checkbox" id="catalog-use-album-cover"> Usar la portada del álbum</label>
+      </div>
+
+      <div class="image-editor">
+        <div class="image-preview-wrap">
+          <img id="catalog-image-preview" alt="Vista previa">
+          <div id="catalog-image-placeholder">🖼️</div>
+        </div>
+        <div>
+          <label class="form-label" for="catalog-image">Imagen</label>
+          <input id="catalog-image" type="file" accept="image/png,image/jpeg,image/webp,image/gif" class="file-input">
+          <div class="catalog-hint">JPG, PNG, WEBP o GIF · máximo 8 MB. La imagen se guarda en tu navegador.</div>
+          <button type="button" class="btn btn-sm btn-ghost" id="btn-clear-new-image">Quitar selección</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="dialog-actions">
+      <button type="button" class="btn btn-ghost" id="btn-cancel-dialog">Cancelar</button>
+      <button type="submit" class="btn btn-primary" id="btn-save-catalog">Guardar</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="catalog-toast" class="catalog-toast" role="status"></div>
+
+<script src="js/data.js"></script>
+<script src="js/catalogo.js"></script>
+</body>
+</html>

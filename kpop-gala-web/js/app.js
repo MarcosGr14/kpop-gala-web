@@ -1,5 +1,5 @@
 // ============================================================
-//  KPOP GALA — APP.JS · v1.3 Rankings Update
+//  KPOP GALA — APP.JS · v1.4 Catálogo Update
 //  Ranking global + métricas históricas + Top 3
 // ============================================================
 
@@ -74,6 +74,7 @@ function crearRankCard({
   nombre,
   subtitulo,
   img,
+  imagenId = null,
   placeholder,
   metrica,
   barStyle = "",
@@ -87,7 +88,7 @@ function crearRankCard({
   card.innerHTML = `
     <div class="rank-pos">${medal}</div>
     <div class="rank-img-wrap">
-      <img src="${img}" alt="${escaparHTML(nombre)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+      <img src="${imagenId ? KG_PIXEL_TRANSPARENTE : escaparHTML(img || KG_PIXEL_TRANSPARENTE)}"${imagenId ? ` data-kg-imagen-id="${escaparHTML(imagenId)}"` : ""} alt="${escaparHTML(nombre)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
       <div class="rank-img-placeholder" style="display:none;${placeholder.style || ""}">${placeholder.icon}</div>
     </div>
     <div class="rank-info">
@@ -131,6 +132,7 @@ function renderRanking(filtro) {
       nombre: item.cancion.nombre,
       subtitulo: item.cancion.artista,
       img: item.cancion.img,
+      imagenId: item.cancion.imagenId,
       placeholder: { icon: "🎵" },
       metrica: metricas.get(String(item.cancion.id)),
       barStyle: `width:${pct}%`,
@@ -138,6 +140,7 @@ function renderRanking(filtro) {
     card.style.animationDelay = `${Math.min(idx * 0.04, 0.4)}s`;
     container.appendChild(card);
   });
+  aplicarImagenesCatalogo(container);
   aplicarBusquedaRanking("ranking-list");
   aplicarConfiguracionUI();
 }
@@ -176,6 +179,7 @@ function renderRankingArtistas(categoria) {
       nombre: item.artista.nombre,
       subtitulo: item.artista.categoria.replaceAll("_", " ").toUpperCase(),
       img: item.artista.img,
+      imagenId: item.artista.imagenId,
       placeholder: { icon: "🎤", style: "background:linear-gradient(135deg,var(--amarillo-glow),#f9731633);" },
       metrica: metricas.get(String(item.artista.id)),
       barStyle: `width:${pct}%;background:linear-gradient(90deg,var(--amarillo),#f59e0b)`,
@@ -183,6 +187,7 @@ function renderRankingArtistas(categoria) {
     card.style.animationDelay = `${Math.min(idx * 0.04, 0.4)}s`;
     container.appendChild(card);
   });
+  aplicarImagenesCatalogo(container);
   aplicarBusquedaRanking("ranking-artistas-list");
   aplicarConfiguracionUI();
 }
@@ -220,6 +225,7 @@ function renderRankingAlbumes(filtro) {
       nombre: item.album.nombre,
       subtitulo: item.album.artista,
       img: item.album.img,
+      imagenId: item.album.imagenId,
       placeholder: { icon: "💿", style: "background:linear-gradient(135deg,var(--violeta-glow),var(--rosa-glow));" },
       metrica: metricas.get(String(item.album.id)),
       barStyle: `width:${pct}%;background:linear-gradient(90deg,var(--violeta),var(--rosa))`,
@@ -227,6 +233,7 @@ function renderRankingAlbumes(filtro) {
     card.style.animationDelay = `${Math.min(idx * 0.04, 0.4)}s`;
     container.appendChild(card);
   });
+  aplicarImagenesCatalogo(container);
   aplicarBusquedaRanking("ranking-albumes-list");
   aplicarConfiguracionUI();
 }
@@ -265,6 +272,7 @@ function renderRankingBsides(filtro) {
       nombre: item.bside.nombre,
       subtitulo: item.bside.artista,
       img: item.bside.img,
+      imagenId: item.bside.imagenId,
       placeholder: { icon: "🎧", style: "background:linear-gradient(135deg,var(--verde-glow),#10b981);" },
       metrica: metricas.get(String(item.bside.id)),
       barStyle: `width:${pct}%;background:linear-gradient(90deg,#10b981,#34d399)`,
@@ -272,6 +280,7 @@ function renderRankingBsides(filtro) {
     card.style.animationDelay = `${Math.min(idx * 0.04, 0.4)}s`;
     container.appendChild(card);
   });
+  aplicarImagenesCatalogo(container);
   aplicarBusquedaRanking("ranking-bsides-list");
   aplicarConfiguracionUI();
 }

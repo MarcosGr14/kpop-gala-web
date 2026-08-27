@@ -1,5 +1,5 @@
 // ============================================================
-//  KPOP GALA — SEMANAS.JS · v1.2
+//  KPOP GALA — SEMANAS.JS · v1.4
 //  Vista de registros por semana con compatibilidad legacy
 // ============================================================
 
@@ -109,6 +109,7 @@ function renderSemanas(semFiltro = "todas", perFiltro = "todas") {
     container.appendChild(bloque);
   });
   aplicarConfiguracionUI();
+  aplicarImagenesCatalogo(container);
 }
 
 function formatoPosiciones(r) {
@@ -140,7 +141,7 @@ function renderTabla(entradas) {
       <div class="semana-tabla-row">
         <span class="str-pos">${formatoPosiciones(r)}</span>
         <div class="str-img">
-          <img src="${cancion.img}" alt="${cancion.nombre}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+          <img src="${srcImagenItem(cancion)}"${atributoImagenItem(cancion)} alt="${escaparHTML(cancion.nombre)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
           <div class="str-img-placeholder" style="display:none;">🎵</div>
         </div>
         <div class="str-info">

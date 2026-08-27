@@ -1,5 +1,5 @@
 // ============================================================
-//  KPOP GALA — BACKUP.JS · v1.2
+//  KPOP GALA — BACKUP.JS · v1.4
 // ============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -28,7 +28,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const total = Object.values(data).reduce((s, arr) => s + arr.length, 0);
       if (!confirm(`Se restaurarán ${total} registros desde ${archivoSeleccionado.name}. ¿Continuar?`)) return;
       const resultado = restaurarSnapshotDatos(snapshot);
-      mostrarMensaje(`✅ Restauración completa: ${sumarResultado(resultado)} registros.`, "success");
+      const imagenes = await importarImagenesCatalogo(snapshot.media?.imagenes || []);
+      mostrarMensaje(`✅ Restauración completa: ${sumarResultado(resultado)} registros${imagenes ? ` · ${imagenes} imágenes` : ""}.`, "success");
       renderEstadoDatos();
       renderPerfiles();
       aplicarConfiguracionUI();
@@ -67,9 +68,11 @@ function renderEstadoDatos() {
   document.getElementById("btn-restaurar-ultimo").disabled = !ultimo;
 }
 
-function exportarDatos() {
+async function exportarDatos() {
   try {
     const snapshot = crearSnapshotDatos("exportacion_manual");
+    const imagenes = await exportarImagenesCatalogo();
+    snapshot.media = { imagenes };
     const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const ahora = new Date();
@@ -81,7 +84,7 @@ function exportarDatos() {
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 500);
-    mostrarMensaje("✅ Copia de seguridad descargada. Guárdala en un lugar seguro.", "success");
+    mostrarMensaje(`✅ Copia descargada: registros, catálogo y ${snapshot.media.imagenes.length} imágenes.`, "success");
   } catch (error) {
     mostrarMensaje("⚠️ No se pudo crear la copia de seguridad.", "error");
   }

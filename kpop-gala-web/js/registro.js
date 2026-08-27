@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   ["p1", "p2"].forEach(pid => {
     const selCancion = document.getElementById(`cancion-${pid}`);
-    if (selCancion) CANCIONES.forEach(c => {
+    if (selCancion) CANCIONES.filter(c => !c.archivado).forEach(c => {
       const opt = document.createElement("option");
       opt.value = c.id;
       opt.textContent = `${c.nombre} — ${c.artista}`;
@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const selAlbum = document.getElementById(`album-${pid}`);
-    if (selAlbum) ALBUMES.forEach(a => {
+    if (selAlbum) ALBUMES.filter(a => !a.archivado).forEach(a => {
       const opt = document.createElement("option");
       opt.value = a.id;
       opt.textContent = `${a.nombre} — ${a.artista}`;
@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const poblarArt = () => {
       if (!catSelect || !artSelect) return;
       artSelect.innerHTML = "";
-      ARTISTAS.filter(a => a.categoria === catSelect.value).forEach(a => {
+      ARTISTAS.filter(a => a.categoria === catSelect.value && !a.archivado).forEach(a => {
         const opt = document.createElement("option");
         opt.value = a.id;
         opt.textContent = a.nombre;
@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const selBside = document.getElementById(`bside-${pid}`);
-    if (selBside) BSIDES.forEach(b => {
+    if (selBside) BSIDES.filter(b => !b.archivado).forEach(b => {
       const opt = document.createElement("option");
       opt.value = b.id;
       opt.textContent = `${b.nombre} — ${b.artista}`;
@@ -268,9 +268,23 @@ function guardarEntradaBside(pid) {
   renderHistorialBsides();
 }
 
+
+function asegurarOpcionSeleccionable(select, value, label) {
+  if (!select || value === undefined || value === null) return;
+  const existe = [...select.options].some(o => String(o.value) === String(value));
+  if (!existe) {
+    const opt = document.createElement("option");
+    opt.value = value;
+    opt.textContent = `${label} · archivado`;
+    select.appendChild(opt);
+  }
+}
+
 function cargarEdicion(id) {
   const r = cargarRegistros().find(x => x.id === id); if (!r) return;
   editandoCancionId = id; personaEditando = r.personaId;
+  const item = cancionPorId(r.cancionId);
+  asegurarOpcionSeleccionable(document.getElementById(`cancion-${r.personaId}`), r.cancionId, item ? `${item.nombre} — ${item.artista}` : "Canción");
   document.getElementById(`cancion-${r.personaId}`).value = r.cancionId;
   document.getElementById(`pos-spotify-${r.personaId}`).value = r.posSpotify ?? r.posicion ?? 0;
   document.getElementById(`pos-instafest-${r.personaId}`).value = r.posInstafest ?? 0;
@@ -283,6 +297,8 @@ function cargarEdicion(id) {
 function cargarEdicionAlbum(id) {
   const r = cargarRegistrosAlbumes().find(x => x.id === id); if (!r) return;
   editandoAlbumId = id; personaEditandoAlbum = r.personaId;
+  const item = albumPorId(r.albumId);
+  asegurarOpcionSeleccionable(document.getElementById(`album-${r.personaId}`), r.albumId, item ? `${item.nombre} — ${item.artista}` : "Álbum");
   document.getElementById(`album-${r.personaId}`).value = r.albumId;
   document.getElementById(`pos-spotify-album-${r.personaId}`).value = r.posSpotify ?? 0;
   document.getElementById(`pos-instafest-album-${r.personaId}`).value = r.posInstafest ?? 0;
@@ -299,6 +315,7 @@ function cargarEdicionArtista(id) {
   if (a) {
     document.getElementById(`categoria-artista-${personaEditandoArtista}`).value = a.categoria;
     document.getElementById(`categoria-artista-${personaEditandoArtista}`).dispatchEvent(new Event("change"));
+    asegurarOpcionSeleccionable(document.getElementById(`artista-${personaEditandoArtista}`), r.artistaId, a.nombre);
     document.getElementById(`artista-${personaEditandoArtista}`).value = r.artistaId;
   }
   document.getElementById(`pos-spotify-artista-${personaEditandoArtista}`).value = r.posSpotify ?? 0;
@@ -313,6 +330,8 @@ function cargarEdicionArtista(id) {
 function cargarEdicionBside(id) {
   const r = cargarRegistrosBsides().find(x => x.id === id); if (!r) return;
   editandoBsideId = id; personaEditandoBside = r.personaId;
+  const item = BSIDES.find(x => String(x.id) === String(r.bsideId));
+  asegurarOpcionSeleccionable(document.getElementById(`bside-${r.personaId}`), r.bsideId, item ? `${item.nombre} — ${item.artista}` : "B-Side");
   document.getElementById(`bside-${r.personaId}`).value = r.bsideId;
   document.getElementById(`pos-spotify-bside-${r.personaId}`).value = r.posSpotify ?? 0;
   document.getElementById(`pos-instafest-bside-${r.personaId}`).value = r.posInstafest ?? 0;

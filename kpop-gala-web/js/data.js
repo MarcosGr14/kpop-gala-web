@@ -1,9 +1,9 @@
 // ============================================================
-//  KPOP GALA — DATA.JS · v1.3 Rankings Update
+//  KPOP GALA — DATA.JS · v1.4 Catálogo Update
 //  Datos, semanas, puntaje y capa segura de almacenamiento
 // ============================================================
 
-const KPOP_GALA_APP_VERSION = "1.3.0";
+const KPOP_GALA_APP_VERSION = "1.4.0";
 const KPOP_GALA_SCHEMA_VERSION = 1;
 const KPOP_GALA_TEMPORADA = {
   anio: 2026,
@@ -11,7 +11,7 @@ const KPOP_GALA_TEMPORADA = {
   fin: new Date(2026, 11, 6),     // Domingo 6 de diciembre de 2026
 };
 
-const CANCIONES = [
+const CANCIONES_BASE = [
   { id: 1,  nombre: "Blue Valentine",  artista: "NMIXX",  img: "assets/canciones/NMIXX.jpg"  },
   { id: 2,  nombre: "VOYAGER",  artista: "XDINARY HEROES",  img: "assets/canciones/XDINARYHEROES.png"  },
   { id: 6,  nombre: "Moonwalkin",  artista: "LNGSHOT",  img: "assets/canciones/LNGSHOT.jpg"  },
@@ -24,6 +24,11 @@ const CANCIONES = [
   { id: 25, nombre: "Breaking Through", artista: "El Capitxan",  img: "assets/canciones/Break.jpg" },
   { id: 26, nombre: "Pop Off Pop Off", artista: "KIIIKIII",  img: "assets/canciones/KK.webp" },
 ];
+
+let CANCIONES = [];
+let ARTISTAS = [];
+let ALBUMES = [];
+let BSIDES = [];
 
 // ── Personas participantes ────────────────────────────────────
 // Se conservan p1/p2 porque forman parte de los datos existentes.
@@ -145,6 +150,7 @@ const KPOP_GALA_STORAGE_KEYS = Object.freeze({
 const KPOP_GALA_SCHEMA_KEY = "kpop_gala_schema_version";
 const KPOP_GALA_APP_VERSION_KEY = "kpop_gala_app_version";
 const KPOP_GALA_SETTINGS_KEY = "kpop_gala_settings";
+const KPOP_GALA_CATALOG_KEY = "kpop_gala_catalog_v1";
 const KPOP_GALA_INITIAL_BACKUP_KEY = "kpop_gala_backup_v1_1_initial";
 const KPOP_GALA_LAST_BACKUP_KEY = "kpop_gala_backup_last_safety";
 
@@ -210,6 +216,7 @@ function crearSnapshotDatos(motivo = "exportacion") {
       bsides: cargarRegistrosBsides(),
     },
     settings: cargarConfiguracion(),
+    catalog: cargarCatalogoPersonalizado(),
   };
 }
 
@@ -244,6 +251,10 @@ function restaurarSnapshotDatos(snapshot) {
   // Los backups v1.1 no tenían preferencias; por eso este paso es opcional.
   if (snapshot.settings && typeof snapshot.settings === "object") {
     guardarConfiguracion(snapshot.settings);
+  }
+  if (snapshot.catalog && typeof snapshot.catalog === "object") {
+    guardarCatalogoPersonalizado(snapshot.catalog);
+    reconstruirCatalogos();
   }
 
   return {
@@ -287,15 +298,24 @@ function inicializarCapaDatos() {
 
 function inyectarNavDatos() {
   const nav = document.querySelector(".nav-links");
-  if (!nav || nav.querySelector('a[href="datos.html"]')) return;
-  const li = document.createElement("li");
-  const a = document.createElement("a");
-  a.href = "datos.html";
-  a.innerHTML = "💾 <span>Datos</span>";
-  if (location.pathname.endsWith("/datos.html") || location.pathname.endsWith("datos.html")) a.classList.add("active");
-  li.appendChild(a);
-  nav.appendChild(li);
+  if (!nav) return;
+
+  const agregar = (href, html, antesDeDatos = false) => {
+    if (nav.querySelector(`a[href="${href}"]`)) return;
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+    a.href = href;
+    a.innerHTML = html;
+    if (location.pathname.endsWith(`/${href}`) || location.pathname.endsWith(href)) a.classList.add("active");
+    li.appendChild(a);
+    const datosLi = nav.querySelector('a[href="datos.html"]')?.closest("li");
+    if (antesDeDatos && datosLi) nav.insertBefore(li, datosLi); else nav.appendChild(li);
+  };
+
+  agregar("catalogo.html", "📚 <span>Catálogo</span>", true);
+  agregar("datos.html", "💾 <span>Datos</span>");
 }
+
 
 
 // ── Preferencias y UX compartida · v1.2 ──────────────────────
@@ -464,7 +484,7 @@ function calcularRanking() {
     if (r.personaId === "p2") { mapa[r.cancionId].p2 += pts; mapa[r.cancionId].entradasP2++; }
   });
 
-  return Object.values(mapa).sort((a, b) => b.puntajeTotal - a.puntajeTotal);
+  return Object.values(mapa).filter(x => !x.cancion.archivado || x.puntajeTotal > 0).sort((a, b) => b.puntajeTotal - a.puntajeTotal);
 }
 
 function cancionPorId(id) { return CANCIONES.find(c => c.id === Number(id)); }
@@ -479,7 +499,7 @@ const NEON = {
 };
 
 // ── BASE DE DATOS DE ARTISTAS ────────────────────────────────
-const ARTISTAS = [
+const ARTISTAS_BASE = [
   { id: 'sm1', nombre: 'Jay Park', categoria: 'solista_m', img: 'assets/artistas/Jaebeom.jpg' },
   { id: 'sm2', nombre: 'B.I', categoria: 'solista_m', img: 'assets/artistas/BI.jpg' },
   { id: 'sm4', nombre: 'Sik-k', categoria: 'solista_m', img: 'assets/artistas/Sikk.jpg' },
@@ -520,11 +540,11 @@ function calcularRankingArtistas(categoria) {
     if (persona === "p1") { mapa[r.artistaId].p1 += pts; mapa[r.artistaId].entradasP1++; }
     if (persona === "p2") { mapa[r.artistaId].p2 += pts; mapa[r.artistaId].entradasP2++; }
   });
-  return Object.values(mapa).sort((a, b) => b.puntajeTotal - a.puntajeTotal);
+  return Object.values(mapa).filter(x => !x.artista.archivado || x.puntajeTotal > 0).sort((a, b) => b.puntajeTotal - a.puntajeTotal);
 }
 
 // ── BASE DE DATOS DE ÁLBUMES ────────────────────────────────
-const ALBUMES = [
+const ALBUMES_BASE = [
   { id: 1, nombre: "BLUE VALENTINE", artista: "NMIXX", img: "assets/albumes/NMIXX.jpg" },
   { id: 5, nombre: "SHOT CALLERS", artista: "LNGSHOT", img: "assets/albumes/LNGSHOT.jpg" },
   { id: 10, nombre: "4SHO 4SHO VILLE", artista: "JAY PARK", img: "assets/albumes/JAYPARK.png" },
@@ -549,17 +569,318 @@ function calcularRankingAlbumes() {
     if (r.personaId === "p1") { mapa[r.albumId].p1 += pts; mapa[r.albumId].entradasP1++; }
     if (r.personaId === "p2") { mapa[r.albumId].p2 += pts; mapa[r.albumId].entradasP2++; }
   });
-  return Object.values(mapa).sort((a, b) => b.puntajeTotal - a.puntajeTotal);
+  return Object.values(mapa).filter(x => !x.album.archivado || x.puntajeTotal > 0).sort((a, b) => b.puntajeTotal - a.puntajeTotal);
 }
 
 // ── BASE DE DATOS DE B-SIDES ────────────────────────────────
-const BSIDES = [
+const BSIDES_BASE = [
   { id: 'bs1', nombre: "Zoom Zoom", artista: "Treasure", img: "assets/canciones/TREASURE.jpg" },
   { id: 'bs4', nombre: "4SHO 4SHO", artista: "Jay Park & Lngshot", img: "assets/canciones/JAYPARK.png" },
   { id: 'bs7', nombre: "Never let go", artista: "Lngshot", img: "assets/canciones/LNGSHOT.jpg" },
   { id: 'bs13', nombre: "Camouflage", artista: "Aespa", img: "assets/canciones/AESPA.jpg" },
   { id: 'bs17', nombre: "Amazing", artista: "Jmin, SIK-K", img: "assets/canciones/Forever.webp" },
 ];
+
+// ── Catálogo editable · v1.4 ─────────────────────────────────
+const KPOP_GALA_CATALOG_DEFAULT = Object.freeze({
+  version: 1,
+  canciones: [], artistas: [], albumes: [], bsides: [],
+  overrides: { canciones: {}, artistas: {}, albumes: {}, bsides: {} },
+});
+
+function normalizarCatalogo(raw) {
+  const c = raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
+  const overrides = c.overrides && typeof c.overrides === "object" ? c.overrides : {};
+  return {
+    version: 1,
+    canciones: Array.isArray(c.canciones) ? c.canciones : [],
+    artistas: Array.isArray(c.artistas) ? c.artistas : [],
+    albumes: Array.isArray(c.albumes) ? c.albumes : [],
+    bsides: Array.isArray(c.bsides) ? c.bsides : [],
+    overrides: {
+      canciones: overrides.canciones && typeof overrides.canciones === "object" ? overrides.canciones : {},
+      artistas: overrides.artistas && typeof overrides.artistas === "object" ? overrides.artistas : {},
+      albumes: overrides.albumes && typeof overrides.albumes === "object" ? overrides.albumes : {},
+      bsides: overrides.bsides && typeof overrides.bsides === "object" ? overrides.bsides : {},
+    },
+  };
+}
+
+function cargarCatalogoPersonalizado() {
+  return normalizarCatalogo(leerJSONSeguro(KPOP_GALA_CATALOG_KEY, KPOP_GALA_CATALOG_DEFAULT));
+}
+
+function guardarCatalogoPersonalizado(catalogo) {
+  return escribirJSONSeguro(KPOP_GALA_CATALOG_KEY, normalizarCatalogo(catalogo));
+}
+
+function aplicarOverridesBase(base, overrides = {}) {
+  return base.map(item => ({ ...item, ...(overrides[String(item.id)] || {}), origen: "base" }));
+}
+
+function reconstruirCatalogos() {
+  const c = cargarCatalogoPersonalizado();
+  CANCIONES = [...aplicarOverridesBase(CANCIONES_BASE, c.overrides.canciones), ...c.canciones.map(x => ({ ...x, origen: "custom" }))];
+  ARTISTAS = [...aplicarOverridesBase(ARTISTAS_BASE, c.overrides.artistas), ...c.artistas.map(x => ({ ...x, origen: "custom" }))];
+  ALBUMES = [...aplicarOverridesBase(ALBUMES_BASE, c.overrides.albumes), ...c.albumes.map(x => ({ ...x, origen: "custom" }))];
+  BSIDES = [...aplicarOverridesBase(BSIDES_BASE, c.overrides.bsides), ...c.bsides.map(x => ({ ...x, origen: "custom" }))];
+  if (typeof document !== "undefined") document.dispatchEvent(new CustomEvent("kg-catalog-changed"));
+}
+
+function coleccionCatalogo(tipo) {
+  if (tipo === "canciones") return CANCIONES;
+  if (tipo === "artistas") return ARTISTAS;
+  if (tipo === "albumes") return ALBUMES;
+  if (tipo === "bsides") return BSIDES;
+  return [];
+}
+
+function baseCatalogo(tipo) {
+  if (tipo === "canciones") return CANCIONES_BASE;
+  if (tipo === "artistas") return ARTISTAS_BASE;
+  if (tipo === "albumes") return ALBUMES_BASE;
+  if (tipo === "bsides") return BSIDES_BASE;
+  return [];
+}
+
+function obtenerItemCatalogo(tipo, id) {
+  return coleccionCatalogo(tipo).find(x => String(x.id) === String(id)) || null;
+}
+
+function normalizarClaveTexto(valor) {
+  return String(valor ?? "").trim().toLocaleLowerCase("es").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function generarIdCatalogo(tipo) {
+  if (tipo === "canciones" || tipo === "albumes") {
+    const nums = coleccionCatalogo(tipo).map(x => Number(x.id)).filter(Number.isFinite);
+    return Math.max(999, ...nums) + 1;
+  }
+  const pref = tipo === "artistas" ? "usr_art" : "usr_bs";
+  return `${pref}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+}
+
+function itemTieneRegistros(tipo, id) {
+  const sid = String(id);
+  if (tipo === "canciones") return cargarRegistros().some(r => String(r.cancionId) === sid);
+  if (tipo === "artistas") return cargarRegistrosArtistas().some(r => String(r.artistaId) === sid);
+  if (tipo === "albumes") return cargarRegistrosAlbumes().some(r => String(r.albumId) === sid);
+  if (tipo === "bsides") return cargarRegistrosBsides().some(r => String(r.bsideId) === sid);
+  return false;
+}
+
+function contarRegistrosItem(tipo, id) {
+  const sid = String(id);
+  if (tipo === "canciones") return cargarRegistros().filter(r => String(r.cancionId) === sid).length;
+  if (tipo === "artistas") return cargarRegistrosArtistas().filter(r => String(r.artistaId) === sid).length;
+  if (tipo === "albumes") return cargarRegistrosAlbumes().filter(r => String(r.albumId) === sid).length;
+  if (tipo === "bsides") return cargarRegistrosBsides().filter(r => String(r.bsideId) === sid).length;
+  return 0;
+}
+
+function existeDuplicadoCatalogo(tipo, datos, ignorarId = null) {
+  const nombre = normalizarClaveTexto(datos.nombre);
+  const artista = normalizarClaveTexto(datos.artista || "");
+  return coleccionCatalogo(tipo).some(item => {
+    if (String(item.id) === String(ignorarId)) return false;
+    if (normalizarClaveTexto(item.nombre) !== nombre) return false;
+    if (tipo === "artistas") return true;
+    return normalizarClaveTexto(item.artista || "") === artista;
+  });
+}
+
+function sanitizarItemCatalogo(tipo, datos, anterior = {}) {
+  const nombre = limpiarTextoCorto(datos.nombre, anterior.nombre || "Sin nombre", 80);
+  const base = { ...anterior, nombre, archivado: Boolean(datos.archivado ?? anterior.archivado), updatedAt: new Date().toISOString() };
+  if (datos.imagenId !== undefined) base.imagenId = datos.imagenId || null;
+  if (datos.img !== undefined) base.img = datos.img || "";
+  if (tipo === "artistas") {
+    base.categoria = ["solista_m","solista_f","boy_group","girl_group"].includes(datos.categoria) ? datos.categoria : (anterior.categoria || "boy_group");
+  } else {
+    base.artista = limpiarTextoCorto(datos.artista, anterior.artista || "", 80);
+    if (datos.artistaId !== undefined) base.artistaId = datos.artistaId || null;
+    if (tipo === "bsides" && datos.albumId !== undefined) base.albumId = datos.albumId || null;
+  }
+  return base;
+}
+
+function guardarItemCatalogo(tipo, datos, id = null) {
+  if (!["canciones","artistas","albumes","bsides"].includes(tipo)) throw new Error("Tipo de catálogo inválido.");
+  const existente = id !== null ? obtenerItemCatalogo(tipo, id) : null;
+  const limpio = sanitizarItemCatalogo(tipo, datos, existente || {});
+  if (existeDuplicadoCatalogo(tipo, limpio, id)) throw new Error("Ya existe un elemento con ese nombre y artista.");
+
+  guardarBackupSeguridad("antes_de_editar_catalogo");
+  const c = cargarCatalogoPersonalizado();
+  if (!existente) {
+    limpio.id = generarIdCatalogo(tipo);
+    limpio.createdAt = new Date().toISOString();
+    limpio.origen = "custom";
+    c[tipo].push(limpio);
+  } else if (existente.origen === "custom") {
+    const idx = c[tipo].findIndex(x => String(x.id) === String(id));
+    if (idx === -1) throw new Error("No se encontró el elemento personalizado.");
+    c[tipo][idx] = { ...c[tipo][idx], ...limpio, id: c[tipo][idx].id };
+  } else {
+    c.overrides[tipo][String(id)] = { ...(c.overrides[tipo][String(id)] || {}), ...limpio };
+    delete c.overrides[tipo][String(id)].id;
+    delete c.overrides[tipo][String(id)].origen;
+  }
+  if (!guardarCatalogoPersonalizado(c)) throw new Error("No se pudo guardar el catálogo.");
+  reconstruirCatalogos();
+  return obtenerItemCatalogo(tipo, limpio.id ?? id);
+}
+
+function cambiarArchivoItemCatalogo(tipo, id, archivado = true) {
+  const item = obtenerItemCatalogo(tipo, id);
+  if (!item) throw new Error("Elemento no encontrado.");
+  return guardarItemCatalogo(tipo, { ...item, archivado }, id);
+}
+
+function itemEstaReferenciadoCatalogo(tipo, id) {
+  const sid = String(id);
+  if (tipo === "artistas") {
+    return [...CANCIONES, ...ALBUMES, ...BSIDES].some(x => String(x.artistaId || "") === sid);
+  }
+  if (tipo === "albumes") return BSIDES.some(x => String(x.albumId || "") === sid);
+  return false;
+}
+
+function eliminarItemCatalogo(tipo, id) {
+  const item = obtenerItemCatalogo(tipo, id);
+  if (!item) throw new Error("Elemento no encontrado.");
+  if (item.origen !== "custom") throw new Error("Los elementos base se archivan, no se eliminan.");
+  if (itemTieneRegistros(tipo, id)) throw new Error("Este elemento tiene historial y no puede eliminarse. Archívalo.");
+  if (itemEstaReferenciadoCatalogo(tipo, id)) throw new Error("Este elemento está relacionado con otro contenido del catálogo. Archívalo en lugar de eliminarlo.");
+  guardarBackupSeguridad("antes_de_eliminar_catalogo");
+  const c = cargarCatalogoPersonalizado();
+  c[tipo] = c[tipo].filter(x => String(x.id) !== String(id));
+  if (!guardarCatalogoPersonalizado(c)) throw new Error("No se pudo actualizar el catálogo.");
+  reconstruirCatalogos();
+  return true;
+}
+
+// ── Imágenes en IndexedDB ─────────────────────────────────────
+const KPOP_GALA_MEDIA_DB = "kpop_gala_media";
+const KPOP_GALA_MEDIA_STORE = "imagenes";
+const KG_PIXEL_TRANSPARENTE = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+const kgObjectUrlCache = new Map();
+
+function abrirDBImagenes() {
+  return new Promise((resolve, reject) => {
+    if (typeof indexedDB === "undefined") return reject(new Error("IndexedDB no está disponible."));
+    const req = indexedDB.open(KPOP_GALA_MEDIA_DB, 1);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains(KPOP_GALA_MEDIA_STORE)) db.createObjectStore(KPOP_GALA_MEDIA_STORE, { keyPath: "id" });
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error || new Error("No se pudo abrir IndexedDB."));
+  });
+}
+
+async function guardarImagenCatalogo(file) {
+  if (!file || !String(file.type || "").startsWith("image/")) throw new Error("Selecciona una imagen válida.");
+  if (file.size > 8 * 1024 * 1024) throw new Error("La imagen supera 8 MB. Usa una imagen más ligera.");
+  const db = await abrirDBImagenes();
+  const id = `img_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  await new Promise((resolve, reject) => {
+    const tx = db.transaction(KPOP_GALA_MEDIA_STORE, "readwrite");
+    tx.objectStore(KPOP_GALA_MEDIA_STORE).put({ id, blob: file, nombre: file.name || "imagen", type: file.type, savedAt: new Date().toISOString() });
+    tx.oncomplete = resolve;
+    tx.onerror = () => reject(tx.error || new Error("No se pudo guardar la imagen."));
+  });
+  db.close();
+  return id;
+}
+
+async function obtenerRegistroImagen(id) {
+  if (!id) return null;
+  const db = await abrirDBImagenes();
+  const result = await new Promise((resolve, reject) => {
+    const tx = db.transaction(KPOP_GALA_MEDIA_STORE, "readonly");
+    const req = tx.objectStore(KPOP_GALA_MEDIA_STORE).get(id);
+    req.onsuccess = () => resolve(req.result || null);
+    req.onerror = () => reject(req.error);
+  });
+  db.close();
+  return result;
+}
+
+async function obtenerUrlImagenCatalogo(id) {
+  if (!id) return null;
+  if (kgObjectUrlCache.has(id)) return kgObjectUrlCache.get(id);
+  const reg = await obtenerRegistroImagen(id);
+  if (!reg?.blob) return null;
+  const url = URL.createObjectURL(reg.blob);
+  kgObjectUrlCache.set(id, url);
+  return url;
+}
+
+function srcImagenItem(item) {
+  return item?.imagenId ? KG_PIXEL_TRANSPARENTE : (item?.img || KG_PIXEL_TRANSPARENTE);
+}
+
+function atributoImagenItem(item) {
+  return item?.imagenId ? ` data-kg-imagen-id="${escaparHTML(item.imagenId)}"` : "";
+}
+
+async function aplicarImagenesCatalogo(root = document) {
+  const imgs = [...root.querySelectorAll("img[data-kg-imagen-id]")];
+  await Promise.all(imgs.map(async img => {
+    const id = img.dataset.kgImagenId;
+    try {
+      const url = await obtenerUrlImagenCatalogo(id);
+      if (url && img.isConnected) img.src = url;
+      else if (img.nextElementSibling) { img.style.display = "none"; img.nextElementSibling.style.display = "flex"; }
+    } catch {
+      if (img.nextElementSibling) { img.style.display = "none"; img.nextElementSibling.style.display = "flex"; }
+    }
+  }));
+}
+
+function blobADataURL(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function exportarImagenesCatalogo() {
+  const c = cargarCatalogoPersonalizado();
+  const ids = new Set();
+  ["canciones","artistas","albumes","bsides"].forEach(tipo => {
+    c[tipo].forEach(x => x.imagenId && ids.add(x.imagenId));
+    Object.values(c.overrides[tipo] || {}).forEach(x => x.imagenId && ids.add(x.imagenId));
+  });
+  const out = [];
+  for (const id of ids) {
+    const reg = await obtenerRegistroImagen(id);
+    if (!reg?.blob) continue;
+    out.push({ id, nombre: reg.nombre, type: reg.type, dataUrl: await blobADataURL(reg.blob) });
+  }
+  return out;
+}
+
+async function importarImagenesCatalogo(imagenes = []) {
+  if (!Array.isArray(imagenes) || !imagenes.length) return 0;
+  const db = await abrirDBImagenes();
+  let total = 0;
+  for (const img of imagenes) {
+    if (!img?.id || !img?.dataUrl) continue;
+    const blob = await (await fetch(img.dataUrl)).blob();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(KPOP_GALA_MEDIA_STORE, "readwrite");
+      tx.objectStore(KPOP_GALA_MEDIA_STORE).put({ id: img.id, blob, nombre: img.nombre || "imagen", type: img.type || blob.type, savedAt: new Date().toISOString() });
+      tx.oncomplete = resolve; tx.onerror = () => reject(tx.error);
+    });
+    total++;
+  }
+  db.close();
+  return total;
+}
 
 function calcularRankingBsides() {
   const registros = cargarRegistrosBsides();
@@ -574,7 +895,7 @@ function calcularRankingBsides() {
     if (r.personaId === "p1") { mapa[r.bsideId].p1 += pts; mapa[r.bsideId].entradasP1++; }
     if (r.personaId === "p2") { mapa[r.bsideId].p2 += pts; mapa[r.bsideId].entradasP2++; }
   });
-  return Object.values(mapa).sort((a, b) => b.puntajeTotal - a.puntajeTotal);
+  return Object.values(mapa).filter(x => !x.bside.archivado || x.puntajeTotal > 0).sort((a, b) => b.puntajeTotal - a.puntajeTotal);
 }
 
 
@@ -711,6 +1032,7 @@ function calcularMetricasArtistas(categoria) {
 }
 
 // Inicialización no destructiva.
+reconstruirCatalogos();
 inicializarCapaDatos();
 if (typeof document !== "undefined") {
   const iniciarUICompartida = () => { inyectarNavDatos(); inicializarUXV12(); };
