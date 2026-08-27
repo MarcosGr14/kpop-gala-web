@@ -1,5 +1,5 @@
 // ============================================================
-//  KPOP GALA — REGISTRO.JS · v1.1
+//  KPOP GALA — REGISTRO.JS · v1.2
 //  Canciones, Álbumes, Artistas y B-Sides · P1/P2
 // ============================================================
 
@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
     semanaSelect.appendChild(opt);
   });
 
-  // v1.1: abre en la semana actual; fuera de temporada usa la más útil.
+  // Abre en la semana actual; fuera de temporada usa la más útil.
   const semanaInicial = obtenerSemanaRecomendada();
   if (semanaInicial) semanaSelect.value = semanaInicial.id;
 
@@ -58,6 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
         opt.textContent = a.nombre;
         artSelect.appendChild(opt);
       });
+      artSelect.dispatchEvent(new CustomEvent("kg-options-changed"));
     };
     if (catSelect && artSelect) {
       catSelect.addEventListener("change", poblarArt);
@@ -80,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const el = document.getElementById(`${c}-${pid}`);
       if (el) el.addEventListener("input", () => actualizarPreviewAlbum(pid));
     });
-    // v1.1: las reproducciones de artista también actualizan el preview.
+    // Las reproducciones de artista también actualizan el preview.
     ["pos-spotify-artista", "pos-instafest-artista", "reproducciones-artista"].forEach(c => {
       const el = document.getElementById(`${c}-${pid}`);
       if (el) el.addEventListener("input", () => actualizarPreviewArtista(pid));
@@ -104,6 +105,8 @@ document.addEventListener("DOMContentLoaded", () => {
   renderHistorialAlbumes();
   renderHistorialArtistas();
   renderHistorialBsides();
+  configurarBusquedasRegistro();
+  aplicarConfiguracionUI();
 });
 
 function num(id) {
@@ -337,6 +340,7 @@ function renderHistorial() {
     div.innerHTML = `<div style="font-size:0.75rem;color:var(--text-muted);">${posicionesHTML(r)}</div><span class="${pid === "p2" ? "badge-p2" : "badge-p1"}">${pid.toUpperCase()}</span><span class="hi-name">${c.nombre}<br><span style="font-size:0.7rem;color:var(--text-muted);">${c.artista}</span></span><span class="hi-rep">▶ ${r.reproducciones || 0}x</span><span class="hi-pts">+${obtenerPuntajeRegistro(r)} pts</span><div class="historial-actions"><button class="btn-edit" onclick="cargarEdicion('${r.id}')">✏️</button><button class="btn-delete" onclick="eliminarRegistro('${r.id}')">✕</button></div>`;
     container.appendChild(div);
   });
+  aplicarConfiguracionUI();
 }
 
 function renderHistorialAlbumes() {
@@ -350,6 +354,7 @@ function renderHistorialAlbumes() {
     div.innerHTML = `<div style="font-size:0.75rem;color:var(--text-muted);">${posicionesHTML(r)}</div><span class="${pid === "p2" ? "badge-p2" : "badge-p1"}">${pid.toUpperCase()}</span><span class="hi-name">💿 ${a.nombre}<br><span style="font-size:0.7rem;color:var(--text-muted);">${a.artista}</span></span><span class="hi-rep">▶ ${r.reproducciones || 0}x</span><span class="hi-pts">+${obtenerPuntajeRegistro(r)} pts</span><div class="historial-actions"><button class="btn-edit" onclick="cargarEdicionAlbum('${r.id}')">✏️</button><button class="btn-delete" onclick="eliminarRegistroAlbum('${r.id}')">✕</button></div>`;
     container.appendChild(div);
   });
+  aplicarConfiguracionUI();
 }
 
 function renderHistorialArtistas() {
@@ -363,6 +368,7 @@ function renderHistorialArtistas() {
     div.innerHTML = `<div style="font-size:0.75rem;color:var(--text-muted);">${posicionesHTML(r)}</div><span class="${pid === "p2" ? "badge-p2" : "badge-p1"}">${pid.toUpperCase()}</span><span class="hi-name">${a.nombre}<br><span style="font-size:0.7rem;color:var(--text-muted);">${a.categoria.replace('_', ' ').toUpperCase()}</span></span><span class="hi-rep">▶ ${r.reproducciones || 0}x</span><span class="hi-pts">+${obtenerPuntajeRegistro(r)} pts</span><div class="historial-actions"><button class="btn-edit" onclick="cargarEdicionArtista('${r.id}')">✏️</button><button class="btn-delete" onclick="eliminarRegistroArtista('${r.id}')">✕</button></div>`;
     container.appendChild(div);
   });
+  aplicarConfiguracionUI();
 }
 
 function renderHistorialBsides() {
@@ -376,19 +382,34 @@ function renderHistorialBsides() {
     div.innerHTML = `<div style="font-size:0.75rem;color:var(--text-muted);">${posicionesHTML(r)}</div><span class="${pid === "p2" ? "badge-p2" : "badge-p1"}">${pid.toUpperCase()}</span><span class="hi-name">🎧 ${b.nombre}<br><span style="font-size:0.7rem;color:var(--text-muted);">${b.artista}</span></span><span class="hi-rep">▶ ${r.reproducciones || 0}x</span><span class="hi-pts">+${obtenerPuntajeRegistro(r)} pts</span><div class="historial-actions"><button class="btn-edit" onclick="cargarEdicionBside('${r.id}')">✏️</button><button class="btn-delete" onclick="eliminarRegistroBside('${r.id}')">✕</button></div>`;
     container.appendChild(div);
   });
+  aplicarConfiguracionUI();
 }
 
-function eliminarConBackup(mensaje, cargar, guardar, render, id, motivo) {
-  if (!confirm(`${mensaje} Se guardará un punto de restauración.`)) return;
+function eliminarConDeshacer(cargar, guardar, render, id, motivo, etiqueta) {
+  const registros = cargar();
+  const index = registros.findIndex(r => r.id === id);
+  if (index === -1) return;
+
+  const eliminado = registros[index];
   guardarBackupSeguridad(motivo);
-  guardar(cargar().filter(r => r.id !== id));
+  registros.splice(index, 1);
+  guardar(registros);
   render();
-  mostrarToast("Registro eliminado · respaldo de seguridad creado", "success");
+
+  mostrarDeshacer(`${etiqueta} eliminado`, () => {
+    const actuales = cargar();
+    if (!actuales.some(r => r.id === eliminado.id)) {
+      actuales.splice(Math.min(index, actuales.length), 0, eliminado);
+      guardar(actuales);
+    }
+    render();
+    mostrarToast("↩️ Registro restaurado", "success");
+  });
 }
-function eliminarRegistro(id) { eliminarConBackup("¿Eliminar esta canción?", cargarRegistros, guardarRegistros, renderHistorial, id, "antes_de_eliminar_cancion"); }
-function eliminarRegistroAlbum(id) { eliminarConBackup("¿Eliminar este álbum?", cargarRegistrosAlbumes, guardarRegistrosAlbumes, renderHistorialAlbumes, id, "antes_de_eliminar_album"); }
-function eliminarRegistroArtista(id) { eliminarConBackup("¿Eliminar este artista?", cargarRegistrosArtistas, guardarRegistrosArtistas, renderHistorialArtistas, id, "antes_de_eliminar_artista"); }
-function eliminarRegistroBside(id) { eliminarConBackup("¿Eliminar este B-Side?", cargarRegistrosBsides, guardarRegistrosBsides, renderHistorialBsides, id, "antes_de_eliminar_bside"); }
+function eliminarRegistro(id) { eliminarConDeshacer(cargarRegistros, guardarRegistros, renderHistorial, id, "antes_de_eliminar_cancion", "Canción"); }
+function eliminarRegistroAlbum(id) { eliminarConDeshacer(cargarRegistrosAlbumes, guardarRegistrosAlbumes, renderHistorialAlbumes, id, "antes_de_eliminar_album", "Álbum"); }
+function eliminarRegistroArtista(id) { eliminarConDeshacer(cargarRegistrosArtistas, guardarRegistrosArtistas, renderHistorialArtistas, id, "antes_de_eliminar_artista", "Artista"); }
+function eliminarRegistroBside(id) { eliminarConDeshacer(cargarRegistrosBsides, guardarRegistrosBsides, renderHistorialBsides, id, "antes_de_eliminar_bside", "B-Side"); }
 
 function mostrarToast(msg, tipo = "success") {
   const container = document.getElementById("toast-container"); if (!container) return;
@@ -401,4 +422,64 @@ function mostrarToast(msg, tipo = "success") {
     toast.style.transform = "translateY(20px)";
     setTimeout(() => toast.remove(), 300);
   }, 4000);
+}
+
+
+// ── Búsqueda dentro de selectores · v1.2 ─────────────────────
+function instalarBuscadorSelect(selectId, placeholder) {
+  const select = document.getElementById(selectId);
+  if (!select || select.dataset.kgSearch === "1") return;
+  select.dataset.kgSearch = "1";
+
+  const input = document.createElement("input");
+  input.type = "search";
+  input.autocomplete = "off";
+  input.className = "kg-select-search";
+  input.placeholder = placeholder;
+  input.setAttribute("aria-label", placeholder);
+  select.parentNode.insertBefore(input, select);
+
+  let base = [];
+  const capturar = () => {
+    base = [...select.options].map(o => ({ value: o.value, text: o.textContent, disabled: o.disabled }));
+  };
+
+  const filtrar = () => {
+    const query = input.value.trim().toLowerCase();
+    const seleccionado = select.value;
+    const opciones = base.filter((o, idx) => idx === 0 && o.value === "" || !query || o.text.toLowerCase().includes(query));
+    select.innerHTML = "";
+
+    if (!opciones.length) {
+      const vacia = document.createElement("option");
+      vacia.value = "";
+      vacia.textContent = "Sin coincidencias";
+      vacia.disabled = true;
+      vacia.selected = true;
+      select.appendChild(vacia);
+      return;
+    }
+
+    opciones.forEach(o => {
+      const opt = document.createElement("option");
+      opt.value = o.value;
+      opt.textContent = o.text;
+      opt.disabled = o.disabled;
+      select.appendChild(opt);
+    });
+    if ([...select.options].some(o => o.value === seleccionado)) select.value = seleccionado;
+  };
+
+  capturar();
+  input.addEventListener("input", filtrar);
+  select.addEventListener("kg-options-changed", () => { capturar(); filtrar(); });
+}
+
+function configurarBusquedasRegistro() {
+  ["p1", "p2"].forEach(pid => {
+    instalarBuscadorSelect(`cancion-${pid}`, "🔎 Buscar canción o artista...");
+    instalarBuscadorSelect(`album-${pid}`, "🔎 Buscar álbum o artista...");
+    instalarBuscadorSelect(`bside-${pid}`, "🔎 Buscar B-Side o artista...");
+    instalarBuscadorSelect(`artista-${pid}`, "🔎 Buscar artista...");
+  });
 }

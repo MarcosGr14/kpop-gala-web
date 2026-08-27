@@ -1,5 +1,5 @@
 // ============================================================
-//  KPOP GALA — BACKUP.JS · v1.1
+//  KPOP GALA — BACKUP.JS · v1.2
 // ============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -8,7 +8,9 @@ document.addEventListener("DOMContentLoaded", () => {
   let archivoSeleccionado = null;
 
   renderEstadoDatos();
+  renderPerfiles();
 
+  document.getElementById("btn-guardar-perfiles")?.addEventListener("click", guardarPerfilesDesdeUI);
   document.getElementById("btn-exportar").addEventListener("click", exportarDatos);
 
   input.addEventListener("change", () => {
@@ -28,6 +30,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const resultado = restaurarSnapshotDatos(snapshot);
       mostrarMensaje(`✅ Restauración completa: ${sumarResultado(resultado)} registros.`, "success");
       renderEstadoDatos();
+      renderPerfiles();
+      aplicarConfiguracionUI();
     } catch (error) {
       mostrarMensaje(`⚠️ ${error.message || "No se pudo importar el archivo."}`, "error");
     }
@@ -92,9 +96,45 @@ function restaurarBackupLocal(tipo) {
     const resultado = restaurarSnapshotDatos(snapshot);
     mostrarMensaje(`✅ Respaldo restaurado: ${sumarResultado(resultado)} registros.`, "success");
     renderEstadoDatos();
+    renderPerfiles();
+    aplicarConfiguracionUI();
   } catch (error) {
     mostrarMensaje(`⚠️ ${error.message || "No se pudo restaurar el respaldo."}`, "error");
   }
+}
+
+
+function renderPerfiles() {
+  const cfg = cargarConfiguracion();
+  const nombre1 = document.getElementById("perfil-p1-nombre");
+  const nombre2 = document.getElementById("perfil-p2-nombre");
+  const emoji1 = document.getElementById("perfil-p1-emoji");
+  const emoji2 = document.getElementById("perfil-p2-emoji");
+  if (nombre1) nombre1.value = cfg.p1.nombre;
+  if (nombre2) nombre2.value = cfg.p2.nombre;
+  if (emoji1) emoji1.value = cfg.p1.emoji;
+  if (emoji2) emoji2.value = cfg.p2.emoji;
+}
+
+function guardarPerfilesDesdeUI() {
+  const cfg = {
+    p1: {
+      nombre: document.getElementById("perfil-p1-nombre")?.value,
+      emoji: document.getElementById("perfil-p1-emoji")?.value,
+    },
+    p2: {
+      nombre: document.getElementById("perfil-p2-nombre")?.value,
+      emoji: document.getElementById("perfil-p2-emoji")?.value,
+    },
+  };
+
+  if (!guardarConfiguracion(cfg)) {
+    mostrarMensaje("⚠️ No se pudieron guardar los nombres.", "error");
+    return;
+  }
+  renderPerfiles();
+  aplicarConfiguracionUI();
+  mostrarMensaje("✅ Participantes actualizados. Tus registros siguen usando p1 y p2 internamente.", "success");
 }
 
 function mostrarMensaje(texto, tipo = "success") {

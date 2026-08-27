@@ -20,9 +20,9 @@
 
 <main class="page-wrapper datos-page">
   <div class="page-header fade-up">
-    <div class="emoji-badge">🛡️ KPOP GALA v1.1</div>
+    <div class="emoji-badge">✨ KPOP GALA v1.2</div>
     <h1>Datos y respaldos</h1>
-    <p>Protege tus registros sin cambiar el sistema que ya utiliza la aplicación.</p>
+    <p>Protege tus registros y personaliza la experiencia sin alterar tus datos existentes.</p>
   </div>
 
   <section class="data-summary fade-up delay-1" aria-label="Resumen de datos">
@@ -30,6 +30,34 @@
     <div class="data-stat"><span id="count-artistas">0</span><small>Artistas</small></div>
     <div class="data-stat"><span id="count-albumes">0</span><small>Álbumes</small></div>
     <div class="data-stat"><span id="count-bsides">0</span><small>B-Sides</small></div>
+  </section>
+
+  <section class="profile-settings fade-up delay-2" aria-labelledby="profile-settings-title">
+    <div class="profile-settings-head">
+      <div>
+        <span class="data-kicker">NUEVO EN v1.2</span>
+        <h2 id="profile-settings-title">👥 Personalizar participantes</h2>
+        <p>Puedes cambiar cómo se muestran P1 y P2. Internamente seguirán siendo <code>p1</code> y <code>p2</code>, así que tus registros no se modifican.</p>
+      </div>
+      <button id="btn-guardar-perfiles" class="data-action primary">Guardar nombres</button>
+    </div>
+
+    <div class="profile-grid">
+      <label class="profile-field p1-field">
+        <span>Participante 1</span>
+        <div class="profile-input-row">
+          <input id="perfil-p1-emoji" class="profile-emoji" type="text" maxlength="4" aria-label="Emoji de participante 1">
+          <input id="perfil-p1-nombre" type="text" maxlength="28" placeholder="Persona 1">
+        </div>
+      </label>
+      <label class="profile-field p2-field">
+        <span>Participante 2</span>
+        <div class="profile-input-row">
+          <input id="perfil-p2-emoji" class="profile-emoji" type="text" maxlength="4" aria-label="Emoji de participante 2">
+          <input id="perfil-p2-nombre" type="text" maxlength="28" placeholder="Persona 2">
+        </div>
+      </label>
+    </div>
   </section>
 
   <section class="data-grid fade-up delay-2">
@@ -61,7 +89,7 @@
       <div class="data-icon">🛟</div>
       <div>
         <h2>Respaldo automático</h2>
-        <p>v1.1 conserva una copia inicial de tus datos y otra antes de eliminaciones o restauraciones.</p>
+        <p>KPop Gala conserva una copia inicial de tus datos y otra antes de eliminaciones o restauraciones.</p>
       </div>
       <div class="safety-actions">
         <button id="btn-restaurar-ultimo" class="data-action subtle">Restaurar último punto</button>

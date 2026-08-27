@@ -1,5 +1,5 @@
 // ============================================================
-//  KPOP GALA — SEMANAS.JS · v1.1
+//  KPOP GALA — SEMANAS.JS · v1.2
 //  Vista de registros por semana con compatibilidad legacy
 // ============================================================
 
@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   actualizarVista();
+  aplicarConfiguracionUI();
 });
 
 function renderOpcionesSemana() {
@@ -64,6 +65,7 @@ function renderResumen(semFiltro = "todas", perFiltro = "todas") {
   document.getElementById("res-pts-p2").textContent = ptsP2.toLocaleString();
   document.getElementById("res-ent-p1").textContent = `${entP1} entrada${entP1 !== 1 ? "s" : ""}`;
   document.getElementById("res-ent-p2").textContent = `${entP2} entrada${entP2 !== 1 ? "s" : ""}`;
+  aplicarConfiguracionUI();
 }
 
 function renderSemanas(semFiltro = "todas", perFiltro = "todas") {
@@ -106,6 +108,7 @@ function renderSemanas(semFiltro = "todas", perFiltro = "todas") {
       <div class="semana-tabla">${renderTabla(entradasSemana)}</div>`;
     container.appendChild(bloque);
   });
+  aplicarConfiguracionUI();
 }
 
 function formatoPosiciones(r) {
@@ -166,12 +169,27 @@ function renderTabla(entradas) {
 }
 
 function eliminarEnSemana(id) {
-  if (!confirm("¿Eliminar este registro? Se guardará un punto de restauración.")) return;
+  const registros = cargarRegistros();
+  const index = registros.findIndex(r => r.id === id);
+  if (index === -1) return;
+
+  const eliminado = registros[index];
   guardarBackupSeguridad("antes_de_eliminar_registro");
-  guardarRegistros(cargarRegistros().filter(r => r.id !== id));
+  registros.splice(index, 1);
+  guardarRegistros(registros);
   renderOpcionesSemana();
-  mostrarToastSemanas("Registro eliminado · respaldo de seguridad creado", "success");
   actualizarVista();
+
+  mostrarDeshacer("Registro eliminado", () => {
+    const actuales = cargarRegistros();
+    if (!actuales.some(r => r.id === eliminado.id)) {
+      actuales.splice(Math.min(index, actuales.length), 0, eliminado);
+      guardarRegistros(actuales);
+    }
+    renderOpcionesSemana();
+    actualizarVista();
+    mostrarToastSemanas("Registro restaurado", "success");
+  });
 }
 
 function mostrarToastSemanas(msg, tipo = "success") {
