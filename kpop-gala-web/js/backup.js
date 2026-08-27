@@ -2,6 +2,20 @@
 //  KPOP GALA — BACKUP.JS · v2.0 Seasons
 // ============================================================
 
+let restaurandoDatos = false;
+
+function bloquearRestauracionUI(bloquear) {
+  restaurandoDatos = bloquear;
+  ["btn-importar", "btn-restaurar-ultimo", "btn-restaurar-inicial", "btn-exportar", "input-importar"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = bloquear;
+  });
+  if (!bloquear) {
+    document.getElementById("btn-importar").disabled = !document.getElementById("input-importar").files?.length;
+    renderEstadoDatos();
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("input-importar");
   const btnImportar = document.getElementById("btn-importar");
@@ -20,22 +34,24 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   btnImportar.addEventListener("click", async () => {
-    if (!archivoSeleccionado) return;
+    if (!archivoSeleccionado || restaurandoDatos) return;
+    bloquearRestauracionUI(true);
     try {
       const texto = await archivoSeleccionado.text();
       const snapshot = JSON.parse(texto);
       const data = normalizarSnapshotDatos(snapshot); // valida antes de preguntar
       const total = Object.values(data).reduce((s, arr) => s + arr.length, 0);
       if (!confirm(`Se restaurarán ${total} registros desde ${archivoSeleccionado.name}. ¿Continuar?`)) return;
-      const resultado = restaurarSnapshotDatos(snapshot);
-      const imagenes = await importarImagenesCatalogo(snapshot.media?.imagenes || []);
+      const restauracion = await restaurarBackupCompleto(snapshot);
+      const resultado = restauracion.registros;
+      const imagenes = restauracion.imagenes;
       mostrarMensaje(`✅ Restauración completa: ${sumarResultado(resultado)} registros${imagenes ? ` · ${imagenes} imágenes` : ""}. Si cambió la temporada activa, se reflejará al navegar o recargar.`, "success");
       renderEstadoDatos();
       renderPerfiles();
       aplicarConfiguracionUI();
     } catch (error) {
       mostrarMensaje(`⚠️ ${error.message || "No se pudo importar el archivo."}`, "error");
-    }
+    } finally { bloquearRestauracionUI(false); }
   });
 
   document.getElementById("btn-restaurar-ultimo").addEventListener("click", () => restaurarBackupLocal("ultimo"));
@@ -90,20 +106,22 @@ async function exportarDatos() {
   }
 }
 
-function restaurarBackupLocal(tipo) {
+async function restaurarBackupLocal(tipo) {
+  if (restaurandoDatos) return;
+  bloquearRestauracionUI(true);
   try {
     const snapshot = tipo === "inicial" ? obtenerBackupInicial() : obtenerUltimoBackupSeguridad();
     if (!snapshot) return mostrarMensaje("No hay un respaldo disponible para restaurar.", "error");
     const nombre = tipo === "inicial" ? "la copia automática anterior a v1.1" : "el último punto de restauración";
     if (!confirm(`Vas a restaurar ${nombre}. Antes se guardará el estado actual. ¿Continuar?`)) return;
-    const resultado = restaurarSnapshotDatos(snapshot);
+    const { registros: resultado } = await restaurarBackupCompleto(snapshot);
     mostrarMensaje(`✅ Respaldo restaurado: ${sumarResultado(resultado)} registros. Temporadas y Hall of Fame compatibles si estaban incluidos.`, "success");
     renderEstadoDatos();
     renderPerfiles();
     aplicarConfiguracionUI();
   } catch (error) {
     mostrarMensaje(`⚠️ ${error.message || "No se pudo restaurar el respaldo."}`, "error");
-  }
+  } finally { bloquearRestauracionUI(false); }
 }
 
 

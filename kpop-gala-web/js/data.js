@@ -194,8 +194,13 @@ function contarRegistrosTemporada(id) {
 function cerrarTemporada(id) {
   const temp = obtenerTemporadaPorId(id);
   if (!temp) throw new Error("Temporada no encontrada.");
-  guardarHallOfFameAutomatico(id);
-  return actualizarTemporada(id, { estado: "cerrada", closedAt: new Date().toISOString() });
+  return ejecutarCambioLocalSeguro("antes_de_cerrar_temporada", () => {
+    guardarHallOfFameAutomatico(id);
+    const temporadas = cargarTemporadas();
+    const cerrada = { ...temp, estado: "cerrada", closedAt: new Date().toISOString() };
+    if (!guardarTemporadas(temporadas.map(t => t.id === temp.id ? cerrada : t))) throw new Error("No se pudo cerrar la temporada.");
+    return cerrada;
+  });
 }
 
 function reabrirTemporada(id) {
@@ -207,14 +212,15 @@ function eliminarTemporada(id) {
   const eraActiva = obtenerTemporadaActivaId() === sid;
   if (sid === KPOP_GALA_LEGACY_SEASON_ID) throw new Error("La temporada 2026 es la base histórica y no se elimina.");
   if (temporadaTieneRegistros(sid)) throw new Error("Esta temporada tiene registros. Ciérrala para conservar su historial.");
-  exigirBackupSeguridad("antes_de_eliminar_temporada");
-  const temporadas = cargarTemporadas().filter(t => t.id !== sid);
-  if (!guardarTemporadas(temporadas)) throw new Error("No se pudo eliminar la temporada.");
-  const hof = cargarHallOfFame();
-  delete hof[sid];
-  guardarHallOfFame(hof);
-  if (eraActiva) activarTemporada(KPOP_GALA_LEGACY_SEASON_ID);
-  return true;
+  return ejecutarCambioLocalSeguro("antes_de_eliminar_temporada", () => {
+    const temporadas = cargarTemporadas().filter(t => t.id !== sid);
+    if (!guardarTemporadas(temporadas)) throw new Error("No se pudo eliminar la temporada.");
+    const hof = cargarHallOfFame();
+    delete hof[sid];
+    if (!guardarHallOfFame(hof)) throw new Error("No se pudo guardar el Hall of Fame.");
+    if (eraActiva) activarTemporada(KPOP_GALA_LEGACY_SEASON_ID);
+    return true;
+  });
 }
 
 function rangoTemporadaTexto(temp = obtenerTemporadaActiva()) {
@@ -472,51 +478,151 @@ function normalizarSnapshotDatos(snapshot) {
   for (const [nombre, valor] of Object.entries(normalizado)) {
     if (!Array.isArray(valor)) throw new Error(`El respaldo no contiene una colección válida de ${nombre}.`);
   }
+  const esObjeto = x => x !== null && typeof x === "object" && !Array.isArray(x);
+  const validarFilas = (filas, nombre) => {
+    if (!Array.isArray(filas) || filas.some(x => !esObjeto(x))) throw new Error("Estructura inválida en " + nombre + ".");
+  };
+  for (const [nombre, filas] of Object.entries(normalizado)) validarFilas(filas, nombre);
+  for (const nombre of ["settings", "catalog", "hallOfFame"]) {
+    if (snapshot[nombre] != null && !esObjeto(snapshot[nombre])) throw new Error("Estructura inválida en " + nombre + ".");
+  }
+  if (snapshot.seasons != null) validarFilas(snapshot.seasons, "seasons");
+  if (snapshot.catalog) {
+    const catalogo = snapshot.catalog;
+    if (catalogo.overrides != null && !esObjeto(catalogo.overrides)) throw new Error("Overrides de catálogo inválidos.");
+    for (const tipo of ["canciones", "artistas", "albumes", "bsides"]) {
+      if (catalogo[tipo] != null) validarFilas(catalogo[tipo], tipo);
+      const overrides = catalogo.overrides?.[tipo];
+      if (overrides != null && (!esObjeto(overrides) || Object.values(overrides).some(x => !esObjeto(x)))) throw new Error("Overrides de catálogo inválidos.");
+    }
+  }
+  // Solo validación estructural: los campos legacy y extensiones se conservan.
   return normalizado;
+}
+
+// localStorage no tiene transacciones: conservamos sus bytes y compensamos fallos.
+// No incluye backups ni metadata de versión, que no se reemplazan al importar.
+function capturarEstadoLocal() {
+  return new Map([
+    ...Object.values(KPOP_GALA_STORAGE_KEYS), KPOP_GALA_SETTINGS_KEY,
+    KPOP_GALA_CATALOG_KEY, KPOP_GALA_SEASONS_KEY, KPOP_GALA_ACTIVE_SEASON_KEY,
+    KPOP_GALA_HOF_KEY,
+  ].map(key => [key, localStorage.getItem(key)]));
+}
+
+function recuperarEstadoLocal(estado) {
+  const fallos = [];
+  for (const [key, raw] of estado) {
+    try {
+      if (localStorage.getItem(key) === raw) continue;
+      if (raw === null) localStorage.removeItem(key);
+      else localStorage.setItem(key, raw);
+    } catch { fallos.push(key); }
+  }
+  // Tras liberar claves nuevas, un segundo intento puede recuperar espacio.
+  for (const key of fallos.slice()) {
+    try {
+      const raw = estado.get(key);
+      if (raw === null) localStorage.removeItem(key);
+      else localStorage.setItem(key, raw);
+      fallos.splice(fallos.indexOf(key), 1);
+    } catch { /* Se informa al usuario; no afirmar una recuperación inexistente. */ }
+  }
+  reconstruirCatalogos();
+  return fallos;
+}
+
+function errorRestauracion(error, estado) {
+  const fallos = recuperarEstadoLocal(estado);
+  const mensaje = fallos.length
+    ? "Falló la operación y no se pudo recuperar todo el estado anterior. Conserva el respaldo previo y exporta tus datos antes de continuar."
+    : "No se completó la operación. Se recuperó el estado anterior; el respaldo previo sigue disponible.";
+  const resultado = new Error(mensaje);
+  resultado.cause = error;
+  resultado.clavesSinRecuperar = fallos;
+  return resultado;
+}
+
+function ejecutarCambioLocalSeguro(motivo, accion) {
+  const anterior = capturarEstadoLocal();
+  exigirBackupSeguridad(motivo);
+  try { return accion(); }
+  catch (error) { throw errorRestauracion(error, anterior); }
+}
+
+// Parte síncrona compartida. No cambia la forma ni los campos de los registros.
+function aplicarSnapshotDatos(snapshot, data) {
+  const exigir = ok => { if (!ok) throw new Error("Falló una escritura del respaldo."); };
+  exigir(guardarRegistros(data.canciones));
+  exigir(guardarRegistrosArtistas(data.artistas));
+  exigir(guardarRegistrosAlbumes(data.albumes));
+  exigir(guardarRegistrosBsides(data.bsides));
+  if (snapshot.settings && typeof snapshot.settings === "object") exigir(guardarConfiguracion(snapshot.settings));
+  if (snapshot.catalog && typeof snapshot.catalog === "object") exigir(guardarCatalogoPersonalizado(snapshot.catalog));
+  if (Array.isArray(snapshot.seasons)) exigir(guardarTemporadas(snapshot.seasons));
+  if (snapshot.hallOfFame && typeof snapshot.hallOfFame === "object") exigir(guardarHallOfFame(snapshot.hallOfFame));
+  const seasonToActivate = snapshot.activeSeasonId || (snapshot.season ? String(snapshot.season) : null);
+  if (seasonToActivate && obtenerTemporadaPorId(seasonToActivate)) activarTemporada(seasonToActivate);
+  return Object.fromEntries(Object.entries(data).map(([tipo, registros]) => [tipo, registros.length]));
 }
 
 function restaurarSnapshotDatos(snapshot) {
   const data = normalizarSnapshotDatos(snapshot);
-  guardarBackupSeguridad("antes_de_restaurar");
-
-  const resultados = [
-    guardarRegistros(data.canciones),
-    guardarRegistrosArtistas(data.artistas),
-    guardarRegistrosAlbumes(data.albumes),
-    guardarRegistrosBsides(data.bsides),
-  ];
-  if (resultados.some(ok => !ok)) throw new Error("No se pudo completar la restauración. El respaldo de seguridad anterior sigue disponible.");
-
-  // Los backups v1.1 no tenían preferencias; por eso este paso es opcional.
-  if (snapshot.settings && typeof snapshot.settings === "object") {
-    guardarConfiguracion(snapshot.settings);
-  }
-  if (snapshot.catalog && typeof snapshot.catalog === "object") {
-    guardarCatalogoPersonalizado(snapshot.catalog);
+  return ejecutarCambioLocalSeguro("antes_de_restaurar", () => {
+    const resultado = aplicarSnapshotDatos(snapshot, data);
     reconstruirCatalogos();
-  }
-  if (Array.isArray(snapshot.seasons)) {
-    guardarTemporadas(snapshot.seasons);
-  }
-  if (snapshot.hallOfFame && typeof snapshot.hallOfFame === "object") {
-    guardarHallOfFame(snapshot.hallOfFame);
-  }
-  const seasonToActivate = snapshot.activeSeasonId || (snapshot.season ? String(snapshot.season) : null);
-  if (seasonToActivate && obtenerTemporadaPorId(seasonToActivate)) {
-    activarTemporada(seasonToActivate);
-  }
-
-  return {
-    canciones: data.canciones.length,
-    artistas: data.artistas.length,
-    albumes: data.albumes.length,
-    bsides: data.bsides.length,
-  };
+    return resultado;
+  });
 }
 
-function guardarBackupSeguridad(motivo = "seguridad") {
+let kgRestauracionEnCurso = false;
+
+// API asíncrona para Datos. La API histórica síncrona anterior se conserva.
+async function restaurarBackupCompleto(snapshot) {
+  if (kgRestauracionEnCurso) throw new Error("Ya hay una restauración en curso.");
+  kgRestauracionEnCurso = true;
+  let anterior = null;
+  let escriturasIniciadas = false;
   try {
-    localStorage.setItem(KPOP_GALA_LAST_BACKUP_KEY, JSON.stringify(crearSnapshotDatos(motivo)));
+    const data = normalizarSnapshotDatos(snapshot);
+    const imagenes = prepararImagenesCatalogo(snapshot.media?.imagenes ?? []);
+    // Solo imágenes que serán sobrescritas con otros bytes necesitan preimagen:
+    // el resto de IndexedDB no se borra y seguirá disponible en el respaldo.
+    const preimagenes = [];
+    for (const img of imagenes) {
+      const previa = await obtenerRegistroImagen(img.id);
+      if (!previa?.blob) continue;
+      const anteriorUrl = await blobADataURL(previa.blob);
+      if (anteriorUrl !== await blobADataURL(img.blob)) {
+        preimagenes.push({ id: previa.id, nombre: previa.nombre, type: previa.type, dataUrl: anteriorUrl });
+      }
+    }
+    anterior = capturarEstadoLocal();
+    const respaldo = crearSnapshotDatos("antes_de_restaurar");
+    if (preimagenes.length) respaldo.media = { imagenes: preimagenes };
+    if (!guardarBackupSeguridad("antes_de_restaurar", respaldo)) {
+      throw new Error("No se pudo conservar el respaldo previo (incluidas las imágenes que cambiarían). No se restauró nada.");
+    }
+    let resultado;
+    const aplicar = () => {
+      escriturasIniciadas = true;
+      resultado = aplicarSnapshotDatos(snapshot, data);
+    };
+    if (imagenes.length) await escribirImagenesCatalogo(imagenes, aplicar);
+    else aplicar();
+    reconstruirCatalogos();
+    return { registros: resultado, imagenes: imagenes.length };
+  } catch (error) {
+    if (escriturasIniciadas && anterior) throw errorRestauracion(error, anterior);
+    throw error;
+  } finally {
+    kgRestauracionEnCurso = false;
+  }
+}
+
+function guardarBackupSeguridad(motivo = "seguridad", snapshot = null) {
+  try {
+    localStorage.setItem(KPOP_GALA_LAST_BACKUP_KEY, JSON.stringify(snapshot || crearSnapshotDatos(motivo)));
     return true;
   } catch (error) {
     console.warn("[KPop Gala] No se pudo crear el respaldo de seguridad.", error);
@@ -1092,31 +1198,24 @@ function abrirDBImagenes() {
 async function guardarImagenCatalogo(file) {
   if (!file || !String(file.type || "").startsWith("image/")) throw new Error("Selecciona una imagen válida.");
   if (file.size > 8 * 1024 * 1024) throw new Error("La imagen supera 8 MB. Usa una imagen más ligera.");
-  const db = await abrirDBImagenes();
-  const id = `img_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-  await new Promise((resolve, reject) => {
-    const tx = db.transaction(KPOP_GALA_MEDIA_STORE, "readwrite");
-    tx.objectStore(KPOP_GALA_MEDIA_STORE).put({ id, blob: file, nombre: file.name || "imagen", type: file.type, savedAt: new Date().toISOString() });
-    tx.oncomplete = resolve;
-    tx.onerror = () => reject(tx.error || new Error("No se pudo guardar la imagen."));
-  });
-  db.close();
+  const id = "img_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
+  await escribirImagenesCatalogo([{ id, blob: file, nombre: file.name || "imagen", type: file.type, savedAt: new Date().toISOString() }]);
   return id;
 }
 
 async function obtenerRegistroImagen(id) {
   if (!id) return null;
   const db = await abrirDBImagenes();
-  const result = await new Promise((resolve, reject) => {
-    const tx = db.transaction(KPOP_GALA_MEDIA_STORE, "readonly");
-    const req = tx.objectStore(KPOP_GALA_MEDIA_STORE).get(id);
-    req.onsuccess = () => resolve(req.result || null);
-    req.onerror = () => reject(req.error);
-  });
-  db.close();
-  return result;
+  try {
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction(KPOP_GALA_MEDIA_STORE, "readonly");
+      const req = tx.objectStore(KPOP_GALA_MEDIA_STORE).get(id);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => reject(req.error);
+      tx.onabort = () => reject(tx.error || new Error("Se abortó la lectura de imagen."));
+    });
+  } finally { db.close(); }
 }
-
 async function obtenerUrlImagenCatalogo(id) {
   if (!id) return null;
   if (kgObjectUrlCache.has(id)) return kgObjectUrlCache.get(id);
@@ -1165,6 +1264,9 @@ async function exportarImagenesCatalogo() {
     c[tipo].forEach(x => x.imagenId && ids.add(x.imagenId));
     Object.values(c.overrides[tipo] || {}).forEach(x => x.imagenId && ids.add(x.imagenId));
   });
+  Object.values(cargarHallOfFame()).forEach(hall => {
+    Object.values(hall.ganadores || {}).forEach(x => x?.imagenId && ids.add(x.imagenId));
+  });
   const out = [];
   for (const id of ids) {
     const reg = await obtenerRegistroImagen(id);
@@ -1174,22 +1276,61 @@ async function exportarImagenesCatalogo() {
   return out;
 }
 
-async function importarImagenesCatalogo(imagenes = []) {
-  if (!Array.isArray(imagenes) || !imagenes.length) return 0;
+function prepararImagenesCatalogo(imagenes = []) {
+  if (!Array.isArray(imagenes)) throw new Error("La colección de imágenes no es válida.");
+  const ids = new Set();
+  return imagenes.map(img => {
+    if (!img || typeof img.id !== "string" || !img.id || ids.has(img.id)) throw new Error("ID de imagen inválido o duplicado.");
+    ids.add(img.id);
+    // No fetch de URLs de un backup: únicamente imágenes embebidas, como exporta la app.
+    const match = typeof img.dataUrl === "string" && /^data:(image\/[a-z0-9.+-]+);base64,([a-z0-9+/=\r\n]+)$/i.exec(img.dataUrl);
+    if (!match || match[2].length > 12 * 1024 * 1024) throw new Error("El respaldo contiene una imagen inválida o demasiado grande.");
+    let bytes;
+    try { bytes = Uint8Array.from(atob(match[2]), c => c.charCodeAt(0)); }
+    catch { throw new Error("No se pudo decodificar una imagen del respaldo."); }
+    if (bytes.length > 8 * 1024 * 1024) throw new Error("La imagen del respaldo supera 8 MB.");
+    return { id: img.id, blob: new Blob([bytes], { type: match[1] }), nombre: img.nombre || "imagen", type: match[1], savedAt: new Date().toISOString() };
+  });
+}
+
+// Un solo commit de IndexedDB para todas las imágenes. Si el callback local
+// falla, abortamos antes del commit; si IndexedDB aborta, el llamador compensa LS.
+async function escribirImagenesCatalogo(imagenes, antesDeCommit = () => {}) {
+  if (!imagenes.length) { antesDeCommit(); return 0; }
   const db = await abrirDBImagenes();
-  let total = 0;
-  for (const img of imagenes) {
-    if (!img?.id || !img?.dataUrl) continue;
-    const blob = await (await fetch(img.dataUrl)).blob();
+  try {
     await new Promise((resolve, reject) => {
       const tx = db.transaction(KPOP_GALA_MEDIA_STORE, "readwrite");
-      tx.objectStore(KPOP_GALA_MEDIA_STORE).put({ id: img.id, blob, nombre: img.nombre || "imagen", type: img.type || blob.type, savedAt: new Date().toISOString() });
-      tx.oncomplete = resolve; tx.onerror = () => reject(tx.error);
+      let errorLocal = null;
+      tx.oncomplete = resolve;
+      tx.onabort = () => reject(errorLocal || tx.error || new Error("Se abortó el guardado de imágenes."));
+      tx.onerror = () => { /* El error aborta la transacción; se espera onabort. */ };
+      try {
+        let pendientes = imagenes.length;
+        imagenes.forEach(img => {
+          const req = tx.objectStore(KPOP_GALA_MEDIA_STORE).put(img);
+          req.onsuccess = () => {
+            if (--pendientes !== 0) return;
+            try { antesDeCommit(); }
+            catch (error) { errorLocal = error; tx.abort(); }
+          };
+        });
+      } catch (error) {
+        errorLocal = error;
+        tx.abort();
+      }
     });
-    total++;
-  }
-  db.close();
-  return total;
+    imagenes.forEach(img => {
+      const url = kgObjectUrlCache.get(img.id);
+      if (url) URL.revokeObjectURL(url);
+      kgObjectUrlCache.delete(img.id);
+    });
+    return imagenes.length;
+  } finally { db.close(); }
+}
+
+async function importarImagenesCatalogo(imagenes = []) {
+  return escribirImagenesCatalogo(prepararImagenesCatalogo(imagenes));
 }
 
 function calcularRankingBsides(temporadaId = obtenerTemporadaActivaId()) {
