@@ -153,7 +153,7 @@ function crearTemporada({ anio, nombre, inicio, fin }) {
   }, { ...KPOP_GALA_DEFAULT_SEASON, id, anio: year, inicio: ini, fin: end });
   const semanas = generarSemanas(temp);
   if (!semanas.length || semanas.length > 60) throw new Error("La temporada debe contener entre 1 y 60 semanas.");
-  guardarBackupSeguridad("antes_de_crear_temporada");
+  exigirBackupSeguridad("antes_de_crear_temporada");
   temporadas.push(temp);
   if (!guardarTemporadas(temporadas)) throw new Error("No se pudo guardar la temporada.");
   return temp;
@@ -167,7 +167,7 @@ function actualizarTemporada(id, cambios = {}) {
   const nueva = normalizarTemporada({ ...anterior, ...cambios, id: anterior.id, anio: anterior.anio }, anterior);
   if (new Date(`${nueva.inicio}T00:00:00`) > new Date(`${nueva.fin}T23:59:59`)) throw new Error("Las fechas de la temporada no son válidas.");
   if (generarSemanas(nueva).length > 60) throw new Error("La temporada no puede superar 60 semanas.");
-  guardarBackupSeguridad("antes_de_editar_temporada");
+  exigirBackupSeguridad("antes_de_editar_temporada");
   temporadas[idx] = nueva;
   if (!guardarTemporadas(temporadas)) throw new Error("No se pudo actualizar la temporada.");
   return nueva;
@@ -207,7 +207,7 @@ function eliminarTemporada(id) {
   const eraActiva = obtenerTemporadaActivaId() === sid;
   if (sid === KPOP_GALA_LEGACY_SEASON_ID) throw new Error("La temporada 2026 es la base histórica y no se elimina.");
   if (temporadaTieneRegistros(sid)) throw new Error("Esta temporada tiene registros. Ciérrala para conservar su historial.");
-  guardarBackupSeguridad("antes_de_eliminar_temporada");
+  exigirBackupSeguridad("antes_de_eliminar_temporada");
   const temporadas = cargarTemporadas().filter(t => t.id !== sid);
   if (!guardarTemporadas(temporadas)) throw new Error("No se pudo eliminar la temporada.");
   const hof = cargarHallOfFame();
@@ -395,6 +395,21 @@ function escribirJSONSeguro(key, value) {
     console.error(`[KPop Gala] No se pudo guardar ${key}.`, error);
     return false;
   }
+}
+
+// Mantiene las APIs booleanas de almacenamiento; la UI decide si puede continuar.
+function guardarConFeedback(guardar, valor, notificar) {
+  try {
+    if (guardar(valor) === true) return true;
+  } catch (error) {
+    console.error("[KPop Gala] Falló la operación de guardado.", error);
+  }
+  notificar("No se pudo guardar. Conservamos el formulario y los datos anteriores; intenta de nuevo.", "error");
+  return false;
+}
+
+function exigirBackupSeguridad(motivo) {
+  if (!guardarBackupSeguridad(motivo)) throw new Error("No se pudo crear el respaldo previo. No se realizó la operación.");
 }
 
 function cargarRegistros() {
@@ -751,8 +766,8 @@ function mostrarDeshacer(mensaje, accionDeshacer, duracion = 6500) {
   };
 
   toast.querySelector(".kg-undo-btn").addEventListener("click", () => {
-    try { accionDeshacer?.(); } finally { cerrar(); }
-  }, { once: true });
+    if (accionDeshacer?.() !== false) cerrar();
+  });
   toast.querySelector(".kg-close").addEventListener("click", cerrar, { once: true });
   kgUndoTimer = setTimeout(cerrar, duracion);
 }
@@ -1005,7 +1020,7 @@ function guardarItemCatalogo(tipo, datos, id = null) {
   const limpio = sanitizarItemCatalogo(tipo, datos, existente || {});
   if (existeDuplicadoCatalogo(tipo, limpio, id)) throw new Error("Ya existe un elemento con ese nombre y artista.");
 
-  guardarBackupSeguridad("antes_de_editar_catalogo");
+  exigirBackupSeguridad("antes_de_editar_catalogo");
   const c = cargarCatalogoPersonalizado();
   if (!existente) {
     limpio.id = generarIdCatalogo(tipo);
@@ -1047,7 +1062,7 @@ function eliminarItemCatalogo(tipo, id) {
   if (item.origen !== "custom") throw new Error("Los elementos base se archivan, no se eliminan.");
   if (itemTieneRegistros(tipo, id)) throw new Error("Este elemento tiene historial y no puede eliminarse. Archívalo.");
   if (itemEstaReferenciadoCatalogo(tipo, id)) throw new Error("Este elemento está relacionado con otro contenido del catálogo. Archívalo en lugar de eliminarlo.");
-  guardarBackupSeguridad("antes_de_eliminar_catalogo");
+  exigirBackupSeguridad("antes_de_eliminar_catalogo");
   const c = cargarCatalogoPersonalizado();
   c[tipo] = c[tipo].filter(x => String(x.id) !== String(id));
   if (!guardarCatalogoPersonalizado(c)) throw new Error("No se pudo actualizar el catálogo.");
@@ -1258,11 +1273,11 @@ function calcularGanadoresTemporada(temporadaId) {
   return out;
 }
 
-function guardarHallOfFameAutomatico(temporadaId) {
+function guardarHallOfFameAutomatico(temporadaId, reemplazarManual = false) {
   const sid = String(temporadaId);
   const hall = cargarHallOfFame();
   // Si el usuario ya personalizó los ganadores, cerrar/reabrir no los pisa.
-  if (hall[sid]?.modo === "manual") return hall[sid];
+  if (hall[sid]?.modo === "manual" && !reemplazarManual) return hall[sid];
   hall[sid] = {
     temporadaId: sid,
     modo: "automatico",
@@ -1276,7 +1291,7 @@ function guardarHallOfFameAutomatico(temporadaId) {
 function guardarHallOfFameManual(temporadaId, selecciones = {}) {
   const sid = String(temporadaId);
   if (!obtenerTemporadaPorId(sid)) throw new Error("Temporada no encontrada.");
-  guardarBackupSeguridad("antes_de_editar_hall_of_fame");
+  exigirBackupSeguridad("antes_de_editar_hall_of_fame");
   const hall = cargarHallOfFame();
   const ganadores = {};
   ["canciones","artistas","albumes","bsides"].forEach(tipo => {

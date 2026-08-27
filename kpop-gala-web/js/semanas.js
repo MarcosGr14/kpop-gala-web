@@ -179,9 +179,9 @@ function eliminarEnSemana(id) {
   if (index === -1) return;
 
   const eliminado = registros[index];
-  guardarBackupSeguridad("antes_de_eliminar_registro");
+  if (!guardarBackupSeguridad("antes_de_eliminar_registro")) return mostrarToastSemanas("No se pudo crear el respaldo previo. No se eliminó el registro.", "error");
   registros.splice(index, 1);
-  guardarRegistros(registros);
+  if (!guardarConFeedback(guardarRegistros, registros, mostrarToastSemanas)) return;
   renderOpcionesSemana();
   actualizarVista();
 
@@ -189,7 +189,7 @@ function eliminarEnSemana(id) {
     const actuales = cargarRegistros();
     if (!actuales.some(r => r.id === eliminado.id)) {
       actuales.splice(Math.min(index, actuales.length), 0, eliminado);
-      guardarRegistros(actuales);
+      if (!guardarConFeedback(guardarRegistros, actuales, mostrarToastSemanas)) return false;
     }
     renderOpcionesSemana();
     actualizarVista();

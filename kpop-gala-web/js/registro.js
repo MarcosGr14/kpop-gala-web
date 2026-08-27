@@ -177,15 +177,16 @@ function guardarEntrada(pid) {
   if (editandoCancionId && personaEditando === pid) {
     const error = chequearDups(editandoCancionId); if (error) return mostrarToast(error, "error");
     const idx = registros.findIndex(r => r.id === editandoCancionId);
-    if (idx !== -1) registros[idx] = { ...registros[idx], cancionId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep) };
-    guardarRegistros(registros);
+    if (idx === -1) return mostrarToast("El registro ya no existe. No se guardaron cambios.", "error");
+    registros[idx] = { ...registros[idx], cancionId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep) };
+    if (!guardarConFeedback(guardarRegistros, registros, mostrarToast)) return;
     mostrarToast("✨ Canción actualizada", "success");
     editandoCancionId = null; personaEditando = null;
     document.querySelector(`#form-${pid} button[type="submit"]`).innerHTML = "✨ Guardar entrada";
   } else {
     const error = chequearDups(null); if (error) return mostrarToast(error, "error");
     registros.push({ id: `c_${Date.now()}`, seasonId: temporadaId, semanaId, personaId: pid, cancionId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep), timestamp: Date.now() });
-    guardarRegistros(registros);
+    if (!guardarConFeedback(guardarRegistros, registros, mostrarToast)) return;
     mostrarToast("✨ Canción guardada", "success");
   }
   document.getElementById(`form-${pid}`).reset();
@@ -213,15 +214,16 @@ function guardarEntradaAlbum(pid) {
   if (editandoAlbumId && personaEditandoAlbum === pid) {
     const error = chequearDups(editandoAlbumId); if (error) return mostrarToast(error, "error");
     const idx = registros.findIndex(r => r.id === editandoAlbumId);
-    if (idx !== -1) registros[idx] = { ...registros[idx], albumId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep) };
-    guardarRegistrosAlbumes(registros);
+    if (idx === -1) return mostrarToast("El registro ya no existe. No se guardaron cambios.", "error");
+    registros[idx] = { ...registros[idx], albumId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep) };
+    if (!guardarConFeedback(guardarRegistrosAlbumes, registros, mostrarToast)) return;
     mostrarToast("💿 Álbum actualizado", "success");
     editandoAlbumId = null; personaEditandoAlbum = null;
     document.querySelector(`#form-album-${pid} button[type="submit"]`).innerHTML = "💿 Guardar Álbum";
   } else {
     const error = chequearDups(null); if (error) return mostrarToast(error, "error");
     registros.push({ id: `a_${Date.now()}`, seasonId: temporadaId, semanaId, personaId: pid, albumId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep), timestamp: Date.now() });
-    guardarRegistrosAlbumes(registros);
+    if (!guardarConFeedback(guardarRegistrosAlbumes, registros, mostrarToast)) return;
     mostrarToast("💿 Álbum guardado", "success");
   }
   document.getElementById(`form-album-${pid}`).reset();
@@ -245,15 +247,16 @@ function guardarEntradaArtista(pid) {
   if (editandoArtistaId && personaEditandoArtista === pid) {
     const error = chequearDups(editandoArtistaId); if (error) return mostrarToast(error, "error");
     const idx = registros.findIndex(r => r.id === editandoArtistaId);
-    if (idx !== -1) registros[idx] = { ...registros[idx], artistaId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep) };
-    guardarRegistrosArtistas(registros);
+    if (idx === -1) return mostrarToast("El registro ya no existe. No se guardaron cambios.", "error");
+    registros[idx] = { ...registros[idx], artistaId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep) };
+    if (!guardarConFeedback(guardarRegistrosArtistas, registros, mostrarToast)) return;
     mostrarToast("⭐ Artista actualizado", "success");
     editandoArtistaId = null; personaEditandoArtista = null;
     document.querySelector(`#form-artista-${pid} button[type="submit"]`).innerHTML = "⭐ Guardar Artista";
   } else {
     const error = chequearDups(null); if (error) return mostrarToast(error, "error");
     registros.push({ id: `art_${Date.now()}`, seasonId: temporadaId, semanaId, personaId: pid, artistaId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep), timestamp: Date.now() });
-    guardarRegistrosArtistas(registros);
+    if (!guardarConFeedback(guardarRegistrosArtistas, registros, mostrarToast)) return;
     mostrarToast("⭐ Artista guardado", "success");
   }
   document.getElementById(`form-artista-${pid}`).reset();
@@ -277,15 +280,16 @@ function guardarEntradaBside(pid) {
   if (editandoBsideId && personaEditandoBside === pid) {
     const error = chequearDups(editandoBsideId); if (error) return mostrarToast(error, "error");
     const idx = registros.findIndex(r => r.id === editandoBsideId);
-    if (idx !== -1) registros[idx] = { ...registros[idx], bsideId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep) };
-    guardarRegistrosBsides(registros);
+    if (idx === -1) return mostrarToast("El registro ya no existe. No se guardaron cambios.", "error");
+    registros[idx] = { ...registros[idx], bsideId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep) };
+    if (!guardarConFeedback(guardarRegistrosBsides, registros, mostrarToast)) return;
     mostrarToast("🎧 B-Side actualizado", "success");
     editandoBsideId = null; personaEditandoBside = null;
     document.querySelector(`#form-bside-${pid} button[type="submit"]`).innerHTML = "🎧 Guardar B-Side";
   } else {
     const error = chequearDups(null); if (error) return mostrarToast(error, "error");
     registros.push({ id: `bs_${Date.now()}`, seasonId: temporadaId, semanaId, personaId: pid, bsideId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep), timestamp: Date.now() });
-    guardarRegistrosBsides(registros);
+    if (!guardarConFeedback(guardarRegistrosBsides, registros, mostrarToast)) return;
     mostrarToast("🎧 B-Side guardado", "success");
   }
   document.getElementById(`form-bside-${pid}`).reset();
@@ -440,16 +444,16 @@ function eliminarConDeshacer(cargar, guardar, render, id, motivo, etiqueta) {
   if (index === -1) return;
 
   const eliminado = registros[index];
-  guardarBackupSeguridad(motivo);
+  if (!guardarBackupSeguridad(motivo)) return mostrarToast("No se pudo crear el respaldo previo. No se eliminó el registro.", "error");
   registros.splice(index, 1);
-  guardar(registros);
+  if (!guardarConFeedback(guardar, registros, mostrarToast)) return;
   render();
 
   mostrarDeshacer(`${etiqueta} eliminado`, () => {
     const actuales = cargar();
     if (!actuales.some(r => r.id === eliminado.id)) {
       actuales.splice(Math.min(index, actuales.length), 0, eliminado);
-      guardar(actuales);
+      if (!guardarConFeedback(guardar, actuales, mostrarToast)) return false;
     }
     render();
     mostrarToast("↩️ Registro restaurado", "success");
