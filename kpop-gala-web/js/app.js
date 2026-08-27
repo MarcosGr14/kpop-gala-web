@@ -1,5 +1,5 @@
 // ============================================================
-//  KPOP GALA — APP.JS · v1.4 Catálogo Update
+//  KPOP GALA — APP.JS · v1.5 Analytics & Detail Views
 //  Ranking global + métricas históricas + Top 3
 // ============================================================
 
@@ -78,6 +78,7 @@ function crearRankCard({
   placeholder,
   metrica,
   barStyle = "",
+  detalleHref = null,
 }) {
   const tienePuntos = puntos > 0;
   const topClass = tienePuntos && pos <= 3 ? `pos-${pos} kg-top-${pos}` : "";
@@ -85,6 +86,17 @@ function crearRankCard({
   const card = document.createElement("div");
   card.className = `rank-card ${topClass} fade-up`;
   card.dataset.rankPosition = String(pos);
+  if (detalleHref) {
+    card.classList.add("kg-rank-clickable");
+    card.tabIndex = 0;
+    card.setAttribute("role", "link");
+    card.setAttribute("aria-label", `Ver analytics de ${nombre}`);
+    const abrirDetalle = () => { window.location.href = detalleHref; };
+    card.addEventListener("click", abrirDetalle);
+    card.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); abrirDetalle(); }
+    });
+  }
   card.innerHTML = `
     <div class="rank-pos">${medal}</div>
     <div class="rank-img-wrap">
@@ -136,6 +148,7 @@ function renderRanking(filtro) {
       placeholder: { icon: "🎵" },
       metrica: metricas.get(String(item.cancion.id)),
       barStyle: `width:${pct}%`,
+      detalleHref: `analytics.html?tipo=canciones&id=${encodeURIComponent(item.cancion.id)}`,
     });
     card.style.animationDelay = `${Math.min(idx * 0.04, 0.4)}s`;
     container.appendChild(card);
@@ -183,6 +196,7 @@ function renderRankingArtistas(categoria) {
       placeholder: { icon: "🎤", style: "background:linear-gradient(135deg,var(--amarillo-glow),#f9731633);" },
       metrica: metricas.get(String(item.artista.id)),
       barStyle: `width:${pct}%;background:linear-gradient(90deg,var(--amarillo),#f59e0b)`,
+      detalleHref: `analytics.html?tipo=artistas&id=${encodeURIComponent(item.artista.id)}`,
     });
     card.style.animationDelay = `${Math.min(idx * 0.04, 0.4)}s`;
     container.appendChild(card);
@@ -229,6 +243,7 @@ function renderRankingAlbumes(filtro) {
       placeholder: { icon: "💿", style: "background:linear-gradient(135deg,var(--violeta-glow),var(--rosa-glow));" },
       metrica: metricas.get(String(item.album.id)),
       barStyle: `width:${pct}%;background:linear-gradient(90deg,var(--violeta),var(--rosa))`,
+      detalleHref: `analytics.html?tipo=albumes&id=${encodeURIComponent(item.album.id)}`,
     });
     card.style.animationDelay = `${Math.min(idx * 0.04, 0.4)}s`;
     container.appendChild(card);
@@ -276,6 +291,7 @@ function renderRankingBsides(filtro) {
       placeholder: { icon: "🎧", style: "background:linear-gradient(135deg,var(--verde-glow),#10b981);" },
       metrica: metricas.get(String(item.bside.id)),
       barStyle: `width:${pct}%;background:linear-gradient(90deg,#10b981,#34d399)`,
+      detalleHref: `analytics.html?tipo=bsides&id=${encodeURIComponent(item.bside.id)}`,
     });
     card.style.animationDelay = `${Math.min(idx * 0.04, 0.4)}s`;
     container.appendChild(card);
@@ -318,6 +334,10 @@ function inyectarEstilosRankingsV13() {
     .rank-card.kg-top-1 .rank-pos{font-size:1.55rem}
     .rank-card.kg-top-1 .rank-img-wrap{transform:scale(1.06)}
     .rank-card.kg-top-1 .song-name{font-weight:900}
+    .rank-card.kg-rank-clickable{cursor:pointer;transition:transform .2s var(--ease-out),box-shadow .2s var(--ease-out),border-color .2s}
+    .rank-card.kg-rank-clickable:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:rgba(244,114,182,.42)}
+    .rank-card.kg-rank-clickable:focus-visible{outline:3px solid rgba(167,139,250,.45);outline-offset:3px}
+    .rank-card.kg-rank-clickable.kg-top-1:hover{transform:translateY(-4px)}
     @media(max-width:640px){
       .kg-rank-meta{gap:.28rem}
       .kg-rank-meta>span{padding:.14rem .34rem}

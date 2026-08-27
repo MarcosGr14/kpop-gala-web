@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📊 KPop Gala · Analytics</title>
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/analytics.css">
+</head>
+<body>
+<nav class="navbar">
+  <a href="index.html" class="nav-logo"><span>🌸</span> KPop Gala</a>
+  <ul class="nav-links">
+    <li><a href="index.html">🏆 <span>Ranking</span></a></li>
+    <li><a href="registro.html">✍️ <span>Registrar</span></a></li>
+    <li class="nav-dropdown">
+      <a href="semanas.html">📅 <span>Semanas</span></a>
+      <div class="dropdown-menu">
+        <a href="semanas.html">📋 Ver todas</a>
+        <a href="semanas.html?filtro=p1">🌸 Persona 1</a>
+        <a href="semanas.html?filtro=p2">💙 Persona 2</a>
+      </div>
+    </li>
+    <li><a href="analytics.html" class="active">📊 <span>Analytics</span></a></li>
+  </ul>
+</nav>
+
+<main class="page-wrapper analytics-page">
+  <div id="analytics-root"></div>
+</main>
+
+<div id="toast-container"></div>
+<script src="js/data.js"></script>
+<script src="js/analytics.js"></script>
+</body>
+</html>

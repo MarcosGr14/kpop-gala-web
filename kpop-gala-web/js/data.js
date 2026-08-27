@@ -1,9 +1,9 @@
 // ============================================================
-//  KPOP GALA — DATA.JS · v1.4 Catálogo Update
+//  KPOP GALA — DATA.JS · v1.5 Analytics & Detail Views
 //  Datos, semanas, puntaje y capa segura de almacenamiento
 // ============================================================
 
-const KPOP_GALA_APP_VERSION = "1.4.0";
+const KPOP_GALA_APP_VERSION = "1.5.0";
 const KPOP_GALA_SCHEMA_VERSION = 1;
 const KPOP_GALA_TEMPORADA = {
   anio: 2026,
@@ -312,6 +312,7 @@ function inyectarNavDatos() {
     if (antesDeDatos && datosLi) nav.insertBefore(li, datosLi); else nav.appendChild(li);
   };
 
+  agregar("analytics.html", "📊 <span>Analytics</span>", true);
   agregar("catalogo.html", "📚 <span>Catálogo</span>", true);
   agregar("datos.html", "💾 <span>Datos</span>");
 }
