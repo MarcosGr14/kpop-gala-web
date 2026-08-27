@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>💾 KPop Gala · Datos</title>
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/datos.css">
+</head>
+<body>
+<nav class="navbar">
+  <a href="index.html" class="nav-logo"><span>🌸</span> KPop Gala</a>
+  <ul class="nav-links">
+    <li><a href="index.html">🏆 <span>Ranking</span></a></li>
+    <li><a href="registro.html">✍️ <span>Registrar</span></a></li>
+    <li><a href="semanas.html">📅 <span>Semanas</span></a></li>
+    <li><a href="datos.html" class="active">💾 <span>Datos</span></a></li>
+  </ul>
+</nav>
+
+<main class="page-wrapper datos-page">
+  <div class="page-header fade-up">
+    <div class="emoji-badge">🛡️ KPOP GALA v1.1</div>
+    <h1>Datos y respaldos</h1>
+    <p>Protege tus registros sin cambiar el sistema que ya utiliza la aplicación.</p>
+  </div>
+
+  <section class="data-summary fade-up delay-1" aria-label="Resumen de datos">
+    <div class="data-stat"><span id="count-canciones">0</span><small>Canciones</small></div>
+    <div class="data-stat"><span id="count-artistas">0</span><small>Artistas</small></div>
+    <div class="data-stat"><span id="count-albumes">0</span><small>Álbumes</small></div>
+    <div class="data-stat"><span id="count-bsides">0</span><small>B-Sides</small></div>
+  </section>
+
+  <section class="data-grid fade-up delay-2">
+    <article class="data-card export-card">
+      <div class="data-icon">📦</div>
+      <div>
+        <span class="data-kicker">RECOMENDADO</span>
+        <h2>Exportar respaldo</h2>
+        <p>Descarga un archivo JSON con todos tus registros actuales. No modifica nada.</p>
+      </div>
+      <button id="btn-exportar" class="data-action primary">Descargar copia JSON</button>
+    </article>
+
+    <article class="data-card">
+      <div class="data-icon">📥</div>
+      <div>
+        <h2>Importar respaldo</h2>
+        <p>Selecciona un JSON creado por KPop Gala. Antes de restaurarlo se crea otro respaldo de seguridad automáticamente.</p>
+      </div>
+      <label class="file-picker">
+        <input id="input-importar" type="file" accept="application/json,.json">
+        <span>Elegir archivo JSON</span>
+      </label>
+      <div id="import-file-name" class="file-name">Ningún archivo seleccionado</div>
+      <button id="btn-importar" class="data-action" disabled>Restaurar archivo</button>
+    </article>
+
+    <article class="data-card safety-card">
+      <div class="data-icon">🛟</div>
+      <div>
+        <h2>Respaldo automático</h2>
+        <p>v1.1 conserva una copia inicial de tus datos y otra antes de eliminaciones o restauraciones.</p>
+      </div>
+      <div class="safety-actions">
+        <button id="btn-restaurar-ultimo" class="data-action subtle">Restaurar último punto</button>
+        <button id="btn-restaurar-inicial" class="data-action subtle">Restaurar copia pre-v1.1</button>
+      </div>
+      <small id="backup-status" class="backup-status"></small>
+    </article>
+  </section>
+
+  <section class="storage-note fade-up delay-3">
+    <strong>Importante:</strong> tus registros siguen guardándose en las mismas claves de <code>localStorage</code>. Esta actualización no las renombra ni las elimina. Para que el navegador vea los mismos datos, ejecuta la app desde el mismo origen de localhost que usabas antes.
+  </section>
+
+  <div id="data-message" class="data-message" role="status" aria-live="polite"></div>
+</main>
+
+<script src="js/data.js"></script>
+<script src="js/backup.js"></script>
+</body>
+</html>
