@@ -3,13 +3,226 @@
 //  Datos, semanas, puntaje y capa segura de almacenamiento
 // ============================================================
 
-const KPOP_GALA_APP_VERSION = "1.5.0";
-const KPOP_GALA_SCHEMA_VERSION = 1;
-const KPOP_GALA_TEMPORADA = {
+const KPOP_GALA_APP_VERSION = "2.0.0";
+const KPOP_GALA_SCHEMA_VERSION = 2;
+
+// ── Temporadas · v2.0 ─────────────────────────────────────────
+// Los registros históricos 2026 NO se migran. Si un registro antiguo no tiene
+// seasonId, KPop Gala lo interpreta como perteneciente a 2026.
+const KPOP_GALA_LEGACY_SEASON_ID = "2026";
+const KPOP_GALA_SEASONS_KEY = "kpop_gala_seasons_v2";
+const KPOP_GALA_ACTIVE_SEASON_KEY = "kpop_gala_active_season_v2";
+const KPOP_GALA_HOF_KEY = "kpop_gala_hall_of_fame_v2";
+
+const KPOP_GALA_DEFAULT_SEASON = Object.freeze({
+  id: "2026",
   anio: 2026,
-  inicio: new Date(2026, 5, 1),   // Lunes 1 de junio de 2026
-  fin: new Date(2026, 11, 6),     // Domingo 6 de diciembre de 2026
-};
+  nombre: "Temporada 2026",
+  inicio: "2026-06-01",
+  fin: "2026-12-06",
+  estado: "activa",
+  createdAt: "2026-01-01T00:00:00.000Z",
+});
+
+function kgLeerLocalJSON(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw === null) return fallback;
+    const parsed = JSON.parse(raw);
+    return parsed ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function kgEscribirLocalJSON(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function normalizarFechaISO(valor, fallback) {
+  const s = String(valor || "");
+  return /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : fallback;
+}
+
+function limpiarTextoTemporada(valor, fallback) {
+  const txt = String(valor ?? "").trim().replace(/\s+/g, " ");
+  return (txt || fallback).slice(0, 60);
+}
+
+function normalizarTemporada(raw, fallback = KPOP_GALA_DEFAULT_SEASON) {
+  const t = raw && typeof raw === "object" ? raw : {};
+  const anio = Number(t.anio) || Number(fallback.anio) || 2026;
+  const id = String(t.id || anio);
+  const inicio = normalizarFechaISO(t.inicio, fallback.inicio);
+  const fin = normalizarFechaISO(t.fin, fallback.fin);
+  return {
+    id,
+    anio,
+    nombre: limpiarTextoTemporada(t.nombre, `Temporada ${anio}`),
+    inicio,
+    fin,
+    estado: t.estado === "cerrada" ? "cerrada" : "activa",
+    createdAt: t.createdAt || new Date().toISOString(),
+    closedAt: t.closedAt || null,
+  };
+}
+
+function cargarTemporadas() {
+  const raw = kgLeerLocalJSON(KPOP_GALA_SEASONS_KEY, []);
+  const lista = Array.isArray(raw) ? raw.map(x => normalizarTemporada(x)).filter(Boolean) : [];
+  if (!lista.some(x => x.id === KPOP_GALA_LEGACY_SEASON_ID)) lista.unshift({ ...KPOP_GALA_DEFAULT_SEASON });
+  return lista.sort((a, b) => a.anio - b.anio || a.nombre.localeCompare(b.nombre, "es"));
+}
+
+function guardarTemporadas(temporadas) {
+  const lista = Array.isArray(temporadas) ? temporadas.map(x => normalizarTemporada(x)) : [];
+  if (!lista.some(x => x.id === KPOP_GALA_LEGACY_SEASON_ID)) lista.unshift({ ...KPOP_GALA_DEFAULT_SEASON });
+  return kgEscribirLocalJSON(KPOP_GALA_SEASONS_KEY, lista);
+}
+
+function obtenerTemporadaPorId(id) {
+  return cargarTemporadas().find(t => String(t.id) === String(id)) || null;
+}
+
+function obtenerTemporadaActivaId() {
+  const id = String(localStorage.getItem(KPOP_GALA_ACTIVE_SEASON_KEY) || KPOP_GALA_LEGACY_SEASON_ID);
+  return obtenerTemporadaPorId(id) ? id : KPOP_GALA_LEGACY_SEASON_ID;
+}
+
+function obtenerTemporadaActiva() {
+  return obtenerTemporadaPorId(obtenerTemporadaActivaId()) || { ...KPOP_GALA_DEFAULT_SEASON };
+}
+
+function runtimeTemporada(temp) {
+  const t = normalizarTemporada(temp);
+  return {
+    ...t,
+    inicio: new Date(`${t.inicio}T00:00:00`),
+    fin: new Date(`${t.fin}T23:59:59`),
+  };
+}
+
+const KPOP_GALA_TEMPORADA = runtimeTemporada(obtenerTemporadaActiva());
+
+function activarTemporada(id) {
+  const temp = obtenerTemporadaPorId(id);
+  if (!temp) throw new Error("La temporada no existe.");
+  localStorage.setItem(KPOP_GALA_ACTIVE_SEASON_KEY, temp.id);
+  return temp;
+}
+
+function temporadaEstaCerrada(id = obtenerTemporadaActivaId()) {
+  return obtenerTemporadaPorId(id)?.estado === "cerrada";
+}
+
+function obtenerIdTemporadaRegistro(registro) {
+  return String(registro?.seasonId || KPOP_GALA_LEGACY_SEASON_ID);
+}
+
+function registroPerteneceTemporada(registro, temporadaId = obtenerTemporadaActivaId()) {
+  return obtenerIdTemporadaRegistro(registro) === String(temporadaId);
+}
+
+function filtrarRegistrosTemporada(registros, temporadaId = obtenerTemporadaActivaId()) {
+  return (Array.isArray(registros) ? registros : []).filter(r => registroPerteneceTemporada(r, temporadaId));
+}
+
+function crearTemporada({ anio, nombre, inicio, fin }) {
+  const year = Number(anio);
+  if (!Number.isInteger(year) || year < 2020 || year > 2100) throw new Error("Ingresa un año válido.");
+  const id = String(year);
+  const temporadas = cargarTemporadas();
+  if (temporadas.some(t => t.id === id || t.anio === year)) throw new Error(`Ya existe una temporada para ${year}.`);
+  const ini = normalizarFechaISO(inicio, "");
+  const end = normalizarFechaISO(fin, "");
+  if (!ini || !end) throw new Error("Selecciona una fecha de inicio y una de fin.");
+  if (new Date(`${ini}T00:00:00`) > new Date(`${end}T23:59:59`)) throw new Error("La fecha de fin debe ser posterior al inicio.");
+  const temp = normalizarTemporada({
+    id,
+    anio: year,
+    nombre: limpiarTextoTemporada(nombre, `Temporada ${year}`),
+    inicio: ini,
+    fin: end,
+    estado: "activa",
+    createdAt: new Date().toISOString(),
+  }, { ...KPOP_GALA_DEFAULT_SEASON, id, anio: year, inicio: ini, fin: end });
+  const semanas = generarSemanas(temp);
+  if (!semanas.length || semanas.length > 60) throw new Error("La temporada debe contener entre 1 y 60 semanas.");
+  guardarBackupSeguridad("antes_de_crear_temporada");
+  temporadas.push(temp);
+  if (!guardarTemporadas(temporadas)) throw new Error("No se pudo guardar la temporada.");
+  return temp;
+}
+
+function actualizarTemporada(id, cambios = {}) {
+  const temporadas = cargarTemporadas();
+  const idx = temporadas.findIndex(t => t.id === String(id));
+  if (idx < 0) throw new Error("Temporada no encontrada.");
+  const anterior = temporadas[idx];
+  const nueva = normalizarTemporada({ ...anterior, ...cambios, id: anterior.id, anio: anterior.anio }, anterior);
+  if (new Date(`${nueva.inicio}T00:00:00`) > new Date(`${nueva.fin}T23:59:59`)) throw new Error("Las fechas de la temporada no son válidas.");
+  if (generarSemanas(nueva).length > 60) throw new Error("La temporada no puede superar 60 semanas.");
+  guardarBackupSeguridad("antes_de_editar_temporada");
+  temporadas[idx] = nueva;
+  if (!guardarTemporadas(temporadas)) throw new Error("No se pudo actualizar la temporada.");
+  return nueva;
+}
+
+function temporadaTieneRegistros(id) {
+  return [
+    ...cargarRegistros(),
+    ...cargarRegistrosArtistas(),
+    ...cargarRegistrosAlbumes(),
+    ...cargarRegistrosBsides(),
+  ].some(r => registroPerteneceTemporada(r, id));
+}
+
+function contarRegistrosTemporada(id) {
+  return {
+    canciones: filtrarRegistrosTemporada(cargarRegistros(), id).length,
+    artistas: filtrarRegistrosTemporada(cargarRegistrosArtistas(), id).length,
+    albumes: filtrarRegistrosTemporada(cargarRegistrosAlbumes(), id).length,
+    bsides: filtrarRegistrosTemporada(cargarRegistrosBsides(), id).length,
+  };
+}
+
+function cerrarTemporada(id) {
+  const temp = obtenerTemporadaPorId(id);
+  if (!temp) throw new Error("Temporada no encontrada.");
+  guardarHallOfFameAutomatico(id);
+  return actualizarTemporada(id, { estado: "cerrada", closedAt: new Date().toISOString() });
+}
+
+function reabrirTemporada(id) {
+  return actualizarTemporada(id, { estado: "activa", closedAt: null });
+}
+
+function eliminarTemporada(id) {
+  const sid = String(id);
+  const eraActiva = obtenerTemporadaActivaId() === sid;
+  if (sid === KPOP_GALA_LEGACY_SEASON_ID) throw new Error("La temporada 2026 es la base histórica y no se elimina.");
+  if (temporadaTieneRegistros(sid)) throw new Error("Esta temporada tiene registros. Ciérrala para conservar su historial.");
+  guardarBackupSeguridad("antes_de_eliminar_temporada");
+  const temporadas = cargarTemporadas().filter(t => t.id !== sid);
+  if (!guardarTemporadas(temporadas)) throw new Error("No se pudo eliminar la temporada.");
+  const hof = cargarHallOfFame();
+  delete hof[sid];
+  guardarHallOfFame(hof);
+  if (eraActiva) activarTemporada(KPOP_GALA_LEGACY_SEASON_ID);
+  return true;
+}
+
+function rangoTemporadaTexto(temp = obtenerTemporadaActiva()) {
+  const ini = temp?.inicio instanceof Date ? new Date(temp.inicio) : new Date(`${temp.inicio}T00:00:00`);
+  const fin = temp?.fin instanceof Date ? new Date(temp.fin) : new Date(`${temp.fin}T00:00:00`);
+  const f = d => d.toLocaleDateString("es-PA", { day: "2-digit", month: "short", year: "numeric" });
+  return `${f(ini)} – ${f(fin)}`;
+}
 
 const CANCIONES_BASE = [
   { id: 1,  nombre: "Blue Valentine",  artista: "NMIXX",  img: "assets/canciones/NMIXX.jpg"  },
@@ -45,10 +258,11 @@ function fechaISO(fecha) {
   return `${y}-${m}-${d}`;
 }
 
-function generarSemanas() {
+function generarSemanas(temporada = KPOP_GALA_TEMPORADA) {
   const semanas = [];
-  const inicio = new Date(KPOP_GALA_TEMPORADA.inicio);
-  const fin = new Date(KPOP_GALA_TEMPORADA.fin);
+  const rt = temporada?.inicio instanceof Date ? temporada : runtimeTemporada(temporada);
+  const inicio = new Date(rt.inicio);
+  const fin = new Date(rt.fin);
   let actual = new Date(inicio);
   let num = 1;
 
@@ -76,9 +290,15 @@ function generarSemanas() {
 }
 const SEMANAS = generarSemanas();
 
-function semanaParaFecha(fecha = new Date()) {
+function obtenerSemanasTemporada(temporadaId = obtenerTemporadaActivaId()) {
+  const temp = obtenerTemporadaPorId(temporadaId);
+  return temp ? generarSemanas(temp) : [];
+}
+
+function semanaParaFecha(fecha = new Date(), temporadaId = obtenerTemporadaActivaId()) {
+  const semanas = temporadaId === obtenerTemporadaActivaId() ? SEMANAS : obtenerSemanasTemporada(temporadaId);
   const t = new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate()).getTime();
-  return SEMANAS.find(s => {
+  return semanas.find(s => {
     const ini = new Date(`${s.inicio}T00:00:00`).getTime();
     const fin = new Date(`${s.fin}T23:59:59`).getTime();
     return t >= ini && t <= fin;
@@ -89,11 +309,12 @@ function obtenerSemanaRecomendada() {
   const actual = semanaParaFecha(new Date());
   if (actual) return actual;
 
+  const seasonId = obtenerTemporadaActivaId();
   const idsUsados = new Set([
-    ...cargarRegistros(),
-    ...cargarRegistrosArtistas(),
-    ...cargarRegistrosAlbumes(),
-    ...cargarRegistrosBsides(),
+    ...filtrarRegistrosTemporada(cargarRegistros(), seasonId),
+    ...filtrarRegistrosTemporada(cargarRegistrosArtistas(), seasonId),
+    ...filtrarRegistrosTemporada(cargarRegistrosAlbumes(), seasonId),
+    ...filtrarRegistrosTemporada(cargarRegistrosBsides(), seasonId),
   ].map(r => r.semanaId));
 
   const usadas = SEMANAS.filter(s => idsUsados.has(s.id));
@@ -206,6 +427,9 @@ function crearSnapshotDatos(motivo = "exportacion") {
     appVersion: KPOP_GALA_APP_VERSION,
     schemaVersion: KPOP_GALA_SCHEMA_VERSION,
     season: KPOP_GALA_TEMPORADA.anio,
+    activeSeasonId: obtenerTemporadaActivaId(),
+    seasons: cargarTemporadas(),
+    hallOfFame: cargarHallOfFame(),
     motivo,
     exportedAt: new Date().toISOString(),
     origin: typeof location !== "undefined" ? location.origin : "unknown",
@@ -256,6 +480,16 @@ function restaurarSnapshotDatos(snapshot) {
     guardarCatalogoPersonalizado(snapshot.catalog);
     reconstruirCatalogos();
   }
+  if (Array.isArray(snapshot.seasons)) {
+    guardarTemporadas(snapshot.seasons);
+  }
+  if (snapshot.hallOfFame && typeof snapshot.hallOfFame === "object") {
+    guardarHallOfFame(snapshot.hallOfFame);
+  }
+  const seasonToActivate = snapshot.activeSeasonId || (snapshot.season ? String(snapshot.season) : null);
+  if (seasonToActivate && obtenerTemporadaPorId(seasonToActivate)) {
+    activarTemporada(seasonToActivate);
+  }
 
   return {
     canciones: data.canciones.length,
@@ -288,11 +522,71 @@ function inicializarCapaDatos() {
     if (!localStorage.getItem(KPOP_GALA_INITIAL_BACKUP_KEY)) {
       localStorage.setItem(KPOP_GALA_INITIAL_BACKUP_KEY, JSON.stringify(crearSnapshotDatos("antes_de_v1_1")));
     }
+    if (!localStorage.getItem(KPOP_GALA_SEASONS_KEY)) guardarTemporadas([{ ...KPOP_GALA_DEFAULT_SEASON }]);
+    if (!localStorage.getItem(KPOP_GALA_ACTIVE_SEASON_KEY)) localStorage.setItem(KPOP_GALA_ACTIVE_SEASON_KEY, KPOP_GALA_LEGACY_SEASON_ID);
     localStorage.setItem(KPOP_GALA_SCHEMA_KEY, String(KPOP_GALA_SCHEMA_VERSION));
     localStorage.setItem(KPOP_GALA_APP_VERSION_KEY, KPOP_GALA_APP_VERSION);
   } catch (error) {
     // La app continúa funcionando aunque el navegador no permita crear metadata extra.
     console.warn("[KPop Gala] No se pudo inicializar metadata de KPop Gala.", error);
+  }
+}
+
+function inyectarEstilosTemporadaV20() {
+  if (document.getElementById("kg-season-v20-styles")) return;
+  const style = document.createElement("style");
+  style.id = "kg-season-v20-styles";
+  style.textContent = `
+    .kg-season-chip{display:inline-flex;align-items:center;gap:.38rem;margin-left:.7rem;padding:.32rem .68rem;border-radius:999px;border:1.5px solid var(--border);background:rgba(255,255,255,.72);color:var(--text-soft);font-size:.72rem;font-weight:900;white-space:nowrap;transition:.18s ease}
+    .kg-season-chip:hover{border-color:var(--violeta);color:#7c3aed;transform:translateY(-1px)}
+    .kg-season-chip.closed{opacity:.78}
+    .kg-season-chip .dot{width:7px;height:7px;border-radius:50%;background:var(--verde);box-shadow:0 0 0 3px var(--verde-glow)}
+    .kg-season-chip.closed .dot{background:var(--text-muted);box-shadow:none}
+    .kg-season-banner{max-width:1200px;margin:.6rem auto 0;padding:0 1.5rem;position:relative;z-index:2}
+    .kg-season-closed-note{display:flex;align-items:center;justify-content:space-between;gap:.7rem;padding:.65rem .85rem;border:1.5px solid rgba(167,139,250,.35);background:rgba(167,139,250,.09);border-radius:14px;color:var(--text-soft);font-size:.8rem;font-weight:700}
+    .kg-season-closed-note a{font-weight:900;color:#7c3aed}
+    @media(max-width:900px){.kg-season-chip{margin-left:.25rem;padding:.28rem .5rem}.kg-season-chip .kg-season-name{display:none}}
+    @media(max-width:640px){.kg-season-chip{position:absolute;left:50%;transform:translateX(-50%);top:72px;margin:0;z-index:20}.kg-season-chip:hover{transform:translateX(-50%) translateY(-1px)}}
+  `;
+  document.head.appendChild(style);
+}
+
+function aplicarTemporadaUI() {
+  inyectarEstilosTemporadaV20();
+  const temp = obtenerTemporadaActiva();
+  const navbar = document.querySelector(".navbar");
+  const logo = navbar?.querySelector(".nav-logo");
+  if (navbar && logo && !navbar.querySelector(".kg-season-chip")) {
+    const chip = document.createElement("a");
+    chip.href = "temporadas.html";
+    chip.className = `kg-season-chip ${temp.estado === "cerrada" ? "closed" : ""}`;
+    chip.title = `Cambiar temporada · ${rangoTemporadaTexto(temp)}`;
+    chip.innerHTML = `<span class="dot"></span><span class="kg-season-name">${escaparHTML(temp.nombre)}</span><span>▾</span>`;
+    logo.insertAdjacentElement("afterend", chip);
+  }
+
+  // Ajustes de texto sin exigir cambios en los HTML históricos.
+  if (document.getElementById("ranking-list")) {
+    const badge = document.querySelector(".page-header .emoji-badge");
+    const p = document.querySelector(".page-header p");
+    if (badge) badge.textContent = `🎶 ${temp.nombre.toUpperCase()}`;
+    if (p) p.textContent = `Puntaje acumulado · ${rangoTemporadaTexto(temp)}`;
+  }
+  if (document.getElementById("semana-global")) {
+    const p = document.querySelector(".page-header p");
+    if (p) p.textContent = `Registra tus puntuaciones semanales · ${temp.nombre}`;
+  }
+  if (document.getElementById("semanas-container")) {
+    const p = document.querySelector(".page-header p");
+    if (p) p.textContent = `Consulta y filtra todos los registros · ${rangoTemporadaTexto(temp)}`;
+  }
+
+  if (temp.estado === "cerrada" && !document.querySelector(".kg-season-closed-note") &&
+      !location.pathname.endsWith("temporadas.html") && !location.pathname.endsWith("hall-of-fame.html")) {
+    const note = document.createElement("div");
+    note.className = "kg-season-banner";
+    note.innerHTML = `<div class="kg-season-closed-note"><span>🔒 Estás viendo <strong>${escaparHTML(temp.nombre)}</strong>, una temporada cerrada. Su historial permanece disponible.</span><a href="temporadas.html">Cambiar temporada</a></div>`;
+    document.querySelector(".navbar")?.insertAdjacentElement("afterend", note);
   }
 }
 
@@ -469,8 +763,8 @@ function inicializarUXV12() {
 }
 
 // ── Obtener puntaje acumulado por canción ─────────────────────
-function calcularRanking() {
-  const registros = cargarRegistros();
+function calcularRanking(temporadaId = obtenerTemporadaActivaId()) {
+  const registros = filtrarRegistrosTemporada(cargarRegistros(), temporadaId);
   const mapa = {};
 
   CANCIONES.forEach(c => {
@@ -527,8 +821,8 @@ const ARTISTAS_BASE = [
   { id: 'gg14', nombre: 'YOUNG POSSE', categoria: 'girl_group', img: 'assets/artistas/YP.jpg' },
 ];
 
-function calcularRankingArtistas(categoria) {
-  const registros = cargarRegistrosArtistas();
+function calcularRankingArtistas(categoria, temporadaId = obtenerTemporadaActivaId()) {
+  const registros = filtrarRegistrosTemporada(cargarRegistrosArtistas(), temporadaId);
   const mapa = {};
   ARTISTAS.filter(a => a.categoria === categoria).forEach(a => {
     mapa[a.id] = { artista: a, puntajeTotal: 0, p1: 0, p2: 0, entradasP1: 0, entradasP2: 0 };
@@ -557,8 +851,8 @@ const ALBUMES_BASE = [
 
 function albumPorId(id) { return ALBUMES.find(a => a.id === Number(id)); }
 
-function calcularRankingAlbumes() {
-  const registros = cargarRegistrosAlbumes();
+function calcularRankingAlbumes(temporadaId = obtenerTemporadaActivaId()) {
+  const registros = filtrarRegistrosTemporada(cargarRegistrosAlbumes(), temporadaId);
   const mapa = {};
   ALBUMES.forEach(a => {
     mapa[a.id] = { album: a, puntajeTotal: 0, p1: 0, p2: 0, entradasP1: 0, entradasP2: 0 };
@@ -883,8 +1177,8 @@ async function importarImagenesCatalogo(imagenes = []) {
   return total;
 }
 
-function calcularRankingBsides() {
-  const registros = cargarRegistrosBsides();
+function calcularRankingBsides(temporadaId = obtenerTemporadaActivaId()) {
+  const registros = filtrarRegistrosTemporada(cargarRegistrosBsides(), temporadaId);
   const mapa = {};
   BSIDES.forEach(b => {
     mapa[b.id] = { bside: b, puntajeTotal: 0, p1: 0, p2: 0, entradasP1: 0, entradasP2: 0 };
@@ -900,19 +1194,142 @@ function calcularRankingBsides() {
 }
 
 
+// ── Hall of Fame · v2.0 ─────────────────────────────────────
+function cargarHallOfFame() {
+  const raw = leerJSONSeguro(KPOP_GALA_HOF_KEY, {});
+  return raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
+}
+
+function guardarHallOfFame(hall) {
+  return escribirJSONSeguro(KPOP_GALA_HOF_KEY, hall && typeof hall === "object" ? hall : {});
+}
+
+function calcularRankingArtistasGeneral(temporadaId = obtenerTemporadaActivaId()) {
+  const registros = filtrarRegistrosTemporada(cargarRegistrosArtistas(), temporadaId);
+  const mapa = {};
+  ARTISTAS.forEach(a => {
+    mapa[a.id] = { artista: a, puntajeTotal: 0, p1: 0, p2: 0 };
+  });
+  registros.forEach(r => {
+    const item = mapa[r.artistaId];
+    if (!item) return;
+    const pts = obtenerPuntajeRegistro(r);
+    item.puntajeTotal += pts;
+    const persona = r.personaId || "p1";
+    if (persona === "p1") item.p1 += pts;
+    if (persona === "p2") item.p2 += pts;
+  });
+  return Object.values(mapa)
+    .filter(x => !x.artista.archivado || x.puntajeTotal > 0)
+    .sort((a,b) => b.puntajeTotal - a.puntajeTotal || xNombre(a.artista).localeCompare(xNombre(b.artista), "es"));
+}
+
+function xNombre(item) {
+  return String(item?.nombre || "");
+}
+
+function rankingTipoTemporada(tipo, temporadaId) {
+  if (tipo === "canciones") return calcularRanking(temporadaId).map(x => ({ item: x.cancion, puntos: x.puntajeTotal }));
+  if (tipo === "artistas") return calcularRankingArtistasGeneral(temporadaId).map(x => ({ item: x.artista, puntos: x.puntajeTotal }));
+  if (tipo === "albumes") return calcularRankingAlbumes(temporadaId).map(x => ({ item: x.album, puntos: x.puntajeTotal }));
+  if (tipo === "bsides") return calcularRankingBsides(temporadaId).map(x => ({ item: x.bside, puntos: x.puntajeTotal }));
+  return [];
+}
+
+function snapshotGanador(tipo, item, puntos = 0) {
+  if (!item) return null;
+  return {
+    tipo,
+    id: item.id,
+    nombre: item.nombre,
+    subtitulo: tipo === "artistas" ? String(item.categoria || "").replaceAll("_", " ").toUpperCase() : (item.artista || ""),
+    puntos: Number(puntos) || 0,
+    img: item.img || "",
+    imagenId: item.imagenId || null,
+  };
+}
+
+function calcularGanadoresTemporada(temporadaId) {
+  const out = {};
+  ["canciones","artistas","albumes","bsides"].forEach(tipo => {
+    const top = rankingTipoTemporada(tipo, temporadaId)[0] || null;
+    out[tipo] = top ? snapshotGanador(tipo, top.item, top.puntos) : null;
+  });
+  return out;
+}
+
+function guardarHallOfFameAutomatico(temporadaId) {
+  const sid = String(temporadaId);
+  const hall = cargarHallOfFame();
+  // Si el usuario ya personalizó los ganadores, cerrar/reabrir no los pisa.
+  if (hall[sid]?.modo === "manual") return hall[sid];
+  hall[sid] = {
+    temporadaId: sid,
+    modo: "automatico",
+    savedAt: new Date().toISOString(),
+    ganadores: calcularGanadoresTemporada(sid),
+  };
+  if (!guardarHallOfFame(hall)) throw new Error("No se pudo guardar el Hall of Fame.");
+  return hall[sid];
+}
+
+function guardarHallOfFameManual(temporadaId, selecciones = {}) {
+  const sid = String(temporadaId);
+  if (!obtenerTemporadaPorId(sid)) throw new Error("Temporada no encontrada.");
+  guardarBackupSeguridad("antes_de_editar_hall_of_fame");
+  const hall = cargarHallOfFame();
+  const ganadores = {};
+  ["canciones","artistas","albumes","bsides"].forEach(tipo => {
+    const id = selecciones[tipo];
+    if (id === null || id === undefined || id === "") {
+      ganadores[tipo] = null;
+      return;
+    }
+    const item = obtenerItemCatalogo(tipo, id);
+    if (!item) throw new Error(`No se encontró el ganador de ${tipo}.`);
+    const rank = rankingTipoTemporada(tipo, sid).find(x => String(x.item.id) === String(id));
+    ganadores[tipo] = snapshotGanador(tipo, item, rank?.puntos || 0);
+  });
+  hall[sid] = {
+    temporadaId: sid,
+    modo: "manual",
+    savedAt: new Date().toISOString(),
+    ganadores,
+  };
+  if (!guardarHallOfFame(hall)) throw new Error("No se pudo guardar el Hall of Fame.");
+  return hall[sid];
+}
+
+function obtenerHallOfFameTemporada(temporadaId, provisional = true) {
+  const sid = String(temporadaId);
+  const guardado = cargarHallOfFame()[sid];
+  if (guardado) return { ...guardado, provisional: false };
+  if (!provisional) return null;
+  return {
+    temporadaId: sid,
+    modo: "provisional",
+    savedAt: null,
+    ganadores: calcularGanadoresTemporada(sid),
+    provisional: true,
+  };
+}
+
+
 // ── Métricas históricas de ranking · v1.3 ────────────────────
 // Se calculan en memoria a partir de los registros existentes.
 // No se crean nuevas claves ni se modifica el historial guardado.
-function indiceSemanaPorId(semanaId) {
-  return SEMANAS.findIndex(s => s.id === semanaId);
+function indiceSemanaPorId(semanaId, temporadaId = obtenerTemporadaActivaId()) {
+  const semanas = temporadaId === obtenerTemporadaActivaId() ? SEMANAS : obtenerSemanasTemporada(temporadaId);
+  return semanas.findIndex(s => s.id === semanaId);
 }
 
-function calcularMetricasHistoricas(items, registros, obtenerIdItem, obtenerIdRegistro) {
+function calcularMetricasHistoricas(items, registros, obtenerIdItem, obtenerIdRegistro, temporadaId = obtenerTemporadaActivaId()) {
+  const semanas = temporadaId === obtenerTemporadaActivaId() ? SEMANAS : obtenerSemanasTemporada(temporadaId);
   const ids = items.map(item => String(obtenerIdItem(item)));
   const idSet = new Set(ids);
   const ordenBase = new Map(ids.map((id, index) => [id, index]));
   const registrosValidos = registros
-    .map(r => ({ registro: r, semanaIndex: indiceSemanaPorId(r.semanaId) }))
+    .map(r => ({ registro: r, semanaIndex: indiceSemanaPorId(r.semanaId, temporadaId) }))
     .filter(x => x.semanaIndex >= 0 && idSet.has(String(obtenerIdRegistro(x.registro))));
 
   const ultimoIndice = registrosValidos.length
@@ -927,7 +1344,7 @@ function calcularMetricasHistoricas(items, registros, obtenerIdItem, obtenerIdRe
     peak: null,
     semanasEnRanking: 0,
     debutSemanaId: null,
-    ultimaSemanaId: ultimoIndice >= 0 ? SEMANAS[ultimoIndice]?.id || null : null,
+    ultimaSemanaId: ultimoIndice >= 0 ? semanas[ultimoIndice]?.id || null : null,
   }]));
 
   if (ultimoIndice < 0) return metricas;
@@ -974,7 +1391,7 @@ function calcularMetricasHistoricas(items, registros, obtenerIdItem, obtenerIdRe
     if (!m || !indicesItem.length) return;
 
     const debutIndex = Math.min(...indicesItem);
-    m.debutSemanaId = SEMANAS[debutIndex]?.id || null;
+    m.debutSemanaId = semanas[debutIndex]?.id || null;
     m.semanasEnRanking = Math.max(0, ultimoIndice - debutIndex + 1);
 
     m.posicionActual = rankingActual.get(id) ?? null;
@@ -993,42 +1410,46 @@ function calcularMetricasHistoricas(items, registros, obtenerIdItem, obtenerIdRe
   return metricas;
 }
 
-function calcularMetricasCanciones() {
+function calcularMetricasCanciones(temporadaId = obtenerTemporadaActivaId()) {
   return calcularMetricasHistoricas(
     CANCIONES,
-    cargarRegistros(),
+    filtrarRegistrosTemporada(cargarRegistros(), temporadaId),
     item => item.id,
-    registro => registro.cancionId
+    registro => registro.cancionId,
+    temporadaId
   );
 }
 
-function calcularMetricasAlbumes() {
+function calcularMetricasAlbumes(temporadaId = obtenerTemporadaActivaId()) {
   return calcularMetricasHistoricas(
     ALBUMES,
-    cargarRegistrosAlbumes(),
+    filtrarRegistrosTemporada(cargarRegistrosAlbumes(), temporadaId),
     item => item.id,
-    registro => registro.albumId
+    registro => registro.albumId,
+    temporadaId
   );
 }
 
-function calcularMetricasBsides() {
+function calcularMetricasBsides(temporadaId = obtenerTemporadaActivaId()) {
   return calcularMetricasHistoricas(
     BSIDES,
-    cargarRegistrosBsides(),
+    filtrarRegistrosTemporada(cargarRegistrosBsides(), temporadaId),
     item => item.id,
-    registro => registro.bsideId
+    registro => registro.bsideId,
+    temporadaId
   );
 }
 
-function calcularMetricasArtistas(categoria) {
+function calcularMetricasArtistas(categoria, temporadaId = obtenerTemporadaActivaId()) {
   const items = ARTISTAS.filter(a => a.categoria === categoria);
   const ids = new Set(items.map(a => String(a.id)));
-  const registros = cargarRegistrosArtistas().filter(r => ids.has(String(r.artistaId)));
+  const registros = filtrarRegistrosTemporada(cargarRegistrosArtistas(), temporadaId).filter(r => ids.has(String(r.artistaId)));
   return calcularMetricasHistoricas(
     items,
     registros,
     item => item.id,
-    registro => registro.artistaId
+    registro => registro.artistaId,
+    temporadaId
   );
 }
 
@@ -1036,7 +1457,7 @@ function calcularMetricasArtistas(categoria) {
 reconstruirCatalogos();
 inicializarCapaDatos();
 if (typeof document !== "undefined") {
-  const iniciarUICompartida = () => { inyectarNavDatos(); inicializarUXV12(); };
+  const iniciarUICompartida = () => { inyectarNavDatos(); inicializarUXV12(); aplicarTemporadaUI(); };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", iniciarUICompartida);
   else iniciarUICompartida();
 }

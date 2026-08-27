@@ -1,5 +1,5 @@
 // ============================================================
-//  KPOP GALA — SEMANAS.JS · v1.4
+//  KPOP GALA — SEMANAS.JS · v2.0 Seasons
 //  Vista de registros por semana con compatibilidad legacy
 // ============================================================
 
@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
 function renderOpcionesSemana() {
   const selSemana = document.getElementById("filtro-semana");
   const valorActual = selSemana.value || "todas";
-  const registros = cargarRegistros();
+  const registros = filtrarRegistrosTemporada(cargarRegistros());
   const semanasUsadas = [...new Set(registros.map(r => r.semanaId))];
 
   selSemana.innerHTML = `<option value="todas">Todas las semanas</option>`;
@@ -50,7 +50,7 @@ function actualizarVista() {
 }
 
 function renderResumen(semFiltro = "todas", perFiltro = "todas") {
-  const registros = cargarRegistros().filter(r => {
+  const registros = filtrarRegistrosTemporada(cargarRegistros()).filter(r => {
     const matchSem = semFiltro === "todas" || r.semanaId === semFiltro;
     const matchPer = perFiltro === "todas" || r.personaId === perFiltro;
     return matchSem && matchPer;
@@ -72,7 +72,7 @@ function renderSemanas(semFiltro = "todas", perFiltro = "todas") {
   const container = document.getElementById("semanas-container");
   container.innerHTML = "";
 
-  const registros = cargarRegistros();
+  const registros = filtrarRegistrosTemporada(cargarRegistros());
   const semanasAMostrar = semFiltro === "todas"
     ? SEMANAS.filter(s => registros.some(r => r.semanaId === s.id))
     : SEMANAS.filter(s => s.id === semFiltro);
@@ -152,7 +152,7 @@ function renderTabla(entradas) {
         <span class="str-rep">▶ ${Number(r.reproducciones) || 0}x</span>
         <span class="str-pts ${isPid2 ? "p2" : ""}">
           +${puntos}
-          <button class="str-del-btn" onclick="eliminarEnSemana('${r.id}')" title="Eliminar">✕</button>
+          ${temporadaEstaCerrada() ? "" : `<button class="str-del-btn" onclick="eliminarEnSemana('${r.id}')" title="Eliminar">✕</button>`}
         </span>
       </div>`;
   }).join("");
@@ -170,6 +170,10 @@ function renderTabla(entradas) {
 }
 
 function eliminarEnSemana(id) {
+  if (temporadaEstaCerrada()) {
+    mostrarToastSemanas("Esta temporada está cerrada; su historial está protegido.", "error");
+    return;
+  }
   const registros = cargarRegistros();
   const index = registros.findIndex(r => r.id === id);
   if (index === -1) return;

@@ -1,5 +1,5 @@
 // ============================================================
-//  KPOP GALA — REGISTRO.JS · v1.2
+//  KPOP GALA — REGISTRO.JS · v2.0 Seasons
 //  Canciones, Álbumes, Artistas y B-Sides · P1/P2
 // ============================================================
 
@@ -107,7 +107,20 @@ document.addEventListener("DOMContentLoaded", () => {
   renderHistorialBsides();
   configurarBusquedasRegistro();
   aplicarConfiguracionUI();
+  aplicarBloqueoTemporadaCerrada();
 });
+
+function aplicarBloqueoTemporadaCerrada() {
+  if (!temporadaEstaCerrada()) return;
+  document.querySelectorAll("form input, form select, form button[type='submit']").forEach(el => el.disabled = true);
+  const selector = document.getElementById("semana-global");
+  if (selector) selector.disabled = false;
+  const aviso = document.createElement("div");
+  aviso.className = "card";
+  aviso.style.cssText = "margin:0 0 1rem;padding:.85rem 1rem;border-color:rgba(167,139,250,.4);background:rgba(167,139,250,.08);color:var(--text-soft);font-weight:700;";
+  aviso.innerHTML = `🔒 <strong>${escaparHTML(obtenerTemporadaActiva().nombre)}</strong> está cerrada. Puedes consultar y editar tu catálogo, pero no añadir ni modificar registros semanales.`;
+  document.querySelector(".semana-selector")?.insertAdjacentElement("beforebegin", aviso);
+}
 
 function num(id) {
   return parseInt(document.getElementById(id)?.value, 10) || 0;
@@ -150,11 +163,14 @@ function guardarEntrada(pid) {
   const pS = num(`pos-spotify-${pid}`), pI = num(`pos-instafest-${pid}`), rep = num(`reproducciones-${pid}`);
   if (!semanaId || !cancionId) return;
 
+  if (temporadaEstaCerrada()) return mostrarToast("🔒 Esta temporada está cerrada.", "error");
+  const temporadaId = obtenerTemporadaActivaId();
   const cancionActual = CANCIONES.find(c => c.id === cancionId);
   const registros = cargarRegistros();
+  const registrosTemporada = filtrarRegistrosTemporada(registros, temporadaId);
   const chequearDups = ignorarId => {
-    if (registros.find(r => r.semanaId === semanaId && r.personaId === pid && r.cancionId === cancionId && r.id !== ignorarId)) return "❌ Ya registraste esta canción.";
-    if (registros.find(r => r.semanaId === semanaId && r.personaId === pid && r.id !== ignorarId && CANCIONES.find(x => x.id === r.cancionId)?.artista === cancionActual.artista)) return `❌ Ya registraste una canción de ${cancionActual.artista}.`;
+    if (registrosTemporada.find(r => r.semanaId === semanaId && r.personaId === pid && r.cancionId === cancionId && r.id !== ignorarId)) return "❌ Ya registraste esta canción.";
+    if (registrosTemporada.find(r => r.semanaId === semanaId && r.personaId === pid && r.id !== ignorarId && CANCIONES.find(x => x.id === r.cancionId)?.artista === cancionActual.artista)) return `❌ Ya registraste una canción de ${cancionActual.artista}.`;
     return null;
   };
 
@@ -168,7 +184,7 @@ function guardarEntrada(pid) {
     document.querySelector(`#form-${pid} button[type="submit"]`).innerHTML = "✨ Guardar entrada";
   } else {
     const error = chequearDups(null); if (error) return mostrarToast(error, "error");
-    registros.push({ id: `c_${Date.now()}`, semanaId, personaId: pid, cancionId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep), timestamp: Date.now() });
+    registros.push({ id: `c_${Date.now()}`, seasonId: temporadaId, semanaId, personaId: pid, cancionId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep), timestamp: Date.now() });
     guardarRegistros(registros);
     mostrarToast("✨ Canción guardada", "success");
   }
@@ -183,11 +199,14 @@ function guardarEntradaAlbum(pid) {
   const pS = num(`pos-spotify-album-${pid}`), pI = num(`pos-instafest-album-${pid}`), rep = num(`reproducciones-album-${pid}`);
   if (!semanaId || !albumId) return;
 
+  if (temporadaEstaCerrada()) return mostrarToast("🔒 Esta temporada está cerrada.", "error");
+  const temporadaId = obtenerTemporadaActivaId();
   const albumActual = ALBUMES.find(a => a.id === albumId);
   const registros = cargarRegistrosAlbumes();
+  const registrosTemporada = filtrarRegistrosTemporada(registros, temporadaId);
   const chequearDups = ignorarId => {
-    if (registros.find(r => r.semanaId === semanaId && r.personaId === pid && r.albumId === albumId && r.id !== ignorarId)) return "❌ Ya registraste este álbum.";
-    if (registros.find(r => r.semanaId === semanaId && r.personaId === pid && r.id !== ignorarId && ALBUMES.find(x => x.id === r.albumId)?.artista === albumActual.artista)) return `❌ Ya registraste un álbum de ${albumActual.artista}.`;
+    if (registrosTemporada.find(r => r.semanaId === semanaId && r.personaId === pid && r.albumId === albumId && r.id !== ignorarId)) return "❌ Ya registraste este álbum.";
+    if (registrosTemporada.find(r => r.semanaId === semanaId && r.personaId === pid && r.id !== ignorarId && ALBUMES.find(x => x.id === r.albumId)?.artista === albumActual.artista)) return `❌ Ya registraste un álbum de ${albumActual.artista}.`;
     return null;
   };
 
@@ -201,7 +220,7 @@ function guardarEntradaAlbum(pid) {
     document.querySelector(`#form-album-${pid} button[type="submit"]`).innerHTML = "💿 Guardar Álbum";
   } else {
     const error = chequearDups(null); if (error) return mostrarToast(error, "error");
-    registros.push({ id: `a_${Date.now()}`, semanaId, personaId: pid, albumId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep), timestamp: Date.now() });
+    registros.push({ id: `a_${Date.now()}`, seasonId: temporadaId, semanaId, personaId: pid, albumId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep), timestamp: Date.now() });
     guardarRegistrosAlbumes(registros);
     mostrarToast("💿 Álbum guardado", "success");
   }
@@ -216,8 +235,11 @@ function guardarEntradaArtista(pid) {
   const pS = num(`pos-spotify-artista-${pid}`), pI = num(`pos-instafest-artista-${pid}`), rep = num(`reproducciones-artista-${pid}`);
   if (!semanaId || !artistaId) return;
 
+  if (temporadaEstaCerrada()) return mostrarToast("🔒 Esta temporada está cerrada.", "error");
+  const temporadaId = obtenerTemporadaActivaId();
   const registros = cargarRegistrosArtistas();
-  const chequearDups = ignorarId => registros.find(r => r.semanaId === semanaId && r.personaId === pid && r.artistaId === artistaId && r.id !== ignorarId)
+  const registrosTemporada = filtrarRegistrosTemporada(registros, temporadaId);
+  const chequearDups = ignorarId => registrosTemporada.find(r => r.semanaId === semanaId && r.personaId === pid && r.artistaId === artistaId && r.id !== ignorarId)
     ? "❌ Ya registraste a este artista." : null;
 
   if (editandoArtistaId && personaEditandoArtista === pid) {
@@ -230,7 +252,7 @@ function guardarEntradaArtista(pid) {
     document.querySelector(`#form-artista-${pid} button[type="submit"]`).innerHTML = "⭐ Guardar Artista";
   } else {
     const error = chequearDups(null); if (error) return mostrarToast(error, "error");
-    registros.push({ id: `art_${Date.now()}`, semanaId, personaId: pid, artistaId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep), timestamp: Date.now() });
+    registros.push({ id: `art_${Date.now()}`, seasonId: temporadaId, semanaId, personaId: pid, artistaId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep), timestamp: Date.now() });
     guardarRegistrosArtistas(registros);
     mostrarToast("⭐ Artista guardado", "success");
   }
@@ -245,8 +267,11 @@ function guardarEntradaBside(pid) {
   const pS = num(`pos-spotify-bside-${pid}`), pI = num(`pos-instafest-bside-${pid}`), rep = num(`reproducciones-bside-${pid}`);
   if (!semanaId || !bsideId) return;
 
+  if (temporadaEstaCerrada()) return mostrarToast("🔒 Esta temporada está cerrada.", "error");
+  const temporadaId = obtenerTemporadaActivaId();
   const registros = cargarRegistrosBsides();
-  const chequearDups = ignorarId => registros.find(r => r.semanaId === semanaId && r.personaId === pid && r.bsideId === bsideId && r.id !== ignorarId)
+  const registrosTemporada = filtrarRegistrosTemporada(registros, temporadaId);
+  const chequearDups = ignorarId => registrosTemporada.find(r => r.semanaId === semanaId && r.personaId === pid && r.bsideId === bsideId && r.id !== ignorarId)
     ? "❌ Ya registraste este B-Side." : null;
 
   if (editandoBsideId && personaEditandoBside === pid) {
@@ -259,7 +284,7 @@ function guardarEntradaBside(pid) {
     document.querySelector(`#form-bside-${pid} button[type="submit"]`).innerHTML = "🎧 Guardar B-Side";
   } else {
     const error = chequearDups(null); if (error) return mostrarToast(error, "error");
-    registros.push({ id: `bs_${Date.now()}`, semanaId, personaId: pid, bsideId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep), timestamp: Date.now() });
+    registros.push({ id: `bs_${Date.now()}`, seasonId: temporadaId, semanaId, personaId: pid, bsideId, posSpotify: pS, posInstafest: pI, reproducciones: rep, puntaje: calcularPuntajeEntrada(pS, pI, rep), timestamp: Date.now() });
     guardarRegistrosBsides(registros);
     mostrarToast("🎧 B-Side guardado", "success");
   }
@@ -281,6 +306,7 @@ function asegurarOpcionSeleccionable(select, value, label) {
 }
 
 function cargarEdicion(id) {
+  if (temporadaEstaCerrada()) return mostrarToast("🔒 Esta temporada está cerrada.", "error");
   const r = cargarRegistros().find(x => x.id === id); if (!r) return;
   editandoCancionId = id; personaEditando = r.personaId;
   const item = cancionPorId(r.cancionId);
@@ -295,6 +321,7 @@ function cargarEdicion(id) {
 }
 
 function cargarEdicionAlbum(id) {
+  if (temporadaEstaCerrada()) return mostrarToast("🔒 Esta temporada está cerrada.", "error");
   const r = cargarRegistrosAlbumes().find(x => x.id === id); if (!r) return;
   editandoAlbumId = id; personaEditandoAlbum = r.personaId;
   const item = albumPorId(r.albumId);
@@ -309,6 +336,7 @@ function cargarEdicionAlbum(id) {
 }
 
 function cargarEdicionArtista(id) {
+  if (temporadaEstaCerrada()) return mostrarToast("🔒 Esta temporada está cerrada.", "error");
   const r = cargarRegistrosArtistas().find(x => x.id === id); if (!r) return;
   editandoArtistaId = id; personaEditandoArtista = r.personaId || "p1";
   const a = ARTISTAS.find(x => x.id === r.artistaId);
@@ -328,6 +356,7 @@ function cargarEdicionArtista(id) {
 }
 
 function cargarEdicionBside(id) {
+  if (temporadaEstaCerrada()) return mostrarToast("🔒 Esta temporada está cerrada.", "error");
   const r = cargarRegistrosBsides().find(x => x.id === id); if (!r) return;
   editandoBsideId = id; personaEditandoBside = r.personaId;
   const item = BSIDES.find(x => String(x.id) === String(r.bsideId));
@@ -347,7 +376,7 @@ function posicionesHTML(r) {
 }
 
 function renderHistorial() {
-  const registros = cargarRegistros()
+  const registros = filtrarRegistrosTemporada(cargarRegistros())
     .filter(r => r.semanaId === document.getElementById("semana-global").value)
     .sort((a, b) => obtenerPuntajeRegistro(b) - obtenerPuntajeRegistro(a));
   const container = document.getElementById("historial-list"); if (!container) return;
@@ -363,7 +392,7 @@ function renderHistorial() {
 }
 
 function renderHistorialAlbumes() {
-  const registros = cargarRegistrosAlbumes().filter(r => r.semanaId === document.getElementById("semana-global").value).sort((a, b) => obtenerPuntajeRegistro(b) - obtenerPuntajeRegistro(a));
+  const registros = filtrarRegistrosTemporada(cargarRegistrosAlbumes()).filter(r => r.semanaId === document.getElementById("semana-global").value).sort((a, b) => obtenerPuntajeRegistro(b) - obtenerPuntajeRegistro(a));
   const container = document.getElementById("historial-albumes-list"); if (!container) return;
   container.innerHTML = registros.length ? "" : "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Vacío</p>";
   registros.forEach(r => {
@@ -377,7 +406,7 @@ function renderHistorialAlbumes() {
 }
 
 function renderHistorialArtistas() {
-  const registros = cargarRegistrosArtistas().filter(r => r.semanaId === document.getElementById("semana-global").value).sort((a, b) => obtenerPuntajeRegistro(b) - obtenerPuntajeRegistro(a));
+  const registros = filtrarRegistrosTemporada(cargarRegistrosArtistas()).filter(r => r.semanaId === document.getElementById("semana-global").value).sort((a, b) => obtenerPuntajeRegistro(b) - obtenerPuntajeRegistro(a));
   const container = document.getElementById("historial-artistas-list"); if (!container) return;
   container.innerHTML = registros.length ? "" : "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Vacío</p>";
   registros.forEach(r => {
@@ -391,7 +420,7 @@ function renderHistorialArtistas() {
 }
 
 function renderHistorialBsides() {
-  const registros = cargarRegistrosBsides().filter(r => r.semanaId === document.getElementById("semana-global").value).sort((a, b) => obtenerPuntajeRegistro(b) - obtenerPuntajeRegistro(a));
+  const registros = filtrarRegistrosTemporada(cargarRegistrosBsides()).filter(r => r.semanaId === document.getElementById("semana-global").value).sort((a, b) => obtenerPuntajeRegistro(b) - obtenerPuntajeRegistro(a));
   const container = document.getElementById("historial-bsides-list"); if (!container) return;
   container.innerHTML = registros.length ? "" : "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Vacío</p>";
   registros.forEach(r => {
@@ -405,6 +434,7 @@ function renderHistorialBsides() {
 }
 
 function eliminarConDeshacer(cargar, guardar, render, id, motivo, etiqueta) {
+  if (temporadaEstaCerrada()) return mostrarToast("🔒 Esta temporada está cerrada; su historial está protegido.", "error");
   const registros = cargar();
   const index = registros.findIndex(r => r.id === id);
   if (index === -1) return;

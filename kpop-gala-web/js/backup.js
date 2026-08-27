@@ -1,5 +1,5 @@
 // ============================================================
-//  KPOP GALA — BACKUP.JS · v1.4
+//  KPOP GALA — BACKUP.JS · v2.0 Seasons
 // ============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!confirm(`Se restaurarán ${total} registros desde ${archivoSeleccionado.name}. ¿Continuar?`)) return;
       const resultado = restaurarSnapshotDatos(snapshot);
       const imagenes = await importarImagenesCatalogo(snapshot.media?.imagenes || []);
-      mostrarMensaje(`✅ Restauración completa: ${sumarResultado(resultado)} registros${imagenes ? ` · ${imagenes} imágenes` : ""}.`, "success");
+      mostrarMensaje(`✅ Restauración completa: ${sumarResultado(resultado)} registros${imagenes ? ` · ${imagenes} imágenes` : ""}. Si cambió la temporada activa, se reflejará al navegar o recargar.`, "success");
       renderEstadoDatos();
       renderPerfiles();
       aplicarConfiguracionUI();
@@ -62,7 +62,7 @@ function renderEstadoDatos() {
   const ultimo = obtenerUltimoBackupSeguridad();
   const inicialTxt = inicial?.exportedAt ? new Date(inicial.exportedAt).toLocaleString("es-PA") : "no disponible";
   const ultimoTxt = ultimo?.exportedAt ? new Date(ultimo.exportedAt).toLocaleString("es-PA") : "aún no creado";
-  document.getElementById("backup-status").textContent = `Copia inicial: ${inicialTxt} · Último punto: ${ultimoTxt}`;
+  document.getElementById("backup-status").textContent = `Temporadas: ${cargarTemporadas().length} · Copia inicial: ${inicialTxt} · Último punto: ${ultimoTxt}`;
 
   document.getElementById("btn-restaurar-inicial").disabled = !inicial;
   document.getElementById("btn-restaurar-ultimo").disabled = !ultimo;
@@ -84,7 +84,7 @@ async function exportarDatos() {
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 500);
-    mostrarMensaje(`✅ Copia descargada: registros, catálogo y ${snapshot.media.imagenes.length} imágenes.`, "success");
+    mostrarMensaje(`✅ Copia descargada: ${snapshot.seasons?.length || 1} temporada(s), registros, Hall of Fame, catálogo y ${snapshot.media.imagenes.length} imágenes.`, "success");
   } catch (error) {
     mostrarMensaje("⚠️ No se pudo crear la copia de seguridad.", "error");
   }
@@ -97,7 +97,7 @@ function restaurarBackupLocal(tipo) {
     const nombre = tipo === "inicial" ? "la copia automática anterior a v1.1" : "el último punto de restauración";
     if (!confirm(`Vas a restaurar ${nombre}. Antes se guardará el estado actual. ¿Continuar?`)) return;
     const resultado = restaurarSnapshotDatos(snapshot);
-    mostrarMensaje(`✅ Respaldo restaurado: ${sumarResultado(resultado)} registros.`, "success");
+    mostrarMensaje(`✅ Respaldo restaurado: ${sumarResultado(resultado)} registros. Temporadas y Hall of Fame compatibles si estaban incluidos.`, "success");
     renderEstadoDatos();
     renderPerfiles();
     aplicarConfiguracionUI();

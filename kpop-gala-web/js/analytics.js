@@ -1,5 +1,5 @@
 // ============================================================
-//  KPOP GALA — ANALYTICS.JS · v1.5
+//  KPOP GALA — ANALYTICS.JS · v2.0 Seasons
 //  Dashboard, perfiles de detalle y evolución histórica
 // ============================================================
 
@@ -12,10 +12,15 @@ const KG_ANALYTICS = {
 
 let kgAnalyticsTipo = "resumen";
 let kgAnalyticsBusqueda = "";
+let kgAnalyticsSeasonId = obtenerTemporadaActivaId();
+let KG_ANALYTICS_SEMANAS = obtenerSemanasTemporada(kgAnalyticsSeasonId);
 
 window.addEventListener("DOMContentLoaded", () => {
   aplicarConfiguracionUI();
   const params = new URLSearchParams(location.search);
+  const requestedSeason = params.get("season");
+  if (requestedSeason && obtenerTemporadaPorId(requestedSeason)) kgAnalyticsSeasonId = requestedSeason;
+  KG_ANALYTICS_SEMANAS = obtenerSemanasTemporada(kgAnalyticsSeasonId);
   const tipo = params.get("tipo");
   const id = params.get("id");
   if (tipo && KG_ANALYTICS[tipo] && id !== null) renderDetalle(tipo, id);
@@ -24,10 +29,10 @@ window.addEventListener("DOMContentLoaded", () => {
 
 function contextoTipo(tipo, itemEspecifico = null) {
   const map = {
-    canciones: { items: CANCIONES, registros: cargarRegistros(), campo: "cancionId" },
-    artistas:  { items: ARTISTAS, registros: cargarRegistrosArtistas(), campo: "artistaId" },
-    albumes:   { items: ALBUMES, registros: cargarRegistrosAlbumes(), campo: "albumId" },
-    bsides:    { items: BSIDES, registros: cargarRegistrosBsides(), campo: "bsideId" },
+    canciones: { items: CANCIONES, registros: filtrarRegistrosTemporada(cargarRegistros(), kgAnalyticsSeasonId), campo: "cancionId" },
+    artistas:  { items: ARTISTAS, registros: filtrarRegistrosTemporada(cargarRegistrosArtistas(), kgAnalyticsSeasonId), campo: "artistaId" },
+    albumes:   { items: ALBUMES, registros: filtrarRegistrosTemporada(cargarRegistrosAlbumes(), kgAnalyticsSeasonId), campo: "albumId" },
+    bsides:    { items: BSIDES, registros: filtrarRegistrosTemporada(cargarRegistrosBsides(), kgAnalyticsSeasonId), campo: "bsideId" },
   };
   const ctx = map[tipo];
   if (!ctx) return null;
@@ -57,12 +62,12 @@ function registrosDelItem(tipo, id) {
   return ctx.registros.filter(r => String(r[ctx.campo]) === String(id));
 }
 
-function rankingAcumulado(tipo, limiteSemana = SEMANAS.length - 1, itemEspecifico = null) {
+function rankingAcumulado(tipo, limiteSemana = KG_ANALYTICS_SEMANAS.length - 1, itemEspecifico = null) {
   const ctx = contextoTipo(tipo, itemEspecifico);
   if (!ctx) return [];
   const totals = new Map(ctx.items.map(x => [String(x.id), { item: x, total: 0, p1: 0, p2: 0 }]));
   ctx.registros.forEach(r => {
-    const si = indiceSemanaPorId(r.semanaId);
+    const si = indiceSemanaPorId(r.semanaId, kgAnalyticsSeasonId);
     if (si < 0 || si > limiteSemana) return;
     const entry = totals.get(String(r[ctx.campo]));
     if (!entry) return;
@@ -78,10 +83,10 @@ function rankingAcumulado(tipo, limiteSemana = SEMANAS.length - 1, itemEspecific
 
 function metricasItem(tipo, item) {
   if (!item) return null;
-  if (tipo === "canciones") return calcularMetricasCanciones().get(String(item.id));
-  if (tipo === "albumes") return calcularMetricasAlbumes().get(String(item.id));
-  if (tipo === "bsides") return calcularMetricasBsides().get(String(item.id));
-  if (tipo === "artistas") return calcularMetricasArtistas(item.categoria).get(String(item.id));
+  if (tipo === "canciones") return calcularMetricasCanciones(kgAnalyticsSeasonId).get(String(item.id));
+  if (tipo === "albumes") return calcularMetricasAlbumes(kgAnalyticsSeasonId).get(String(item.id));
+  if (tipo === "bsides") return calcularMetricasBsides(kgAnalyticsSeasonId).get(String(item.id));
+  if (tipo === "artistas") return calcularMetricasArtistas(item.categoria, kgAnalyticsSeasonId).get(String(item.id));
   return null;
 }
 
@@ -95,10 +100,10 @@ function movimientoTexto(m) {
 
 function todasLasColecciones() {
   return [
-    { tipo:"canciones", items:CANCIONES, registros:cargarRegistros(), campo:"cancionId" },
-    { tipo:"artistas", items:ARTISTAS, registros:cargarRegistrosArtistas(), campo:"artistaId" },
-    { tipo:"albumes", items:ALBUMES, registros:cargarRegistrosAlbumes(), campo:"albumId" },
-    { tipo:"bsides", items:BSIDES, registros:cargarRegistrosBsides(), campo:"bsideId" },
+    { tipo:"canciones", items:CANCIONES, registros:filtrarRegistrosTemporada(cargarRegistros(), kgAnalyticsSeasonId), campo:"cancionId" },
+    { tipo:"artistas", items:ARTISTAS, registros:filtrarRegistrosTemporada(cargarRegistrosArtistas(), kgAnalyticsSeasonId), campo:"artistaId" },
+    { tipo:"albumes", items:ALBUMES, registros:filtrarRegistrosTemporada(cargarRegistrosAlbumes(), kgAnalyticsSeasonId), campo:"albumId" },
+    { tipo:"bsides", items:BSIDES, registros:filtrarRegistrosTemporada(cargarRegistrosBsides(), kgAnalyticsSeasonId), campo:"bsideId" },
   ];
 }
 
@@ -144,10 +149,11 @@ function renderDashboard() {
   const root = document.getElementById("analytics-root");
   const st = estadisticasGlobales();
   const cfg = cargarConfiguracion();
+  const temp = obtenerTemporadaPorId(kgAnalyticsSeasonId) || obtenerTemporadaActiva();
   root.innerHTML = `
     <header class="analytics-head fade-up">
-      <div><div class="analytics-badge">📊 KPOP GALA 2026</div><h1>Analytics</h1><p>Récords, tendencias y evolución de toda la temporada.</p></div>
-      <div class="analytics-actions"><a class="analytics-btn" href="index.html">🏆 Ranking</a><a class="analytics-btn" href="semanas.html">📅 Semanas</a></div>
+      <div><div class="analytics-badge">📊 ${escaparHTML(temp.nombre.toUpperCase())}</div><h1>Analytics</h1><p>Récords, tendencias y evolución · ${escaparHTML(rangoTemporadaTexto(temp))}.</p></div>
+      <div class="analytics-actions"><a class="analytics-btn" href="index.html">🏆 Ranking activo</a><a class="analytics-btn" href="temporadas.html">🗓️ Temporadas</a><a class="analytics-btn" href="hall-of-fame.html">👑 Hall of Fame</a></div>
     </header>
     <div class="analytics-tabs fade-up delay-1" id="analytics-tabs">
       ${tabHTML("resumen","✨ Resumen")}
@@ -227,7 +233,7 @@ function imagenHTML(item, clase="") {
 
 function topRowHTML(tipo,x,pos) {
   const item=x.item;
-  return `<div class="top-row" role="link" tabindex="0" data-href="analytics.html?tipo=${tipo}&id=${encodeURIComponent(item.id)}"><div class="num">#${pos}</div><div>${imagenHTML(item)}</div><div><strong>${escaparHTML(item.nombre)}</strong><small>${escaparHTML(subtituloItem(tipo,item))}</small></div><div class="pts">${x.total.toLocaleString()} pts</div></div>`;
+  return `<div class="top-row" role="link" tabindex="0" data-href="analytics.html?tipo=${tipo}&id=${encodeURIComponent(item.id)}&season=${encodeURIComponent(kgAnalyticsSeasonId)}"><div class="num">#${pos}</div><div>${imagenHTML(item)}</div><div><strong>${escaparHTML(item.nombre)}</strong><small>${escaparHTML(subtituloItem(tipo,item))}</small></div><div class="pts">${x.total.toLocaleString()} pts</div></div>`;
 }
 
 document.addEventListener("click", e => {
@@ -266,17 +272,17 @@ function renderListadoTipo(tipo) {
 function analyticsItemHTML(tipo,item,pos){
   const regs=registrosDelItem(tipo,item.id); const total=regs.reduce((s,r)=>s+obtenerPuntajeRegistro(r),0); const m=metricasItem(tipo,item);
   const imgsrc=item.imagenId?KG_PIXEL_TRANSPARENTE:(item.img||KG_PIXEL_TRANSPARENTE);
-  return `<article class="analytics-item" data-href="analytics.html?tipo=${tipo}&id=${encodeURIComponent(item.id)}"><div><img src="${escaparHTML(imgsrc)}" ${item.imagenId?`data-kg-imagen-id="${escaparHTML(item.imagenId)}"`:""} alt="${escaparHTML(item.nombre)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><div class="ai-ph" style="display:none">${KG_ANALYTICS[tipo].icon}</div></div><div><h3>${escaparHTML(item.nombre)}</h3><p>${escaparHTML(subtituloItem(tipo,item))}</p><div class="ai-meta"><span class="analytics-pill">${pos?`#${pos}`:"Sin rank"}</span><span class="analytics-pill">Peak ${m?.peak?`#${m.peak}`:"—"}</span><span class="analytics-pill">${m?.semanasEnRanking||0} sem.</span><span class="analytics-pill">${movimientoTexto(m)}</span></div></div><div class="ai-score"><strong>${total.toLocaleString()}</strong><small>pts · ${regs.length} registros</small></div></article>`;
+  return `<article class="analytics-item" data-href="analytics.html?tipo=${tipo}&id=${encodeURIComponent(item.id)}&season=${encodeURIComponent(kgAnalyticsSeasonId)}"><div><img src="${escaparHTML(imgsrc)}" ${item.imagenId?`data-kg-imagen-id="${escaparHTML(item.imagenId)}"`:""} alt="${escaparHTML(item.nombre)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><div class="ai-ph" style="display:none">${KG_ANALYTICS[tipo].icon}</div></div><div><h3>${escaparHTML(item.nombre)}</h3><p>${escaparHTML(subtituloItem(tipo,item))}</p><div class="ai-meta"><span class="analytics-pill">${pos?`#${pos}`:"Sin rank"}</span><span class="analytics-pill">Peak ${m?.peak?`#${m.peak}`:"—"}</span><span class="analytics-pill">${m?.semanasEnRanking||0} sem.</span><span class="analytics-pill">${movimientoTexto(m)}</span></div></div><div class="ai-score"><strong>${total.toLocaleString()}</strong><small>pts · ${regs.length} registros</small></div></article>`;
 }
 
 function datosHistoricosDetalle(tipo,item) {
   const ctx=contextoTipo(tipo,item); const regs=ctx.registros.filter(r=>String(r[ctx.campo])===String(item.id));
   if(!regs.length) return [];
-  const indices=regs.map(r=>indiceSemanaPorId(r.semanaId)).filter(x=>x>=0); if(!indices.length)return[];
-  const debut=Math.min(...indices); const ultimoGlobal=Math.max(...ctx.registros.map(r=>indiceSemanaPorId(r.semanaId)).filter(x=>x>=0));
+  const indices=regs.map(r=>indiceSemanaPorId(r.semanaId,kgAnalyticsSeasonId)).filter(x=>x>=0); if(!indices.length)return[];
+  const debut=Math.min(...indices); const ultimoGlobal=Math.max(...ctx.registros.map(r=>indiceSemanaPorId(r.semanaId,kgAnalyticsSeasonId)).filter(x=>x>=0));
   const hasta=Math.max(debut,ultimoGlobal);
   let acumulado=0;
-  return SEMANAS.slice(debut,hasta+1).map((sem,offset)=>{
+  return KG_ANALYTICS_SEMANAS.slice(debut,hasta+1).map((sem,offset)=>{
     const si=debut+offset; const semRegs=regs.filter(r=>r.semanaId===sem.id);
     const p1=semRegs.filter(r=>(r.personaId||"p1")==="p1").reduce((s,r)=>s+obtenerPuntajeRegistro(r),0);
     const p2=semRegs.filter(r=>r.personaId==="p2").reduce((s,r)=>s+obtenerPuntajeRegistro(r),0);
@@ -291,11 +297,11 @@ function renderDetalle(tipo,id) {
   if(!item){root.innerHTML=`<div class="empty-analytics"><h2>No encontramos este elemento</h2><p>Puede haber sido eliminado del catálogo.</p><a class="analytics-btn" href="analytics.html">← Volver a Analytics</a></div>`;return;}
   const regs=registrosDelItem(tipo,item.id); const history=datosHistoricosDetalle(tipo,item); const m=metricasItem(tipo,item);
   const total=regs.reduce((s,r)=>s+obtenerPuntajeRegistro(r),0); const p1=regs.filter(r=>(r.personaId||"p1")==="p1").reduce((s,r)=>s+obtenerPuntajeRegistro(r),0); const p2=regs.filter(r=>r.personaId==="p2").reduce((s,r)=>s+obtenerPuntajeRegistro(r),0);
-  const ranking=rankingAcumulado(tipo,SEMANAS.length-1,item); const pos=ranking.findIndex(x=>String(x.item.id)===String(item.id));
+  const ranking=rankingAcumulado(tipo,KG_ANALYTICS_SEMANAS.length-1,item); const pos=ranking.findIndex(x=>String(x.item.id)===String(item.id));
   const best=history.filter(x=>x.semanal>0).sort((a,b)=>b.semanal-a.semanal)[0]||null;
   const imgsrc=item.imagenId?KG_PIXEL_TRANSPARENTE:(item.img||KG_PIXEL_TRANSPARENTE);
   root.innerHTML=`
-    <header class="analytics-head fade-up"><div><div class="analytics-badge">${info.icon} PERFIL DE ${info.singular.toUpperCase()}</div></div><div class="analytics-actions"><a class="analytics-btn" href="analytics.html?tipo=${tipo}">← ${info.plural}</a><a class="analytics-btn" href="index.html">🏆 Ranking</a></div></header>
+    <header class="analytics-head fade-up"><div><div class="analytics-badge">${info.icon} ${escaparHTML((obtenerTemporadaPorId(kgAnalyticsSeasonId)?.nombre || "").toUpperCase())} · PERFIL DE ${info.singular.toUpperCase()}</div></div><div class="analytics-actions"><a class="analytics-btn" href="analytics.html?tipo=${tipo}&season=${encodeURIComponent(kgAnalyticsSeasonId)}">← ${info.plural}</a><a class="analytics-btn" href="index.html">🏆 Ranking</a></div></header>
     <section class="detail-hero fade-up"><div><img class="detail-cover" src="${escaparHTML(imgsrc)}" ${item.imagenId?`data-kg-imagen-id="${escaparHTML(item.imagenId)}"`:""} alt="${escaparHTML(item.nombre)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><div class="detail-cover" style="display:none">${info.icon}</div></div><div><h1>${escaparHTML(item.nombre)}</h1><div class="sub">${escaparHTML(subtituloItem(tipo,item))}</div><div class="detail-badges"><span class="detail-badge">${item.archivado?"📦 Archivado":"🟢 Activo"}</span><span class="detail-badge">${item.origen==="custom"?"Añadido desde la app":"Catálogo base"}</span>${best?`<span class="detail-badge">🔥 Mejor semana: ${best.semana.id}</span>`:""}</div></div></section>
     <section class="detail-kpis fade-up">
       ${detailKpi("Ranking actual",pos>=0?`#${pos+1}`:"—")}${detailKpi("Puntos",total.toLocaleString())}${detailKpi("Peak",m?.peak?`#${m.peak}`:"—")}${detailKpi("Semanas",m?.semanasEnRanking||0)}${detailKpi("Movimiento",movimientoTexto(m))}${detailKpi("Registros",regs.length)}

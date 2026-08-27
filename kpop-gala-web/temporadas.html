@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🗓️ KPop Gala · Temporadas</title>
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/temporadas.css">
+</head>
+<body>
+<nav class="navbar">
+  <a href="index.html" class="nav-logo"><span>🌸</span> KPop Gala</a>
+  <ul class="nav-links">
+    <li><a href="index.html">🏆 <span>Ranking</span></a></li>
+    <li><a href="registro.html">✍️ <span>Registrar</span></a></li>
+    <li><a href="semanas.html">📅 <span>Semanas</span></a></li>
+    <li><a href="analytics.html">📊 <span>Analytics</span></a></li>
+    <li><a href="temporadas.html" class="active">🗓️ <span>Temporadas</span></a></li>
+  </ul>
+</nav>
+
+<main class="page-wrapper seasons-page">
+  <header class="season-page-head fade-up">
+    <div>
+      <div class="emoji-badge">🗓️ KPOP GALA 2.0</div>
+      <h1>Temporadas</h1>
+      <p>Separa cada edición de la gala sin mezclar rankings ni registros.</p>
+    </div>
+    <div class="season-head-actions">
+      <a class="season-btn" href="hall-of-fame.html">👑 Hall of Fame</a>
+      <button class="season-btn primary" id="btn-new-season" type="button">＋ Nueva temporada</button>
+    </div>
+  </header>
+
+  <section id="active-season-card" class="active-season-card fade-up delay-1"></section>
+
+  <section class="season-section fade-up delay-2">
+    <div class="season-section-head">
+      <div><h2>Archivo de temporadas</h2><p>2026 se conserva como tu temporada histórica base.</p></div>
+      <span id="season-count" class="season-count"></span>
+    </div>
+    <div id="season-list" class="season-list"></div>
+  </section>
+</main>
+
+<dialog id="season-dialog" class="season-dialog">
+  <form id="season-form" method="dialog">
+    <div class="dialog-head"><div><small id="season-dialog-kicker">NUEVA EDICIÓN</small><h2 id="season-dialog-title">Crear temporada</h2></div><button type="button" id="season-dialog-close" class="dialog-close">✕</button></div>
+    <input id="season-edit-id" type="hidden">
+    <div class="season-form-grid">
+      <label><span>Año</span><input id="season-year" type="number" min="2020" max="2100" required></label>
+      <label><span>Nombre</span><input id="season-name" type="text" maxlength="60" placeholder="Temporada 2027" required></label>
+      <label><span>Fecha de inicio</span><input id="season-start" type="date" required></label>
+      <label><span>Fecha de fin</span><input id="season-end" type="date" required></label>
+    </div>
+    <div class="season-dialog-note">Los registros existentes no se mueven. Una temporada nueva empieza vacía y comparte tu mismo catálogo.</div>
+    <div class="dialog-actions"><button type="button" class="season-btn" id="season-cancel">Cancelar</button><button type="submit" class="season-btn primary" id="season-save">Guardar temporada</button></div>
+  </form>
+</dialog>
+
+<div id="season-toast" class="season-toast"></div>
+<script src="js/data.js"></script>
+<script src="js/temporadas.js"></script>
+</body>
+</html>

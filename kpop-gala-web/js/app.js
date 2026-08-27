@@ -1,5 +1,5 @@
 // ============================================================
-//  KPOP GALA — APP.JS · v1.5 Analytics & Detail Views
+//  KPOP GALA — APP.JS · v2.0 Seasons
 //  Ranking global + métricas históricas + Top 3
 // ============================================================
 
@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function renderStats() {
-  const registros = cargarRegistros();
+  const registros = filtrarRegistrosTemporada(cargarRegistros());
   const ranking = calcularRanking();
   const totalPts = registros.reduce((s, r) => s + obtenerPuntajeRegistro(r), 0);
   const ptsP1 = registros.filter(r => r.personaId === "p1").reduce((s, r) => s + obtenerPuntajeRegistro(r), 0);
@@ -148,7 +148,7 @@ function renderRanking(filtro) {
       placeholder: { icon: "🎵" },
       metrica: metricas.get(String(item.cancion.id)),
       barStyle: `width:${pct}%`,
-      detalleHref: `analytics.html?tipo=canciones&id=${encodeURIComponent(item.cancion.id)}`,
+      detalleHref: `analytics.html?tipo=canciones&id=${encodeURIComponent(item.cancion.id)}&season=${encodeURIComponent(obtenerTemporadaActivaId())}`,
     });
     card.style.animationDelay = `${Math.min(idx * 0.04, 0.4)}s`;
     container.appendChild(card);
@@ -196,7 +196,7 @@ function renderRankingArtistas(categoria) {
       placeholder: { icon: "🎤", style: "background:linear-gradient(135deg,var(--amarillo-glow),#f9731633);" },
       metrica: metricas.get(String(item.artista.id)),
       barStyle: `width:${pct}%;background:linear-gradient(90deg,var(--amarillo),#f59e0b)`,
-      detalleHref: `analytics.html?tipo=artistas&id=${encodeURIComponent(item.artista.id)}`,
+      detalleHref: `analytics.html?tipo=artistas&id=${encodeURIComponent(item.artista.id)}&season=${encodeURIComponent(obtenerTemporadaActivaId())}`,
     });
     card.style.animationDelay = `${Math.min(idx * 0.04, 0.4)}s`;
     container.appendChild(card);
@@ -243,7 +243,7 @@ function renderRankingAlbumes(filtro) {
       placeholder: { icon: "💿", style: "background:linear-gradient(135deg,var(--violeta-glow),var(--rosa-glow));" },
       metrica: metricas.get(String(item.album.id)),
       barStyle: `width:${pct}%;background:linear-gradient(90deg,var(--violeta),var(--rosa))`,
-      detalleHref: `analytics.html?tipo=albumes&id=${encodeURIComponent(item.album.id)}`,
+      detalleHref: `analytics.html?tipo=albumes&id=${encodeURIComponent(item.album.id)}&season=${encodeURIComponent(obtenerTemporadaActivaId())}`,
     });
     card.style.animationDelay = `${Math.min(idx * 0.04, 0.4)}s`;
     container.appendChild(card);
@@ -291,7 +291,7 @@ function renderRankingBsides(filtro) {
       placeholder: { icon: "🎧", style: "background:linear-gradient(135deg,var(--verde-glow),#10b981);" },
       metrica: metricas.get(String(item.bside.id)),
       barStyle: `width:${pct}%;background:linear-gradient(90deg,#10b981,#34d399)`,
-      detalleHref: `analytics.html?tipo=bsides&id=${encodeURIComponent(item.bside.id)}`,
+      detalleHref: `analytics.html?tipo=bsides&id=${encodeURIComponent(item.bside.id)}&season=${encodeURIComponent(obtenerTemporadaActivaId())}`,
     });
     card.style.animationDelay = `${Math.min(idx * 0.04, 0.4)}s`;
     container.appendChild(card);

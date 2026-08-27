@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>👑 KPop Gala · Hall of Fame</title>
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/hall-of-fame.css">
+</head>
+<body>
+<nav class="navbar">
+  <a href="index.html" class="nav-logo"><span>🌸</span> KPop Gala</a>
+  <ul class="nav-links">
+    <li><a href="index.html">🏆 <span>Ranking</span></a></li>
+    <li><a href="registro.html">✍️ <span>Registrar</span></a></li>
+    <li><a href="semanas.html">📅 <span>Semanas</span></a></li>
+    <li><a href="analytics.html">📊 <span>Analytics</span></a></li>
+    <li><a href="temporadas.html">🗓️ <span>Temporadas</span></a></li>
+  </ul>
+</nav>
+
+<main class="page-wrapper hof-page">
+  <header class="hof-head fade-up">
+    <div><div class="emoji-badge">👑 ARCHIVO DE GANADORES</div><h1>Hall of Fame</h1><p>Los campeones de cada edición de KPop Gala.</p></div>
+    <div class="hof-actions"><a class="hof-btn" href="temporadas.html">🗓️ Temporadas</a><a class="hof-btn" id="hof-analytics-link" href="analytics.html">📊 Analytics</a></div>
+  </header>
+
+  <section class="hof-season-switch fade-up delay-1">
+    <label for="hof-season">Temporada</label>
+    <select id="hof-season"></select>
+    <span id="hof-status" class="hof-status"></span>
+  </section>
+
+  <section id="hof-hero" class="hof-hero fade-up delay-1"></section>
+  <section id="hof-winners" class="hof-winners fade-up delay-2"></section>
+
+  <section class="hof-editor fade-up delay-3">
+    <div class="hof-editor-head"><div><h2>✏️ Editar ganadores</h2><p>Puedes aceptar los líderes del ranking o elegir manualmente los premios finales.</p></div><span class="hof-editor-note">No cambia ningún puntaje ni registro.</span></div>
+    <div class="hof-form-grid">
+      <label><span>🎵 Song of the Year</span><select id="hof-canciones"></select></label>
+      <label><span>⭐ Artist of the Year</span><select id="hof-artistas"></select></label>
+      <label><span>💿 Album of the Year</span><select id="hof-albumes"></select></label>
+      <label><span>🎧 B-Side of the Year</span><select id="hof-bsides"></select></label>
+    </div>
+    <div class="hof-editor-actions"><button id="hof-auto" class="hof-btn" type="button">↻ Usar líderes del ranking</button><button id="hof-save" class="hof-btn primary" type="button">Guardar Hall of Fame</button></div>
+  </section>
+</main>
+
+<div id="hof-toast" class="hof-toast"></div>
+<script src="js/data.js"></script>
+<script src="js/hall-of-fame.js"></script>
+</body>
+</html>

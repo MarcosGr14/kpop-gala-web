@@ -2,24 +2,144 @@
    KPOP GALA — ANALYTICS.CSS · v1.5
    Dashboard, perfiles de detalle y gráficas SVG
    ============================================================ */
-.analytics-page{max-width:1280px}
-.analytics-head{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;margin-bottom:1.4rem}
-.analytics-head h1{font-family:var(--font-display);font-size:clamp(2rem,5vw,3.35rem);line-height:1.05;letter-spacing:-.045em}
-.analytics-head p{color:var(--text-soft);margin-top:.4rem}
-.analytics-badge{display:inline-flex;align-items:center;gap:.35rem;padding:.32rem .82rem;border:1.5px solid var(--border);border-radius:999px;background:rgba(255,255,255,.72);font-size:.76rem;font-weight:800;color:var(--text-soft);margin-bottom:.65rem}
-.analytics-actions{display:flex;gap:.55rem;flex-wrap:wrap}
-.analytics-btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.58rem .9rem;border:1.5px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text-soft);font-weight:800;font-size:.82rem;transition:.18s ease}
-.analytics-btn:hover{border-color:var(--rosa);color:var(--rosa);transform:translateY(-1px)}
-.analytics-tabs{display:flex;gap:.45rem;flex-wrap:wrap;margin-bottom:1.4rem}
-.analytics-tab{padding:.58rem .95rem;border:1.5px solid var(--border);background:rgba(255,255,255,.68);border-radius:999px;color:var(--text-soft);font-weight:800}
-.analytics-tab.active,.analytics-tab:hover{background:var(--surface2);border-color:var(--rosa);color:var(--rosa)}
-.analytics-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.9rem}
-.analytics-stat{background:rgba(255,255,255,.78);border:1.5px solid var(--border);border-radius:var(--radius-md);padding:1.05rem;box-shadow:var(--shadow-sm)}
-.analytics-stat small{display:block;color:var(--text-muted);font-weight:700;margin-bottom:.25rem}
-.analytics-stat strong{font-family:var(--font-display);font-size:1.7rem;line-height:1;color:var(--text)}
-.analytics-stat span{display:block;color:var(--text-soft);font-size:.78rem;margin-top:.35rem}
-.analytics-section{margin-top:1.25rem;background:rgba(255,255,255,.68);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:1.2rem;box-shadow:var(--shadow-sm)}
-.analytics-section-head{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin-bottom:1rem}
+
+.analytics-page{
+   max-width:1280px
+}
+
+.analytics-head{
+   display:flex;
+   align-items:flex-end;
+   justify-content:space-between;
+   gap:1rem;
+   margin-bottom:1.4rem
+}
+
+.analytics-head h1{
+   font-family:var(--font-display);
+   font-size:clamp(2rem,5vw,3.35rem);
+   line-height:1.05;
+   letter-spacing:-.045em
+}
+
+.analytics-head p{
+   color:var(--text-soft);
+   margin-top:.4rem
+}
+
+.analytics-badge{display:inline-flex;
+   align-items:center;
+   gap:.35rem;
+   padding:.32rem .82rem;
+   border:1.5px solid var(--border);
+   border-radius:999px;
+   background:rgba(255,255,255,.72);
+   font-size:.76rem;
+   font-weight:800;
+   color:var(--text-soft);
+   margin-bottom:.65rem
+}
+
+.analytics-actions{
+   display:flex;
+   gap:.55rem;
+   flex-wrap:wrap
+}
+
+.analytics-btn{
+   display:inline-flex;
+   align-items:center;
+   justify-content:center;
+   gap:.4rem;
+   padding:.58rem .9rem;
+   border:1.5px solid var(--border);
+   border-radius:999px;
+   background:var(--surface);
+   color:var(--text-soft);
+   font-weight:800;
+   font-size:.82rem;
+   transition:.18s ease
+}
+
+.analytics-btn:hover{
+   border-color:var(--rosa);
+   color:var(--rosa);
+   transform:translateY(-1px)
+}
+
+.analytics-tabs{
+   display:flex;
+   gap:.45rem;
+   flex-wrap:wrap;
+   margin-bottom:1.4rem
+}
+
+.analytics-tab{
+   padding:.58rem .95rem;
+   border:1.5px solid var(--border);
+   background:rgba(255,255,255,.68);
+   border-radius:999px;
+   color:var(--text-soft);
+   font-weight:800
+}
+
+.analytics-tab.active,.analytics-tab:hover{
+   background:var(--surface2);
+   border-color:var(--rosa);
+   color:var(--rosa)
+}
+
+.analytics-grid{
+   display:grid;
+   grid-template-columns:repeat(4,minmax(0,1fr));
+   gap:.9rem
+}
+
+.analytics-stat{
+   background:rgba(255,255,255,.78);
+   border:1.5px solid var(--border);
+   border-radius:var(--radius-md);
+   padding:1.05rem;
+   box-shadow:var(--shadow-sm)
+}
+
+.analytics-stat small{
+   display:block;
+   color:var(--text-muted);
+   font-weight:700;
+   margin-bottom:.25rem
+}
+
+.analytics-stat strong{
+   font-family:var(--font-display);
+   font-size:1.7rem;
+   line-height:1;
+   color:var(--text)
+}
+
+.analytics-stat span{
+   display:block;
+   color:var(--text-soft);
+   font-size:.78rem;
+   margin-top:.35rem
+}
+
+.analytics-section{
+   margin-top:1.25rem;
+   background:rgba(255,255,255,.68);
+   border:1.5px solid var(--border);
+   border-radius:var(--radius-lg);
+   padding:1.2rem;
+   box-shadow:var(--shadow-sm)
+}
+
+.analytics-section-head{
+   display:flex;
+   align-items:center;
+   justify-content:space-between;
+   gap:.8rem;margin-bottom:1rem
+}
+
 .analytics-section-head h2{font-family:var(--font-display);font-size:1.2rem}
 .analytics-section-head p{color:var(--text-muted);font-size:.82rem}
 .analytics-records{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem}
