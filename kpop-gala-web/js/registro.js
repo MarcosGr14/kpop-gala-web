@@ -375,8 +375,8 @@ function cargarEdicionBside(id) {
 }
 
 function posicionesHTML(r) {
-  if (r.posSpotify !== undefined || r.posInstafest !== undefined) return `🟢${r.posSpotify || 0}<br>🎪${r.posInstafest || 0}`;
-  return `📊${r.posicion || 0}<br><small>legacy</small>`;
+  if (r.posSpotify !== undefined || r.posInstafest !== undefined) return `🟢${escaparHTML(r.posSpotify || 0)}<br>🎪${escaparHTML(r.posInstafest || 0)}`;
+  return `📊${escaparHTML(r.posicion || 0)}<br><small>legacy</small>`;
 }
 
 function renderHistorial() {
@@ -384,12 +384,13 @@ function renderHistorial() {
     .filter(r => r.semanaId === document.getElementById("semana-global").value)
     .sort((a, b) => obtenerPuntajeRegistro(b) - obtenerPuntajeRegistro(a));
   const container = document.getElementById("historial-list"); if (!container) return;
+  conectarAccionesDatos(container, { "editar-cancion": cargarEdicion, "eliminar-cancion": eliminarRegistro });
   container.innerHTML = registros.length ? "" : "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Vacío</p>";
   registros.forEach(r => {
     const c = CANCIONES.find(x => x.id === r.cancionId); if (!c) return;
     const pid = r.personaId || "p1";
     const div = document.createElement("div"); div.className = `historial-item ${pid === "p2" ? "p2-item" : ""}`;
-    div.innerHTML = `<div style="font-size:0.75rem;color:var(--text-muted);">${posicionesHTML(r)}</div><span class="${pid === "p2" ? "badge-p2" : "badge-p1"}">${pid.toUpperCase()}</span><span class="hi-name">${c.nombre}<br><span style="font-size:0.7rem;color:var(--text-muted);">${c.artista}</span></span><span class="hi-rep">▶ ${r.reproducciones || 0}x</span><span class="hi-pts">+${obtenerPuntajeRegistro(r)} pts</span><div class="historial-actions"><button class="btn-edit" onclick="cargarEdicion('${r.id}')">✏️</button><button class="btn-delete" onclick="eliminarRegistro('${r.id}')">✕</button></div>`;
+    div.innerHTML = `<div style="font-size:0.75rem;color:var(--text-muted);">${posicionesHTML(r)}</div><span class="${pid === "p2" ? "badge-p2" : "badge-p1"}">${escaparHTML(String(pid).toUpperCase())}</span><span class="hi-name">${escaparHTML(c.nombre)}<br><span style="font-size:0.7rem;color:var(--text-muted);">${escaparHTML(c.artista)}</span></span><span class="hi-rep">▶ ${escaparHTML(r.reproducciones || 0)}x</span><span class="hi-pts">+${obtenerPuntajeRegistro(r)} pts</span><div class="historial-actions">${htmlBotonAccion("editar-cancion", r.id, "btn-edit", "✏️", "Editar registro")}${htmlBotonAccion("eliminar-cancion", r.id, "btn-delete", "✕", "Eliminar registro")}</div>`;
     container.appendChild(div);
   });
   aplicarConfiguracionUI();
@@ -398,12 +399,13 @@ function renderHistorial() {
 function renderHistorialAlbumes() {
   const registros = filtrarRegistrosTemporada(cargarRegistrosAlbumes()).filter(r => r.semanaId === document.getElementById("semana-global").value).sort((a, b) => obtenerPuntajeRegistro(b) - obtenerPuntajeRegistro(a));
   const container = document.getElementById("historial-albumes-list"); if (!container) return;
+  conectarAccionesDatos(container, { "editar-album": cargarEdicionAlbum, "eliminar-album": eliminarRegistroAlbum });
   container.innerHTML = registros.length ? "" : "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Vacío</p>";
   registros.forEach(r => {
     const a = ALBUMES.find(x => x.id === r.albumId); if (!a) return;
     const pid = r.personaId || "p1";
     const div = document.createElement("div"); div.className = `historial-item ${pid === "p2" ? "p2-item" : ""}`;
-    div.innerHTML = `<div style="font-size:0.75rem;color:var(--text-muted);">${posicionesHTML(r)}</div><span class="${pid === "p2" ? "badge-p2" : "badge-p1"}">${pid.toUpperCase()}</span><span class="hi-name">💿 ${a.nombre}<br><span style="font-size:0.7rem;color:var(--text-muted);">${a.artista}</span></span><span class="hi-rep">▶ ${r.reproducciones || 0}x</span><span class="hi-pts">+${obtenerPuntajeRegistro(r)} pts</span><div class="historial-actions"><button class="btn-edit" onclick="cargarEdicionAlbum('${r.id}')">✏️</button><button class="btn-delete" onclick="eliminarRegistroAlbum('${r.id}')">✕</button></div>`;
+    div.innerHTML = `<div style="font-size:0.75rem;color:var(--text-muted);">${posicionesHTML(r)}</div><span class="${pid === "p2" ? "badge-p2" : "badge-p1"}">${escaparHTML(String(pid).toUpperCase())}</span><span class="hi-name">💿 ${escaparHTML(a.nombre)}<br><span style="font-size:0.7rem;color:var(--text-muted);">${escaparHTML(a.artista)}</span></span><span class="hi-rep">▶ ${escaparHTML(r.reproducciones || 0)}x</span><span class="hi-pts">+${obtenerPuntajeRegistro(r)} pts</span><div class="historial-actions">${htmlBotonAccion("editar-album", r.id, "btn-edit", "✏️", "Editar registro")}${htmlBotonAccion("eliminar-album", r.id, "btn-delete", "✕", "Eliminar registro")}</div>`;
     container.appendChild(div);
   });
   aplicarConfiguracionUI();
@@ -412,12 +414,13 @@ function renderHistorialAlbumes() {
 function renderHistorialArtistas() {
   const registros = filtrarRegistrosTemporada(cargarRegistrosArtistas()).filter(r => r.semanaId === document.getElementById("semana-global").value).sort((a, b) => obtenerPuntajeRegistro(b) - obtenerPuntajeRegistro(a));
   const container = document.getElementById("historial-artistas-list"); if (!container) return;
+  conectarAccionesDatos(container, { "editar-artista": cargarEdicionArtista, "eliminar-artista": eliminarRegistroArtista });
   container.innerHTML = registros.length ? "" : "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Vacío</p>";
   registros.forEach(r => {
     const a = ARTISTAS.find(x => x.id === r.artistaId); if (!a) return;
     const pid = r.personaId || "p1";
     const div = document.createElement("div"); div.className = `historial-item ${pid === "p2" ? "p2-item" : ""}`;
-    div.innerHTML = `<div style="font-size:0.75rem;color:var(--text-muted);">${posicionesHTML(r)}</div><span class="${pid === "p2" ? "badge-p2" : "badge-p1"}">${pid.toUpperCase()}</span><span class="hi-name">${a.nombre}<br><span style="font-size:0.7rem;color:var(--text-muted);">${a.categoria.replace('_', ' ').toUpperCase()}</span></span><span class="hi-rep">▶ ${r.reproducciones || 0}x</span><span class="hi-pts">+${obtenerPuntajeRegistro(r)} pts</span><div class="historial-actions"><button class="btn-edit" onclick="cargarEdicionArtista('${r.id}')">✏️</button><button class="btn-delete" onclick="eliminarRegistroArtista('${r.id}')">✕</button></div>`;
+    div.innerHTML = `<div style="font-size:0.75rem;color:var(--text-muted);">${posicionesHTML(r)}</div><span class="${pid === "p2" ? "badge-p2" : "badge-p1"}">${escaparHTML(String(pid).toUpperCase())}</span><span class="hi-name">${escaparHTML(a.nombre)}<br><span style="font-size:0.7rem;color:var(--text-muted);">${escaparHTML(String(a.categoria || '').replace('_', ' ').toUpperCase())}</span></span><span class="hi-rep">▶ ${escaparHTML(r.reproducciones || 0)}x</span><span class="hi-pts">+${obtenerPuntajeRegistro(r)} pts</span><div class="historial-actions">${htmlBotonAccion("editar-artista", r.id, "btn-edit", "✏️", "Editar registro")}${htmlBotonAccion("eliminar-artista", r.id, "btn-delete", "✕", "Eliminar registro")}</div>`;
     container.appendChild(div);
   });
   aplicarConfiguracionUI();
@@ -426,12 +429,13 @@ function renderHistorialArtistas() {
 function renderHistorialBsides() {
   const registros = filtrarRegistrosTemporada(cargarRegistrosBsides()).filter(r => r.semanaId === document.getElementById("semana-global").value).sort((a, b) => obtenerPuntajeRegistro(b) - obtenerPuntajeRegistro(a));
   const container = document.getElementById("historial-bsides-list"); if (!container) return;
+  conectarAccionesDatos(container, { "editar-bside": cargarEdicionBside, "eliminar-bside": eliminarRegistroBside });
   container.innerHTML = registros.length ? "" : "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Vacío</p>";
   registros.forEach(r => {
     const b = BSIDES.find(x => x.id === r.bsideId); if (!b) return;
     const pid = r.personaId || "p1";
     const div = document.createElement("div"); div.className = `historial-item ${pid === "p2" ? "p2-item" : ""}`;
-    div.innerHTML = `<div style="font-size:0.75rem;color:var(--text-muted);">${posicionesHTML(r)}</div><span class="${pid === "p2" ? "badge-p2" : "badge-p1"}">${pid.toUpperCase()}</span><span class="hi-name">🎧 ${b.nombre}<br><span style="font-size:0.7rem;color:var(--text-muted);">${b.artista}</span></span><span class="hi-rep">▶ ${r.reproducciones || 0}x</span><span class="hi-pts">+${obtenerPuntajeRegistro(r)} pts</span><div class="historial-actions"><button class="btn-edit" onclick="cargarEdicionBside('${r.id}')">✏️</button><button class="btn-delete" onclick="eliminarRegistroBside('${r.id}')">✕</button></div>`;
+    div.innerHTML = `<div style="font-size:0.75rem;color:var(--text-muted);">${posicionesHTML(r)}</div><span class="${pid === "p2" ? "badge-p2" : "badge-p1"}">${escaparHTML(String(pid).toUpperCase())}</span><span class="hi-name">🎧 ${escaparHTML(b.nombre)}<br><span style="font-size:0.7rem;color:var(--text-muted);">${escaparHTML(b.artista)}</span></span><span class="hi-rep">▶ ${escaparHTML(r.reproducciones || 0)}x</span><span class="hi-pts">+${obtenerPuntajeRegistro(r)} pts</span><div class="historial-actions">${htmlBotonAccion("editar-bside", r.id, "btn-edit", "✏️", "Editar registro")}${htmlBotonAccion("eliminar-bside", r.id, "btn-delete", "✕", "Eliminar registro")}</div>`;
     container.appendChild(div);
   });
   aplicarConfiguracionUI();
@@ -468,7 +472,7 @@ function mostrarToast(msg, tipo = "success") {
   const container = document.getElementById("toast-container"); if (!container) return;
   const toast = document.createElement("div");
   toast.className = `toast ${tipo}`;
-  toast.innerHTML = `<span>${tipo === "success" ? "✅" : "⚠️"}</span><span>${msg}</span>`;
+  toast.innerHTML = `<span>${tipo === "success" ? "✅" : "⚠️"}</span><span>${escaparHTML(msg)}</span>`;
   container.appendChild(toast);
   setTimeout(() => {
     toast.style.opacity = "0";

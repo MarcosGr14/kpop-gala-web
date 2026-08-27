@@ -90,7 +90,7 @@ function cardCatalogo(item) {
   const puedeEliminar = custom && registros === 0 && !itemEstaReferenciadoCatalogo(kgTipoActual, item.id);
   return `<article class="catalog-item ${item.archivado ? "archived" : ""}" data-id="${escaparHTML(item.id)}">
     <div class="catalog-thumb">
-      <img src="${srcImagenItem(item)}"${atributoImagenItem(item)} alt="${escaparHTML(item.nombre)}" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+      <img src="${escaparHTML(srcImagenItem(item))}"${atributoImagenItem(item)} alt="${escaparHTML(item.nombre)}" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
       <span class="ph" style="display:${item.imagenId || item.img ? "none" : "block"}">${KG_TIPOS[kgTipoActual].ph}</span>
     </div>
     <div class="catalog-main">

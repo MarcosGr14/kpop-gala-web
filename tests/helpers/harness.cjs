@@ -27,8 +27,9 @@ function element() {
     resetCount: 0, reset() { this.resetCount++; },
     setAttribute(name, value) { this[name] = value; },
     appendChild(child) { children.push(child); return child; },
+    contains(child) { return children.includes(child) || children.some(x => x.contains?.(child)); },
     querySelector(sel) { if (!selectors.has(sel)) selectors.set(sel, element()); return selectors.get(sel); },
-    querySelectorAll() { return []; },
+    querySelectorAll() { return []; }, closest() { return null; },
     addEventListener(type, fn) { if (!listeners.has(type)) listeners.set(type, []); listeners.get(type).push(fn); },
     async emit(type, event = {}) { for (const fn of listeners.get(type) || []) await fn(event); },
     remove() { this.removed = true; }, focus() {}, scrollIntoView() {},
@@ -51,7 +52,7 @@ function harness(initial = {}) {
     location: { origin: 'https://isolated.invalid', pathname: '/index.html', search: '' },
     CustomEvent: class { constructor(type) { this.type = type; } },
     URL, URLSearchParams, Blob, atob, Uint8Array,
-    setTimeout() { return 1; }, clearTimeout() {}, confirm() { return true; },
+    setTimeout() { return 1; }, clearTimeout() {}, requestAnimationFrame(fn) { fn(); }, confirm() { return true; },
     // No real network or browser storage is reachable from application code.
     fetch() { throw new Error('Network disabled in tests'); },
   });

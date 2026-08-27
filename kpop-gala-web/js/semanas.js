@@ -70,6 +70,7 @@ function renderResumen(semFiltro = "todas", perFiltro = "todas") {
 
 function renderSemanas(semFiltro = "todas", perFiltro = "todas") {
   const container = document.getElementById("semanas-container");
+  conectarAccionesDatos(container, { eliminar: eliminarEnSemana });
   container.innerHTML = "";
 
   const registros = filtrarRegistrosTemporada(cargarRegistros());
@@ -115,11 +116,11 @@ function renderSemanas(semFiltro = "todas", perFiltro = "todas") {
 function formatoPosiciones(r) {
   // Registro nuevo: Spotify + Instafest. Registro antiguo: posición única.
   if (r.posSpotify !== undefined || r.posInstafest !== undefined) {
-    const spot = Number(r.posSpotify) > 0 ? `S#${r.posSpotify}` : "S—";
-    const insta = Number(r.posInstafest) > 0 ? `I#${r.posInstafest}` : "I—";
+    const spot = Number(r.posSpotify) > 0 ? `S#${escaparHTML(r.posSpotify)}` : "S—";
+    const insta = Number(r.posInstafest) > 0 ? `I#${escaparHTML(r.posInstafest)}` : "I—";
     return `${spot}<br><small>${insta}</small>`;
   }
-  return r.posicion ? `#${r.posicion}<br><small>legacy</small>` : "—";
+  return r.posicion ? `#${escaparHTML(r.posicion)}<br><small>legacy</small>` : "—";
 }
 
 function posicionOrden(r) {
@@ -141,18 +142,18 @@ function renderTabla(entradas) {
       <div class="semana-tabla-row">
         <span class="str-pos">${formatoPosiciones(r)}</span>
         <div class="str-img">
-          <img src="${srcImagenItem(cancion)}"${atributoImagenItem(cancion)} alt="${escaparHTML(cancion.nombre)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+          <img src="${escaparHTML(srcImagenItem(cancion))}"${atributoImagenItem(cancion)} alt="${escaparHTML(cancion.nombre)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
           <div class="str-img-placeholder" style="display:none;">🎵</div>
         </div>
         <div class="str-info">
-          <div class="str-name">${cancion.nombre}</div>
-          <div class="str-artist">${cancion.artista}</div>
+          <div class="str-name">${escaparHTML(cancion.nombre)}</div>
+          <div class="str-artist">${escaparHTML(cancion.artista)}</div>
         </div>
         <div class="str-persona"><span class="${isPid2 ? "badge-p2" : "badge-p1"}">${isPid2 ? "P2" : "P1"}</span></div>
         <span class="str-rep">▶ ${Number(r.reproducciones) || 0}x</span>
         <span class="str-pts ${isPid2 ? "p2" : ""}">
           +${puntos}
-          ${temporadaEstaCerrada() ? "" : `<button class="str-del-btn" onclick="eliminarEnSemana('${r.id}')" title="Eliminar">✕</button>`}
+          ${temporadaEstaCerrada() ? "" : htmlBotonAccion("eliminar", r.id, "str-del-btn", "✕", "Eliminar registro")}
         </span>
       </div>`;
   }).join("");
@@ -201,7 +202,7 @@ function mostrarToastSemanas(msg, tipo = "success") {
   const container = document.getElementById("toast-container");
   const toast = document.createElement("div");
   toast.className = `toast ${tipo}`;
-  toast.innerHTML = `<span>${tipo === "success" ? "✅" : "⚠️"}</span><span>${msg}</span>`;
+  toast.innerHTML = `<span>${tipo === "success" ? "✅" : "⚠️"}</span><span>${escaparHTML(msg)}</span>`;
   container.appendChild(toast);
   setTimeout(() => toast.remove(), 3500);
 }

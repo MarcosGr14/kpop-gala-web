@@ -791,6 +791,22 @@ function escaparHTML(valor) {
     .replaceAll("'", "&#039;");
 }
 
+// Los IDs se transportan como datos, nunca como código JavaScript inline.
+function htmlBotonAccion(accion, id, clase, icono, titulo) {
+  return `<button type="button" class="${escaparHTML(clase)}" data-kg-accion="${escaparHTML(accion)}" data-kg-id="${escaparHTML(id)}" aria-label="${escaparHTML(titulo)}" title="${escaparHTML(titulo)}">${escaparHTML(icono)}</button>`;
+}
+
+function conectarAccionesDatos(root, acciones) {
+  if (!root || root.dataset.kgAcciones === "1") return;
+  root.dataset.kgAcciones = "1";
+  root.addEventListener("click", e => {
+    const boton = e.target.closest?.("button[data-kg-accion]");
+    if (!boton || !root.contains(boton)) return;
+    const accion = boton.dataset.kgAccion;
+    if (Object.prototype.hasOwnProperty.call(acciones, accion)) acciones[accion](boton.dataset.kgId);
+  });
+}
+
 function inyectarEstilosUXV12() {
   if (document.getElementById("kg-ux-v12-styles")) return;
   const style = document.createElement("style");

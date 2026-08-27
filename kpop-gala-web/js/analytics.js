@@ -323,8 +323,8 @@ function graficaSVG(datos,invertir=false,color="var(--violeta)") {
   const yVal=v=>{const t=(v-min)/(max-min||1);return invertir?pad.t+t*(H-pad.t-pad.b):H-pad.b-t*(H-pad.t-pad.b)};
   const pts=datos.map((d,i)=>Number.isFinite(d.value)?`${xAt(i).toFixed(1)},${yVal(d.value).toFixed(1)}`:null).filter(Boolean);
   const grid=[0,.25,.5,.75,1].map(t=>{const y=pad.t+t*(H-pad.t-pad.b);const value=invertir?min+t*(max-min):max-t*(max-min);return `<line class="kg-gridline" x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}"/><text class="kg-label" x="4" y="${y+3}">${Math.round(value)}</text>`}).join("");
-  const every=Math.max(1,Math.ceil(datos.length/7)); const labels=datos.map((d,i)=>i%every===0||i===datos.length-1?`<text class="kg-label" text-anchor="middle" x="${xAt(i)}" y="${H-10}">${d.label}</text>`:"").join("");
-  const dots=datos.map((d,i)=>Number.isFinite(d.value)?`<circle class="kg-dot" cx="${xAt(i)}" cy="${yVal(d.value)}" r="4"><title>${d.label}: ${d.value}</title></circle>`:"").join("");
+  const every=Math.max(1,Math.ceil(datos.length/7)); const labels=datos.map((d,i)=>i%every===0||i===datos.length-1?`<text class="kg-label" text-anchor="middle" x="${xAt(i)}" y="${H-10}">${escaparHTML(d.label)}</text>`:"").join("");
+  const dots=datos.map((d,i)=>Number.isFinite(d.value)?`<circle class="kg-dot" cx="${xAt(i)}" cy="${yVal(d.value)}" r="4"><title>${escaparHTML(d.label)}: ${d.value}</title></circle>`:"").join("");
   const area=pts.length>1?`${pts[0].split(',')[0]},${H-pad.b} ${pts.join(' ')} ${pts[pts.length-1].split(',')[0]},${H-pad.b}`:"";
   return `<svg class="kg-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Gráfica de evolución" style="color:${color}">${grid}${area?`<polygon class="kg-area" points="${area}" fill="currentColor"/>`:""}<polyline class="kg-line" points="${pts.join(' ')}"/>${dots}${labels}</svg>`;
 }
