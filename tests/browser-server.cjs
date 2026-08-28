@@ -6,6 +6,7 @@ const files={
  '/data.js':['text/javascript; charset=utf-8',path.join(__dirname,'../kpop-gala-web/js/data.js')],
  '/app.js':['text/javascript; charset=utf-8',path.join(__dirname,'../kpop-gala-web/js/app.js')],
  '/global.css':['text/css; charset=utf-8',path.join(__dirname,'../kpop-gala-web/css/global.css')],
+ '/design-system.css':['text/css; charset=utf-8',path.join(__dirname,'../kpop-gala-web/css/design-system.css')],
  '/index.css':['text/css; charset=utf-8',path.join(__dirname,'../kpop-gala-web/css/index.css')]
 };
 const server=http.createServer((req,res)=>{
