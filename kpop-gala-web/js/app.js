@@ -193,9 +193,9 @@ function renderRankingArtistas(categoria) {
       subtitulo: item.artista.categoria.replaceAll("_", " ").toUpperCase(),
       img: item.artista.img,
       imagenId: item.artista.imagenId,
-      placeholder: { icon: "🎤", style: "background:linear-gradient(135deg,var(--amarillo-glow),#f9731633);" },
+      placeholder: { icon: "🎤", style: "background:linear-gradient(135deg,var(--artist-tint),var(--cyan-glow));" },
       metrica: metricas.get(String(item.artista.id)),
-      barStyle: `width:${pct}%;background:linear-gradient(90deg,var(--amarillo),#f59e0b)`,
+      barStyle: `width:${pct}%;background:linear-gradient(90deg,var(--accent-artist),var(--cyan))`,
       detalleHref: `analytics.html?tipo=artistas&id=${encodeURIComponent(item.artista.id)}&season=${encodeURIComponent(obtenerTemporadaActivaId())}`,
     });
     card.style.animationDelay = `${Math.min(idx * 0.04, 0.4)}s`;

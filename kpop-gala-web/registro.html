@@ -6,6 +6,7 @@
   <title>✨ KPop Gala · Registrar Semana</title>
   <link rel="stylesheet" href="css/global.css">
   <link rel="stylesheet" href="css/registro.css">
+  <link rel="stylesheet" href="css/design-system.css">
 </head>
 <body>
 
@@ -133,7 +134,7 @@
     <!-- B-Side P1 -->
     <div class="form-card p1-card" style="border-top-color: var(--verde);">
       <div class="form-card-title">
-        <div class="person-icon" style="background: var(--verde); color: #000;">P1</div>
+        <div class="person-icon">P1</div>
         <div><h2>Persona 1 (B-Side)</h2></div>
       </div>
       <form id="form-bside-p1">
@@ -148,7 +149,7 @@
           </div>
           <div class="form-group"><label class="form-label" for="reproducciones-bside-p1">▶ Reproducciones</label><input type="number" id="reproducciones-bside-p1" class="form-input" min="0" max="9999" value="0"></div>
           <div class="pts-preview" style="margin: 0.5rem 0;"><div><div class="pts-val" id="pts-preview-bside-p1">0</div><div class="pts-label">puntos a sumar</div></div></div>
-          <button type="submit" class="btn" style="background: var(--verde); color: #000; width: 100%;">🎧 Guardar B-Side</button>
+          <button type="submit" class="btn btn-category btn-bside">🎧 Guardar B-Side</button>
         </div>
       </form>
     </div>
@@ -156,7 +157,7 @@
     <!-- B-Side P2 -->
     <div class="form-card p2-card" style="border-top-color: var(--verde);">
       <div class="form-card-title">
-        <div class="person-icon" style="background: var(--verde); color: #000;">P2</div>
+        <div class="person-icon">P2</div>
         <div><h2>Persona 2 (B-Side)</h2></div>
       </div>
       <form id="form-bside-p2">
@@ -171,7 +172,7 @@
           </div>
           <div class="form-group"><label class="form-label" for="reproducciones-bside-p2">▶ Reproducciones</label><input type="number" id="reproducciones-bside-p2" class="form-input" min="0" max="9999" value="0"></div>
           <div class="pts-preview" style="margin: 0.5rem 0;"><div><div class="pts-val" id="pts-preview-bside-p2">0</div><div class="pts-label">puntos a sumar</div></div></div>
-          <button type="submit" class="btn" style="background: var(--verde); color: #000; width: 100%;">🎧 Guardar B-Side</button>
+          <button type="submit" class="btn btn-category btn-bside">🎧 Guardar B-Side</button>
         </div>
       </form>
     </div>
@@ -187,7 +188,7 @@
     <!-- Álbum P1 -->
     <div class="form-card p1-card" style="border-top-color: var(--violeta);">
       <div class="form-card-title">
-        <div class="person-icon" style="background: var(--violeta);">P1</div>
+        <div class="person-icon">P1</div>
         <div><h2>Persona 1 (Álbum)</h2></div>
       </div>
       <form id="form-album-p1">
@@ -202,7 +203,7 @@
           </div>
           <div class="form-group"><label class="form-label" for="reproducciones-album-p1">▶ Reproducciones</label><input type="number" id="reproducciones-album-p1" class="form-input" min="0" max="9999" value="0"></div>
           <div class="pts-preview" style="margin: 0.5rem 0;"><div><div class="pts-val" id="pts-preview-album-p1">0</div><div class="pts-label">puntos a sumar</div></div></div>
-          <button type="submit" class="btn" style="background: var(--violeta); color: #fff; width: 100%;">💿 Guardar Álbum</button>
+          <button type="submit" class="btn btn-category btn-album">💿 Guardar Álbum</button>
         </div>
       </form>
     </div>
@@ -210,7 +211,7 @@
     <!-- Álbum P2 -->
     <div class="form-card p2-card" style="border-top-color: var(--violeta);">
       <div class="form-card-title">
-        <div class="person-icon" style="background: var(--violeta);">P2</div>
+        <div class="person-icon">P2</div>
         <div><h2>Persona 2 (Álbum)</h2></div>
       </div>
       <form id="form-album-p2">
@@ -225,7 +226,7 @@
           </div>
           <div class="form-group"><label class="form-label" for="reproducciones-album-p2">▶ Reproducciones</label><input type="number" id="reproducciones-album-p2" class="form-input" min="0" max="9999" value="0"></div>
           <div class="pts-preview" style="margin: 0.5rem 0;"><div><div class="pts-val" id="pts-preview-album-p2">0</div><div class="pts-label">puntos a sumar</div></div></div>
-          <button type="submit" class="btn" style="background: var(--violeta); color: #fff; width: 100%;">💿 Guardar Álbum</button>
+          <button type="submit" class="btn btn-category btn-album">💿 Guardar Álbum</button>
         </div>
       </form>
     </div>
@@ -240,9 +241,9 @@
   <div class="form-container fade-up delay-3">
     
     <!-- ── FORMULARIO PERSONA 1 ── -->
-    <div class="form-card p1-card" style="border-top-color: var(--amarillo);">
+    <div class="form-card p1-card" style="border-top-color: var(--accent-artist);">
       <div class="form-card-title">
-        <div class="person-icon" style="background: var(--amarillo); color: #000;">P1</div>
+        <div class="person-icon">P1</div>
         <div><h2>Persona 1 (Artista)</h2></div>
       </div>
       <form id="form-artista-p1">
@@ -273,15 +274,15 @@
             </div>
           </div>
           <div class="pts-preview" style="margin: 0.5rem 0;"><div><div class="pts-val" id="pts-preview-artista-p1">0</div><div class="pts-label">puntos a sumar</div></div></div>
-          <button type="submit" class="btn" style="background: var(--amarillo); color: #000; width: 100%;">⭐ Guardar Artista</button>
+          <button type="submit" class="btn btn-category btn-artist">⭐ Guardar Artista</button>
         </div>
       </form>
     </div>
 
     <!-- ── FORMULARIO PERSONA 2 ── -->
-    <div class="form-card p2-card" style="border-top-color: var(--amarillo);">
+    <div class="form-card p2-card" style="border-top-color: var(--accent-artist);">
       <div class="form-card-title">
-        <div class="person-icon" style="background: var(--amarillo); color: #000;">P2</div>
+        <div class="person-icon">P2</div>
         <div><h2>Persona 2 (Artista)</h2></div>
       </div>
       <form id="form-artista-p2">
@@ -312,7 +313,7 @@
             </div>
           </div>
           <div class="pts-preview" style="margin: 0.5rem 0;"><div><div class="pts-val" id="pts-preview-artista-p2">0</div><div class="pts-label">puntos a sumar</div></div></div>
-          <button type="submit" class="btn" style="background: var(--amarillo); color: #000; width: 100%;">⭐ Guardar Artista</button>
+          <button type="submit" class="btn btn-category btn-artist">⭐ Guardar Artista</button>
         </div>
       </form>
     </div>

@@ -5,7 +5,7 @@
 
 const KG_ANALYTICS = {
   canciones: { icon: "🎵", singular: "Canción", plural: "Canciones", color: "var(--rosa)" },
-  artistas:  { icon: "⭐", singular: "Artista", plural: "Artistas", color: "var(--amarillo)" },
+  artistas:  { icon: "⭐", singular: "Artista", plural: "Artistas", color: "var(--accent-artist)" },
   albumes:   { icon: "💿", singular: "Álbum", plural: "Álbumes", color: "var(--violeta)" },
   bsides:    { icon: "🎧", singular: "B-Side", plural: "B-Sides", color: "var(--verde)" },
 };
@@ -307,7 +307,7 @@ function renderDetalle(tipo,id) {
       ${detailKpi("Ranking actual",pos>=0?`#${pos+1}`:"—")}${detailKpi("Puntos",total.toLocaleString())}${detailKpi("Peak",m?.peak?`#${m.peak}`:"—")}${detailKpi("Semanas",m?.semanasEnRanking||0)}${detailKpi("Movimiento",movimientoTexto(m))}${detailKpi("Registros",regs.length)}
     </section>
     <section class="analytics-section fade-up"><div class="analytics-section-head"><div><h2>👥 Reparto de puntos</h2><p>Contribución acumulada de cada participante.</p></div></div>${duelDetalle(p1,p2)}</section>
-    <section class="analytics-section fade-up"><div class="analytics-section-head"><div><h2>📈 Evolución</h2><p>La posición usa el ranking acumulado al cierre de cada semana.</p></div></div><div class="chart-grid"><div class="chart-card"><h3>Posición en ranking</h3><p>Más arriba = mejor posición.</p>${graficaSVG(history.map(x=>({label:x.semana.id,value:x.posicion})),true,"var(--violeta)")}</div><div class="chart-card"><h3>Puntos por semana</h3><p>Puntos obtenidos durante cada semana.</p>${graficaSVG(history.map(x=>({label:x.semana.id,value:x.semanal})),false,"var(--rosa)")}</div></div></section>
+    <section class="analytics-section fade-up"><div class="analytics-section-head"><div><h2>📈 Evolución</h2><p>La posición usa el ranking acumulado al cierre de cada semana.</p></div></div><div class="chart-grid"><div class="chart-card"><h3>Posición en ranking</h3><p>Más arriba = mejor posición.</p>${graficaSVG(history.map(x=>({label:x.semana.id,value:x.posicion})),true,info.color)}</div><div class="chart-card"><h3>Puntos por semana</h3><p>Puntos obtenidos durante cada semana.</p>${graficaSVG(history.map(x=>({label:x.semana.id,value:x.semanal})),false,info.color)}</div></div></section>
     <section class="analytics-section fade-up"><div class="analytics-section-head"><div><h2>📋 Historial semanal</h2><p>${history.length?`${history.length} semanas desde el debut.`:"Aún no hay historial para mostrar."}</p></div></div>${tablaHistorial(history)}</section>`;
   aplicarImagenesCatalogo(root); aplicarConfiguracionUI();
 }

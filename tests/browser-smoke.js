@@ -62,8 +62,35 @@
       host.querySelector('button').click();
       assert(received===payload,'Acción no recibió el ID');
       log('PASS · DOM nativo conserva texto e IDs sin ejecutar HTML; acción delegada funciona.');
+      await new Promise((resolve,reject)=>{
+        const script=document.createElement('script');script.src='/app.js';
+        script.onload=resolve;script.onerror=reject;document.head.appendChild(script);
+      });
+      const fixture=document.createElement('section');
+      fixture.innerHTML='<div id="ranking-list"></div>';
+      document.body.appendChild(fixture);
+      try {
+        const list=fixture.querySelector('#ranking-list');
+        for(const nombre of ['Blue Valentine','Voyager']) list.appendChild(crearRankCard({
+          pos:4,puntos:0,p1:0,p2:0,nombre,subtitulo:'Prueba',img:'',placeholder:{icon:'🎵'}
+        }));
+        crearBuscadorRanking('ranking-list','Buscar en prueba');
+        const input=fixture.querySelector('input');
+        const search=value=>{input.value=value;input.dispatchEvent(new Event('input',{bubbles:true}));};
+        const visible=()=>[...list.querySelectorAll('.rank-card')].filter(x=>getComputedStyle(x).display!=='none');
+        search('inexistente');
+        assert(visible().length===0,'hidden no oculta las tarjetas sin coincidencia');
+        assert(list.querySelector('.kg-no-results'),'Falta el estado sin resultados');
+        search('Blue');
+        assert(visible().length===1 && visible()[0].textContent.includes('Blue Valentine'),'La coincidencia parcial no filtra');
+        search('');
+        assert(visible().length===2,'Vaciar búsqueda no recupera las tarjetas');
+        assert(visible().every(x=>getComputedStyle(x).display==='flex'),'Se rompió el layout normal del ranking');
+        assert(!list.querySelector('.kg-no-results'),'Persiste el mensaje vacío al recuperar resultados');
+        log('PASS · Búsqueda real: cero/parcial/todos; hidden respeta CSS y conserva display:flex.');
+      } finally { fixture.remove(); }
       results.dataset.status='passed';
-      log('4/4 pruebas nativas aprobadas.');
+      log('5/5 pruebas nativas aprobadas.');
     }catch(e){results.dataset.status='failed';log('FAIL · '+e.message);}
     finally{
       await new Promise((resolve,reject)=>{

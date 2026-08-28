@@ -1,0 +1,239 @@
+/* KPOP GALA — Design System, phase 1.
+   Loaded after page CSS. Existing layout, selectors and JS remain intact.
+   `body` gives shared paint precedence over legacy CSS injected after load. */
+
+/* Content widths and type hierarchy, without moving page sections. */
+body :is(.datos-page, .hof-page, .seasons-page) { max-width: var(--content-normal); }
+body .analytics-page { max-width: var(--content-wide); }
+body .kg-season-banner { max-width: var(--content-normal); }
+body :is(.page-header h1, .analytics-head h1, .season-page-head h1, .hof-head h1) {
+  font-family: var(--font-display);
+  font-size: var(--text-title);
+  font-weight: 800;
+  letter-spacing: -.04em;
+  line-height: 1.1;
+  color: var(--text);
+  background: none;
+  -webkit-text-fill-color: currentColor;
+}
+body :is(.form-label, .season-form-grid label span, .hof-form-grid label span) {
+  color: var(--text-soft);
+  font-weight: 600;
+}
+body :is(.stat-num, .rank-pos, .rank-total, .hi-pts, .str-pos, .str-pts,
+  .rp-pts, .pts-val, .data-stat span, .analytics-stat strong, .detail-kpi strong,
+  .active-season-stat strong, .season-year) {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.035em;
+}
+body :is(.kg-rank-meta, .rank-persona-scores, .hof-award, .hof-status,
+  .season-pill, .analytics-pill, .detail-badge, .data-kicker, .analytics-badge) {
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+/* Neutral surfaces: gradients are reserved for small, contextual accents. */
+body :is(.card, .stat-chip, .rank-card, .form-card, .semana-selector,
+  .filtros-bar, .semana-tabla, .resumen-persona-card, .historial-item,
+  .catalog-summary-card, .catalog-item, .data-stat, .data-card, .profile-settings,
+  .analytics-stat, .analytics-section, .record-card, .top-panel,
+  .analytics-item, .detail-hero, .chart-card, .season-section, .season-card,
+  .hof-card, .hof-editor) {
+  background: var(--surface);
+  border-color: var(--border);
+  border-width: 1px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+body :is(.form-card, .detail-hero, .season-section, .hof-editor) { border-radius: var(--radius-lg); }
+body :is(.profile-field, .duel-person, .detail-kpi, .active-season-stat,
+  .hof-season-switch, .kg-season-chip, .kg-rank-meta > span) {
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+body :is(.stat-chip, .data-stat, .analytics-stat, .catalog-summary-card, .detail-kpi) {
+  padding: var(--space-4);
+}
+body :is(.catalog-item.archived, .hof-empty, .kg-no-results) {
+  background: var(--surface);
+  border-color: var(--border);
+}
+body :is(.catalog-search-wrap, .image-preview-wrap, .storage-note code) {
+  background: var(--elevated);
+  color: var(--text);
+}
+body :is(.rank-img-wrap, .catalog-thumb, .image-preview-wrap, .detail-cover,
+  .hof-cover, .season-year, .data-icon, .image-editor) { border-radius: var(--radius-sm); }
+body .hof-cover { border: 1px solid var(--border-strong); }
+body .catalog-item.archived { opacity: .78; }
+
+/* Preserve participant and category distinction on the existing cards. */
+body .form-card.p1-card, body .profile-field.p1-field { border-top: 2px solid var(--p1); }
+body .form-card.p2-card, body .profile-field.p2-field { border-top: 2px solid var(--p2); }
+body .resumen-persona-card.rp1 { border-color: var(--rosa-glow); }
+body .resumen-persona-card.rp2 { border-color: var(--cyan-glow); }
+body .rank-card.pos-1 { background: linear-gradient(105deg, var(--gala-tint), transparent 50%), var(--surface); border-color: var(--amarillo-glow); }
+body .rank-card.pos-2, body .rank-card.pos-3 { background: var(--surface); border-color: var(--border-strong); }
+body .rank-card.kg-top-1 { box-shadow: var(--shadow-sm); }
+body :is(.rank-card.kg-top-1, .rank-card.kg-top-2, .rank-card.kg-top-3)::before { opacity: .25; }
+body .hof-hero { background: linear-gradient(110deg, var(--gala-tint), transparent 60%), var(--surface); border: 1px solid var(--amarillo-glow); }
+body .hof-card::before { background: linear-gradient(135deg, var(--gala-tint), transparent); }
+body .active-season-card { background: linear-gradient(110deg, var(--album-tint), transparent 60%), var(--surface); border: 1px solid var(--violeta-glow); }
+body .active-season-card::after { opacity: .25; }
+body :is(.hof-hero small, .hof-award) { color: var(--accent-gala); }
+body :is(.active-season-kicker, .season-btn:hover, .kg-season-chip:hover,
+  .kg-season-closed-note a, .catalog-badge.custom, .kg-v12-badge) { color: var(--accent-album); }
+body .season-card.active { border-color: var(--accent-album); box-shadow: none; }
+body .season-year { background: var(--elevated); }
+
+/* One button vocabulary; semantic pills retain their round shape below. */
+body :is(.btn, .analytics-btn, .season-btn, .hof-btn, .data-action, .file-picker span) {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: .82rem;
+  letter-spacing: 0;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--elevated);
+  color: var(--text);
+  box-shadow: none;
+  padding: var(--space-2) var(--space-4);
+  min-height: 38px;
+  transition: background var(--duration-fast) ease, border-color var(--duration-fast) ease,
+    color var(--duration-fast) ease, transform var(--duration-fast) ease;
+}
+body :is(.btn-primary, .data-action.primary, .season-btn.primary, .hof-btn.primary,
+  .btn-cyan, .btn-category) {
+  background: var(--control-tint);
+  color: var(--control-accent);
+  border-color: var(--control-accent);
+}
+body :is(.btn-cyan, .btn-artist) { --control-accent: var(--accent-artist); --control-tint: var(--artist-tint); }
+body .btn-bside { --control-accent: var(--accent-bside); --control-tint: var(--bside-tint); }
+body :is(.btn-album, .season-btn.primary) { --control-accent: var(--accent-album); --control-tint: var(--album-tint); }
+body .hof-btn.primary { --control-accent: var(--accent-gala); --control-tint: var(--gala-tint); }
+body .form-card button[type="submit"] { width: 100%; }
+body :is(.btn, .analytics-btn, .season-btn, .hof-btn, .data-action, .file-picker span):hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--control-accent);
+  color: var(--text);
+  box-shadow: none;
+  transform: translateY(-1px);
+}
+body :is(.btn, .analytics-btn, .season-btn, .hof-btn, .data-action):disabled {
+  opacity: .45; cursor: not-allowed; transform: none; box-shadow: none;
+}
+body :is(.catalog-actions button, .dialog-close) {
+  background: var(--elevated); color: var(--text-soft); border-radius: var(--radius-sm);
+}
+body :is(.season-btn.danger, .catalog-actions .danger, .catalog-badge.arch) { color: var(--danger); }
+body :is(.season-btn.success, .season-pill.open) { color: var(--success); }
+
+/* Tabs / pills share a restrained active state with a category accent. */
+body :is(.tab-btn, .analytics-tab, .catalog-tab) {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-soft);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-weight: 600;
+  padding: var(--space-2) var(--space-4);
+  box-shadow: none;
+  transition: background var(--duration-fast), border-color var(--duration-fast), color var(--duration-fast);
+}
+body :is(.tab-btn, .analytics-tab, .catalog-tab):is(.active, :hover) {
+  background: var(--control-tint);
+  border-color: var(--control-accent);
+  color: var(--control-accent);
+  box-shadow: none;
+}
+#tabs-artistas, .catalog-tab[data-type="artistas"], .analytics-tab[data-type="artistas"] { --control-accent: var(--accent-artist); --control-tint: var(--artist-tint); }
+#tabs-albumes, .catalog-tab[data-type="albumes"], .analytics-tab[data-type="albumes"] { --control-accent: var(--accent-album); --control-tint: var(--album-tint); }
+#tabs-bsides, .catalog-tab[data-type="bsides"], .analytics-tab[data-type="bsides"] { --control-accent: var(--accent-bside); --control-tint: var(--bside-tint); }
+body .nav-links a { border-radius: var(--radius-sm); }
+body .nav-links a:is(:hover, .active) { background: var(--song-tint); color: var(--accent-song); box-shadow: none; }
+body .navbar { border-bottom-width: 1px; box-shadow: none; }
+
+/* Inputs: do not set a new width/min-width or change existing form grids. */
+body :is(.form-input, .form-select, .semana-selector select, .filtros-bar select,
+  .catalog-toolbar select, .season-form-grid input, .hof-form-grid select,
+  .hof-season-switch select, .profile-input-row input, .kg-select-search, .kg-ranking-search) {
+  background-color: var(--elevated);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-weight: 500;
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
+}
+body :is(input, textarea)::placeholder { color: var(--text-muted); opacity: 1; }
+body select option { color: var(--text); background: var(--elevated); }
+body :is(.form-input, .form-select, .kg-select-search, .kg-ranking-search):focus {
+  border-color: var(--focus); box-shadow: 0 0 0 3px var(--cyan-glow);
+}
+body .file-picker:focus-within span { outline: 2px solid var(--focus); outline-offset: 3px; }
+body .rank-card.kg-rank-clickable:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+
+/* Badges and numeric previews. Color is complemented by existing labels. */
+body :is(.badge-p1, .badge-p2, .page-header .emoji-badge, .analytics-badge,
+  .catalog-badge, .hof-status, .hof-award, .hof-points, .season-pill, .semana-chip,
+  .semana-num-badge, .pos-badge, .detail-badge, .analytics-pill) {
+  border-radius: var(--radius-pill); border: 1px solid var(--border);
+  background: var(--elevated); color: var(--text-soft); box-shadow: none;
+}
+body .badge-p1 { color: var(--p1); background: var(--song-tint); border-color: var(--rosa-glow); }
+body .badge-p2 { color: var(--p2); background: var(--artist-tint); border-color: var(--cyan-glow); }
+body :is(.hof-award, .pos-badge.top) { color: var(--accent-gala); background: var(--gala-tint); }
+body :is(.stat-chip .stat-num, .pts-preview .pts-val) {
+  color: var(--p1); background: none; -webkit-text-fill-color: currentColor;
+}
+body :is(.stat-chip .stat-num.cyan, .p2-card .pts-preview .pts-val) { color: var(--p2); }
+body .form-card-title .person-icon { color: var(--on-accent); }
+body .p1-card .person-icon { background: var(--p1); }
+body .p2-card .person-icon { background: var(--p2); }
+/* Legacy movement declarations are !important; keep this override equally narrow. */
+body .kg-move-up { color: var(--success) !important; background: var(--bside-tint) !important; }
+body .kg-move-down { color: var(--danger) !important; background: var(--song-tint) !important; }
+body .kg-move-new { color: var(--accent-album) !important; background: var(--album-tint) !important; }
+
+/* Shared messages and dialogs; preserve visibility, timers, positions and focus logic. */
+body :is(.toast, .catalog-toast, .season-toast, .hof-toast, .data-message, .kg-undo-toast) {
+  background: var(--elevated); color: var(--text);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg); font-family: var(--font-body); font-weight: 500;
+  overflow-wrap: anywhere;
+}
+body :is(.toast, .catalog-toast, .season-toast, .hof-toast, .data-message).error {
+  color: var(--danger); border-color: var(--danger);
+}
+body :is(.toast, .catalog-toast, .season-toast, .hof-toast, .data-message).success {
+  color: var(--success); border-color: var(--success);
+}
+body .kg-undo-toast button { background: var(--song-tint); color: var(--accent-song); }
+body .kg-undo-toast .kg-close { background: transparent; color: var(--text-muted); }
+body :is(.catalog-dialog, .season-dialog) {
+  margin: auto;
+  color: var(--text); background: var(--surface); border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);
+}
+body :is(.catalog-dialog, .season-dialog)::backdrop { background: var(--overlay); }
+
+/* Graphics / motion paint only, never recalculate any data. */
+body .kg-label { fill: var(--text-muted); font-family: var(--font-mono); }
+body .kg-gridline { stroke: var(--border); }
+body .history-table td { border-bottom-color: var(--border); }
+body .history-table tr:hover td { background: var(--elevated); }
+body .duel-bar { background: var(--artist-tint); }
+body .duel-bar > div { background: var(--p1); }
+body :is(.card, .stat-chip, .rank-card, .catalog-item, .analytics-item):hover {
+  transform: translateY(-1px); box-shadow: var(--shadow-md);
+}
+body .rank-card.kg-rank-clickable.kg-top-1:hover { transform: translateY(-1px); }
+body .rank-card:hover .rank-img-wrap img { transform: none; }
+body .neon-divider { height: 1px; opacity: .45; }
+
+/* Keep semantic status colors after the shared badge paint. */
+body .season-pill.open { color: var(--success); }
+body .catalog-badge.custom { color: var(--accent-album); }
+body .catalog-badge.arch { color: var(--danger); }
