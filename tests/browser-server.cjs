@@ -1,9 +1,12 @@
-// Only serves the isolated test page and data.js; never serves the workspace.
+// Only serves an explicit test allowlist; never serves arbitrary workspace files.
 const http=require('node:http'),fs=require('node:fs'),path=require('node:path');
 const files={
  '/': ['text/html; charset=utf-8',path.join(__dirname,'browser-smoke.html')],
  '/smoke.js':['text/javascript; charset=utf-8',path.join(__dirname,'browser-smoke.js')],
- '/data.js':['text/javascript; charset=utf-8',path.join(__dirname,'../kpop-gala-web/js/data.js')]
+ '/data.js':['text/javascript; charset=utf-8',path.join(__dirname,'../kpop-gala-web/js/data.js')],
+ '/app.js':['text/javascript; charset=utf-8',path.join(__dirname,'../kpop-gala-web/js/app.js')],
+ '/global.css':['text/css; charset=utf-8',path.join(__dirname,'../kpop-gala-web/css/global.css')],
+ '/index.css':['text/css; charset=utf-8',path.join(__dirname,'../kpop-gala-web/css/index.css')]
 };
 const server=http.createServer((req,res)=>{
  const file=files[req.url];

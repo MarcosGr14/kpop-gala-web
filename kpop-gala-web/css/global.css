@@ -415,7 +415,8 @@ body::before {
 .fw-bold { font-weight: 700; }
 .fw-black { font-weight: 900; }
 .font-display { font-family: var(--font-display); }
-.hidden { display: none !important; }
+/* Preserve the HTML hidden contract against component display rules. */
+[hidden]:not([hidden="until-found"]), .hidden { display: none !important; }
 
 /* ── Animaciones de entrada ──────────────────────────────────── */
 .fade-up {
