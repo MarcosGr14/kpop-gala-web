@@ -6,7 +6,7 @@ const {harness}=require('./helpers/harness.cjs');
 const root=path.resolve(__dirname,'../kpop-gala-web');
 const pages=['index','registro','semanas','catalogo','analytics','datos','temporadas','hall-of-fame'].map(x=>x+'.html');
 const sources=new Set([...pages,...['css','js'].flatMap(dir=>fs.readdirSync(path.join(root,dir)).map(f=>dir+'/'+f))]);
-const baseline='3fee375',cache=new Map();
+const baseline='9793e4d',cache=new Map();
 const h=harness();
 for(const [save,list,id] of [['guardarRegistros','CANCIONES','cancionId'],['guardarRegistrosAlbumes','ALBUMES','albumId'],['guardarRegistrosBsides','BSIDES','bsideId'],['guardarRegistrosArtistas','ARTISTAS','artistaId']]) {
  h.run(`${save}(${list}.slice(0,3).flatMap((x,i)=>['p1','p2'].flatMap((p,j)=>['S01','S02'].map((s,k)=>({id:'visual_'+p+'_'+s+'_'+i,${id}:x.id,personaId:p,semanaId:s,posSpotify:i+1,posInstafest:i+2,reproducciones:80-i*15+j*8+k*5})))));`);
@@ -39,7 +39,7 @@ const server=http.createServer((req,res)=>{
   if(u.pathname==='/'){
    const page=u.searchParams.get('page')||'index.html',version=u.searchParams.get('version')==='baseline'?'baseline':'current';
    const width=Number(u.searchParams.get('width'))||1280;
-   if(!pages.includes(page)||![320,375,768,1280].includes(width)){res.writeHead(400).end();return;}
+   if(!pages.includes(page)||![320,375,768,1024,1280].includes(width)){res.writeHead(400).end();return;}
    const options=new URLSearchParams();for(const k of ['empty','system','tipo','id'])if(u.searchParams.has(k))options.set(k,u.searchParams.get(k));
    res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});
    res.end(`<!doctype html><html><meta charset="utf-8"><title>Visual QA</title><body style="margin:0;background:#09090c;color:#ddd;font:12px system-ui"><p style="margin:8px">DATOS FICTICIOS · ${version} · ${page} · ${width}px</p><iframe title="KPop Gala aislado" src="/${version}/${page}?${options}" style="width:${width}px;height:1000px;border:0;display:block"></iframe><pre id="report" style="white-space:pre-wrap">Cargando…</pre><script>addEventListener('message',e=>{if(e.source===document.querySelector('iframe').contentWindow&&e.origin===location.origin&&e.data.kind==='visual-report'){document.getElementById('report').textContent=JSON.stringify(e.data.report);document.body.dataset.ready='true';}})</script></body></html>`);return;

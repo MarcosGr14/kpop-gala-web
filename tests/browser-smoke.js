@@ -89,8 +89,24 @@
         assert(!list.querySelector('.kg-no-results'),'Persiste el mensaje vacío al recuperar resultados');
         log('PASS · Búsqueda real: cero/parcial/todos; hidden respeta CSS y conserva display:flex.');
       } finally { fixture.remove(); }
+      const navbar=document.querySelector('.navbar');
+      const expectedHrefs=['index.html','registro.html','semanas.html','analytics.html','catalogo.html','temporadas.html','hall-of-fame.html','datos.html'];
+      const hrefs=[...navbar.querySelectorAll('.nav-link')].map(link=>link.getAttribute('href'));
+      assert(JSON.stringify(hrefs)===JSON.stringify(expectedHrefs),'Los destinos de navegación cambiaron');
+      assert(navbar.dataset.navigationReady==='true','La navegación compartida no se inicializó');
+      const menuButton=navbar.querySelector('.nav-menu-toggle');
+      menuButton.click();
+      assert(menuButton.getAttribute('aria-expanded')==='true' && document.body.classList.contains('nav-open'),'El menú móvil no abrió');
+      document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+      assert(menuButton.getAttribute('aria-expanded')==='false' && !document.body.classList.contains('nav-open'),'Escape no cerró el menú móvil');
+      const moreButton=navbar.querySelector('.nav-more-toggle');
+      moreButton.click();
+      assert(moreButton.getAttribute('aria-expanded')==='true','El dropdown Más no abrió');
+      document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+      assert(moreButton.getAttribute('aria-expanded')==='false','Escape no restauró el dropdown');
+      log('PASS · Navegación: 8 destinos, aria-expanded y cierre con Escape.');
       results.dataset.status='passed';
-      log('5/5 pruebas nativas aprobadas.');
+      log('6/6 pruebas nativas aprobadas.');
     }catch(e){results.dataset.status='failed';log('FAIL · '+e.message);}
     finally{
       await new Promise((resolve,reject)=>{
