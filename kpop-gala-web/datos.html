@@ -9,14 +9,30 @@
   <link rel="stylesheet" href="css/design-system.css">
 </head>
 <body>
-<nav class="navbar">
-  <a href="index.html" class="nav-logo"><span>🌸</span> KPop Gala</a>
-  <ul class="nav-links">
-    <li><a href="index.html">🏆 <span>Ranking</span></a></li>
-    <li><a href="registro.html">✍️ <span>Registrar</span></a></li>
-    <li><a href="semanas.html">📅 <span>Semanas</span></a></li>
-    <li><a href="datos.html" class="active">💾 <span>Datos</span></a></li>
-  </ul>
+<nav class="navbar" aria-label="Navegación principal">
+  <div class="nav-shell">
+    <a href="index.html" class="nav-logo" aria-label="KPop Gala · Inicio"><span aria-hidden="true">🌸</span><strong>KPop Gala</strong></a>
+    <button class="nav-menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation">
+      <span class="sr-only">Abrir menú</span><span class="nav-menu-icon" aria-hidden="true"></span>
+    </button>
+    <div class="nav-panel" id="primary-navigation">
+      <ul class="nav-links">
+        <li><a class="nav-link" href="index.html"><span>Inicio</span></a></li>
+        <li><a class="nav-link" href="registro.html"><span>Registrar</span></a></li>
+        <li><a class="nav-link" href="semanas.html"><span>Semanas</span></a></li>
+        <li><a class="nav-link" href="analytics.html"><span>Analytics</span></a></li>
+        <li class="nav-more nav-has-current">
+          <button class="nav-more-toggle" type="button" aria-expanded="false" aria-controls="secondary-navigation"><span>Más</span><span class="nav-chevron" aria-hidden="true">▾</span></button>
+          <ul class="dropdown-menu" id="secondary-navigation" aria-label="Más secciones">
+        <li><a class="nav-link" href="catalogo.html"><span>Catálogo</span></a></li>
+        <li><a class="nav-link" href="temporadas.html"><span>Temporadas</span></a></li>
+        <li><a class="nav-link" href="hall-of-fame.html"><span>Hall of Fame</span></a></li>
+        <li><a class="nav-link" href="datos.html" aria-current="page"><span>Datos</span></a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
 </nav>
 
 <main class="page-wrapper datos-page">
@@ -108,6 +124,7 @@
 </main>
 
 <script src="js/data.js"></script>
+<script src="js/navigation.js"></script>
 <script src="js/backup.js"></script>
 </body>
 </html>

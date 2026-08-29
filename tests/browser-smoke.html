@@ -1,8 +1,32 @@
 <!doctype html><html lang="es"><meta charset="utf-8"><title>KPop Gala · Prueba aislada</title>
 <link rel="stylesheet" href="/global.css"><link rel="stylesheet" href="/index.css">
 <link rel="stylesheet" href="/design-system.css">
-<body><h1>KPop Gala · Prueba aislada</h1>
+<body><nav class="navbar" aria-label="Navegación principal">
+  <div class="nav-shell">
+    <a href="index.html" class="nav-logo" aria-label="KPop Gala · Inicio"><span aria-hidden="true">🌸</span><strong>KPop Gala</strong></a>
+    <button class="nav-menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation">
+      <span class="sr-only">Abrir menú</span><span class="nav-menu-icon" aria-hidden="true"></span>
+    </button>
+    <div class="nav-panel" id="primary-navigation">
+      <ul class="nav-links">
+        <li><a class="nav-link" href="index.html"><span>Inicio</span></a></li>
+        <li><a class="nav-link" href="registro.html"><span>Registrar</span></a></li>
+        <li><a class="nav-link" href="semanas.html"><span>Semanas</span></a></li>
+        <li><a class="nav-link" href="analytics.html"><span>Analytics</span></a></li>
+        <li class="nav-more">
+          <button class="nav-more-toggle" type="button" aria-expanded="false" aria-controls="secondary-navigation"><span>Más</span><span class="nav-chevron" aria-hidden="true">▾</span></button>
+          <ul class="dropdown-menu" id="secondary-navigation" aria-label="Más secciones">
+        <li><a class="nav-link" href="catalogo.html"><span>Catálogo</span></a></li>
+        <li><a class="nav-link" href="temporadas.html"><span>Temporadas</span></a></li>
+        <li><a class="nav-link" href="hall-of-fame.html"><span>Hall of Fame</span></a></li>
+        <li><a class="nav-link" href="datos.html"><span>Datos</span></a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav><h1>KPop Gala · Prueba aislada</h1>
 <p>localStorage en memoria. IndexedDB nativo en una base temporal exclusiva, eliminada al terminar.</p>
 <button id="run" type="button" disabled>Ejecutar pruebas aisladas</button>
 <pre id="results">Preparando aislamiento…</pre>
-<script src="/smoke.js"></script></body></html>
+<script src="/smoke.js"></script><script src="/navigation.js"></script></body></html>

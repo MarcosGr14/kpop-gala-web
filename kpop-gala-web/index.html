@@ -13,32 +13,30 @@
 <!-- ═══════════════════════════════════════════════════
      NAVBAR
 ════════════════════════════════════════════════════ -->
-<nav class="navbar">
-  <a href="index.html" class="nav-logo">
-    <span>🌸</span> KPop Gala
-  </a>
-  <ul class="nav-links">
-    <li>
-      <a href="index.html" class="active">
-        🏆 <span>Ranking</span>
-      </a>
-    </li>
-    <li>
-      <a href="registro.html">
-        ✍️ <span>Registrar</span>
-      </a>
-    </li>
-    <li class="nav-dropdown">
-      <a href="#">
-        📅 <span>Semanas</span>
-      </a>
-      <div class="dropdown-menu">
-        <a href="semanas.html">📋 Ver todas</a>
-        <a href="semanas.html?filtro=p1">🌸 Persona 1</a>
-        <a href="semanas.html?filtro=p2">💙 Persona 2</a>
-      </div>
-    </li>
-  </ul>
+<nav class="navbar" aria-label="Navegación principal">
+  <div class="nav-shell">
+    <a href="index.html" class="nav-logo" aria-label="KPop Gala · Inicio"><span aria-hidden="true">🌸</span><strong>KPop Gala</strong></a>
+    <button class="nav-menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation">
+      <span class="sr-only">Abrir menú</span><span class="nav-menu-icon" aria-hidden="true"></span>
+    </button>
+    <div class="nav-panel" id="primary-navigation">
+      <ul class="nav-links">
+        <li><a class="nav-link" href="index.html" aria-current="page"><span>Inicio</span></a></li>
+        <li><a class="nav-link" href="registro.html"><span>Registrar</span></a></li>
+        <li><a class="nav-link" href="semanas.html"><span>Semanas</span></a></li>
+        <li><a class="nav-link" href="analytics.html"><span>Analytics</span></a></li>
+        <li class="nav-more">
+          <button class="nav-more-toggle" type="button" aria-expanded="false" aria-controls="secondary-navigation"><span>Más</span><span class="nav-chevron" aria-hidden="true">▾</span></button>
+          <ul class="dropdown-menu" id="secondary-navigation" aria-label="Más secciones">
+        <li><a class="nav-link" href="catalogo.html"><span>Catálogo</span></a></li>
+        <li><a class="nav-link" href="temporadas.html"><span>Temporadas</span></a></li>
+        <li><a class="nav-link" href="hall-of-fame.html"><span>Hall of Fame</span></a></li>
+        <li><a class="nav-link" href="datos.html"><span>Datos</span></a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
 </nav>
 
 <!-- ═══════════════════════════════════════════════════
@@ -151,6 +149,7 @@
 <div id="toast-container"></div>
 
 <script src="js/data.js"></script>
+<script src="js/navigation.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

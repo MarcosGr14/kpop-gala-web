@@ -5,6 +5,7 @@ const files={
  '/smoke.js':['text/javascript; charset=utf-8',path.join(__dirname,'browser-smoke.js')],
  '/data.js':['text/javascript; charset=utf-8',path.join(__dirname,'../kpop-gala-web/js/data.js')],
  '/app.js':['text/javascript; charset=utf-8',path.join(__dirname,'../kpop-gala-web/js/app.js')],
+ '/navigation.js':['text/javascript; charset=utf-8',path.join(__dirname,'../kpop-gala-web/js/navigation.js')],
  '/global.css':['text/css; charset=utf-8',path.join(__dirname,'../kpop-gala-web/css/global.css')],
  '/design-system.css':['text/css; charset=utf-8',path.join(__dirname,'../kpop-gala-web/css/design-system.css')],
  '/index.css':['text/css; charset=utf-8',path.join(__dirname,'../kpop-gala-web/css/index.css')]
