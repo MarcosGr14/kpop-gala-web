@@ -151,9 +151,6 @@ body :is(.tab-btn, .analytics-tab, .catalog-tab):is(.active, :hover) {
 #tabs-artistas, .catalog-tab[data-type="artistas"], .analytics-tab[data-type="artistas"] { --control-accent: var(--accent-artist); --control-tint: var(--artist-tint); }
 #tabs-albumes, .catalog-tab[data-type="albumes"], .analytics-tab[data-type="albumes"] { --control-accent: var(--accent-album); --control-tint: var(--album-tint); }
 #tabs-bsides, .catalog-tab[data-type="bsides"], .analytics-tab[data-type="bsides"] { --control-accent: var(--accent-bside); --control-tint: var(--bside-tint); }
-body .nav-links a { border-radius: var(--radius-sm); }
-body .nav-links a:is(:hover, .active) { background: var(--song-tint); color: var(--accent-song); box-shadow: none; }
-body .navbar { border-bottom-width: 1px; box-shadow: none; }
 
 /* Inputs: do not set a new width/min-width or change existing form grids. */
 body :is(.form-input, .form-select, .semana-selector select, .filtros-bar select,
