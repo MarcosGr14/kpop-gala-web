@@ -19,8 +19,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function renderStats() {
-  const registros = filtrarRegistrosTemporada(cargarRegistros());
-  const ranking = calcularRanking();
+  const registros = filtrarRegistrosCatalogoActivos("canciones", filtrarRegistrosTemporada(cargarRegistros()));
+  const ranking = filtrarRankingCatalogoActivo("canciones", calcularRanking());
   const totalPts = registros.reduce((s, r) => s + obtenerPuntajeRegistro(r), 0);
   const ptsP1 = registros.filter(r => r.personaId === "p1").reduce((s, r) => s + obtenerPuntajeRegistro(r), 0);
   const ptsP2 = registros.filter(r => r.personaId === "p2").reduce((s, r) => s + obtenerPuntajeRegistro(r), 0);
@@ -117,7 +117,7 @@ function crearRankCard({
 }
 
 function renderRanking(filtro) {
-  const ranking = calcularRanking();
+  const ranking = filtrarRankingCatalogoActivo("canciones", calcularRanking());
   const metricas = calcularMetricasCanciones();
   const container = document.getElementById("ranking-list");
   if (!container) return;
@@ -169,7 +169,7 @@ function configurarTabs() {
 }
 
 function renderRankingArtistas(categoria) {
-  const ranking = calcularRankingArtistas(categoria);
+  const ranking = filtrarRankingCatalogoActivo("artistas", calcularRankingArtistas(categoria));
   const metricas = calcularMetricasArtistas(categoria);
   const container = document.getElementById("ranking-artistas-list");
   if (!container) return;
@@ -216,7 +216,7 @@ function configurarTabsArtistas() {
 }
 
 function renderRankingAlbumes(filtro) {
-  const ranking = calcularRankingAlbumes();
+  const ranking = filtrarRankingCatalogoActivo("albumes", calcularRankingAlbumes());
   const metricas = calcularMetricasAlbumes();
   const container = document.getElementById("ranking-albumes-list");
   if (!container) return;
@@ -264,7 +264,7 @@ function configurarTabsAlbumes() {
 }
 
 function renderRankingBsides(filtro) {
-  const ranking = calcularRankingBsides();
+  const ranking = filtrarRankingCatalogoActivo("bsides", calcularRankingBsides());
   const metricas = calcularMetricasBsides();
   const container = document.getElementById("ranking-bsides-list");
   if (!container) return;

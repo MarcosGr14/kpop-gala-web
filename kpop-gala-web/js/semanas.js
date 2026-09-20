@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
 function renderOpcionesSemana() {
   const selSemana = document.getElementById("filtro-semana");
   const valorActual = selSemana.value || "todas";
-  const registros = filtrarRegistrosTemporada(cargarRegistros());
+  const registros = filtrarRegistrosCatalogoActivos("canciones", filtrarRegistrosTemporada(cargarRegistros()));
   const semanasUsadas = [...new Set(registros.map(r => r.semanaId))];
 
   selSemana.innerHTML = `<option value="todas">Todas las semanas</option>`;
@@ -50,7 +50,7 @@ function actualizarVista() {
 }
 
 function renderResumen(semFiltro = "todas", perFiltro = "todas") {
-  const registros = filtrarRegistrosTemporada(cargarRegistros()).filter(r => {
+  const registros = filtrarRegistrosCatalogoActivos("canciones", filtrarRegistrosTemporada(cargarRegistros())).filter(r => {
     const matchSem = semFiltro === "todas" || r.semanaId === semFiltro;
     const matchPer = perFiltro === "todas" || r.personaId === perFiltro;
     return matchSem && matchPer;
@@ -73,7 +73,7 @@ function renderSemanas(semFiltro = "todas", perFiltro = "todas") {
   conectarAccionesDatos(container, { eliminar: eliminarEnSemana });
   container.innerHTML = "";
 
-  const registros = filtrarRegistrosTemporada(cargarRegistros());
+  const registros = filtrarRegistrosCatalogoActivos("canciones", filtrarRegistrosTemporada(cargarRegistros()));
   const semanasAMostrar = semFiltro === "todas"
     ? SEMANAS.filter(s => registros.some(r => r.semanaId === s.id))
     : SEMANAS.filter(s => s.id === semFiltro);

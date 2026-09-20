@@ -1067,6 +1067,25 @@ function coleccionCatalogo(tipo) {
   return [];
 }
 
+function coleccionCatalogoActiva(tipo) {
+  return coleccionCatalogo(tipo).filter(item => !item.archivado);
+}
+
+function filtrarRegistrosCatalogoActivos(tipo, registros = []) {
+  const campos = { canciones: "cancionId", artistas: "artistaId", albumes: "albumId", bsides: "bsideId" };
+  const campo = campos[tipo];
+  if (!campo) return [];
+  const idsActivos = new Set(coleccionCatalogoActiva(tipo).map(item => String(item.id)));
+  return registros.filter(registro => idsActivos.has(String(registro?.[campo])));
+}
+
+function filtrarRankingCatalogoActivo(tipo, ranking = []) {
+  const campos = { canciones: "cancion", artistas: "artista", albumes: "album", bsides: "bside" };
+  const campo = campos[tipo];
+  if (!campo) return [];
+  return ranking.filter(fila => fila?.[campo] && !fila[campo].archivado);
+}
+
 function baseCatalogo(tipo) {
   if (tipo === "canciones") return CANCIONES_BASE;
   if (tipo === "artistas") return ARTISTAS_BASE;
