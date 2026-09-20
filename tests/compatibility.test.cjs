@@ -71,6 +71,32 @@ test('archiving preserves history and referenced items cannot be deleted', () =>
   h.run("globalThis.artist=guardarItemCatalogo('artistas',{nombre:'Relacionado'});guardarItemCatalogo('albumes',{nombre:'Disco',artista:'Relacionado',artistaId:artist.id})");
   assert.throws(()=>h.run("eliminarItemCatalogo('artistas',artist.id)"));
 });
+test('active catalog filters hide archived items and restore them after unarchive', () => {
+  const h=harness();
+  h.run("globalThis.items={canciones:guardarItemCatalogo('canciones',{nombre:'Canción visible',artista:'Prueba'}),artistas:guardarItemCatalogo('artistas',{nombre:'Artista visible',categoria:'boy_group'}),albumes:guardarItemCatalogo('albumes',{nombre:'Álbum visible',artista:'Prueba'}),bsides:guardarItemCatalogo('bsides',{nombre:'B-Side visible',artista:'Prueba'})};guardarRegistros([{cancionId:items.canciones.id,semanaId:'S01',puntaje:10}]);guardarRegistrosArtistas([{artistaId:items.artistas.id,semanaId:'S01',puntaje:10}]);guardarRegistrosAlbumes([{albumId:items.albumes.id,semanaId:'S01',puntaje:10}]);guardarRegistrosBsides([{bsideId:items.bsides.id,semanaId:'S01',puntaje:10}])");
+  const casos = [
+    ['canciones','cancion','calcularRanking()','cargarRegistros()'],
+    ['artistas','artista','calcularRankingArtistasGeneral()','cargarRegistrosArtistas()'],
+    ['albumes','album','calcularRankingAlbumes()','cargarRegistrosAlbumes()'],
+    ['bsides','bside','calcularRankingBsides()','cargarRegistrosBsides()'],
+  ];
+  for (const [tipo,campo,ranking,registros] of casos) {
+    assert.equal(h.run(`coleccionCatalogoActiva('${tipo}').some(x=>x.id===items.${tipo}.id)`),true);
+    assert.equal(h.run(`filtrarRankingCatalogoActivo('${tipo}',${ranking}).some(x=>x.${campo}.id===items.${tipo}.id)`),true);
+  }
+  h.run("Object.keys(items).forEach(tipo=>cambiarArchivoItemCatalogo(tipo,items[tipo].id,true))");
+  for (const [tipo,campo,ranking,registros] of casos) {
+    assert.equal(h.run(`coleccionCatalogoActiva('${tipo}').some(x=>x.id===items.${tipo}.id)`),false);
+    assert.equal(h.run(`filtrarRankingCatalogoActivo('${tipo}',${ranking}).some(x=>x.${campo}.id===items.${tipo}.id)`),false);
+    assert.equal(h.run(`filtrarRegistrosCatalogoActivos('${tipo}',${registros}).length`),0);
+    assert.equal(h.run(`${registros}.length`),1);
+  }
+  h.run("Object.keys(items).forEach(tipo=>cambiarArchivoItemCatalogo(tipo,items[tipo].id,false))");
+  for (const [tipo,campo,ranking] of casos) {
+    assert.equal(h.run(`coleccionCatalogoActiva('${tipo}').some(x=>x.id===items.${tipo}.id)`),true);
+    assert.equal(h.run(`filtrarRankingCatalogoActivo('${tipo}',${ranking}).some(x=>x.${campo}.id===items.${tipo}.id)`),true);
+  }
+});
 test('v1.x backup alias keeps current optional settings and legacy shape', () => {
   const h=harness(); h.run("guardarConfiguracion({p1:{nombre:'Marcos'}})");
   const result=h.json("restaurarSnapshotDatos({registros:[{id:'old',posicion:1,reproducciones:20}],artistas:[],albumes:[],bsides:[]})");

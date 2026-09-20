@@ -380,7 +380,7 @@ function posicionesHTML(r) {
 }
 
 function renderHistorial() {
-  const registros = filtrarRegistrosTemporada(cargarRegistros())
+  const registros = filtrarRegistrosCatalogoActivos("canciones", filtrarRegistrosTemporada(cargarRegistros()))
     .filter(r => r.semanaId === document.getElementById("semana-global").value)
     .sort((a, b) => obtenerPuntajeRegistro(b) - obtenerPuntajeRegistro(a));
   const container = document.getElementById("historial-list"); if (!container) return;
@@ -397,7 +397,7 @@ function renderHistorial() {
 }
 
 function renderHistorialAlbumes() {
-  const registros = filtrarRegistrosTemporada(cargarRegistrosAlbumes()).filter(r => r.semanaId === document.getElementById("semana-global").value).sort((a, b) => obtenerPuntajeRegistro(b) - obtenerPuntajeRegistro(a));
+  const registros = filtrarRegistrosCatalogoActivos("albumes", filtrarRegistrosTemporada(cargarRegistrosAlbumes())).filter(r => r.semanaId === document.getElementById("semana-global").value).sort((a, b) => obtenerPuntajeRegistro(b) - obtenerPuntajeRegistro(a));
   const container = document.getElementById("historial-albumes-list"); if (!container) return;
   conectarAccionesDatos(container, { "editar-album": cargarEdicionAlbum, "eliminar-album": eliminarRegistroAlbum });
   container.innerHTML = registros.length ? "" : "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Vacío</p>";
@@ -412,7 +412,7 @@ function renderHistorialAlbumes() {
 }
 
 function renderHistorialArtistas() {
-  const registros = filtrarRegistrosTemporada(cargarRegistrosArtistas()).filter(r => r.semanaId === document.getElementById("semana-global").value).sort((a, b) => obtenerPuntajeRegistro(b) - obtenerPuntajeRegistro(a));
+  const registros = filtrarRegistrosCatalogoActivos("artistas", filtrarRegistrosTemporada(cargarRegistrosArtistas())).filter(r => r.semanaId === document.getElementById("semana-global").value).sort((a, b) => obtenerPuntajeRegistro(b) - obtenerPuntajeRegistro(a));
   const container = document.getElementById("historial-artistas-list"); if (!container) return;
   conectarAccionesDatos(container, { "editar-artista": cargarEdicionArtista, "eliminar-artista": eliminarRegistroArtista });
   container.innerHTML = registros.length ? "" : "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Vacío</p>";
@@ -427,7 +427,7 @@ function renderHistorialArtistas() {
 }
 
 function renderHistorialBsides() {
-  const registros = filtrarRegistrosTemporada(cargarRegistrosBsides()).filter(r => r.semanaId === document.getElementById("semana-global").value).sort((a, b) => obtenerPuntajeRegistro(b) - obtenerPuntajeRegistro(a));
+  const registros = filtrarRegistrosCatalogoActivos("bsides", filtrarRegistrosTemporada(cargarRegistrosBsides())).filter(r => r.semanaId === document.getElementById("semana-global").value).sort((a, b) => obtenerPuntajeRegistro(b) - obtenerPuntajeRegistro(a));
   const container = document.getElementById("historial-bsides-list"); if (!container) return;
   conectarAccionesDatos(container, { "editar-bside": cargarEdicionBside, "eliminar-bside": eliminarRegistroBside });
   container.innerHTML = registros.length ? "" : "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Vacío</p>";

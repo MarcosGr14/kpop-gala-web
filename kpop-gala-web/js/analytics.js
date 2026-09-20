@@ -29,18 +29,18 @@ window.addEventListener("DOMContentLoaded", () => {
 
 function contextoTipo(tipo, itemEspecifico = null) {
   const map = {
-    canciones: { items: CANCIONES, registros: filtrarRegistrosTemporada(cargarRegistros(), kgAnalyticsSeasonId), campo: "cancionId" },
-    artistas:  { items: ARTISTAS, registros: filtrarRegistrosTemporada(cargarRegistrosArtistas(), kgAnalyticsSeasonId), campo: "artistaId" },
-    albumes:   { items: ALBUMES, registros: filtrarRegistrosTemporada(cargarRegistrosAlbumes(), kgAnalyticsSeasonId), campo: "albumId" },
-    bsides:    { items: BSIDES, registros: filtrarRegistrosTemporada(cargarRegistrosBsides(), kgAnalyticsSeasonId), campo: "bsideId" },
+    canciones: { items: coleccionCatalogoActiva("canciones"), registros: filtrarRegistrosCatalogoActivos("canciones", filtrarRegistrosTemporada(cargarRegistros(), kgAnalyticsSeasonId)), campo: "cancionId" },
+    artistas:  { items: coleccionCatalogoActiva("artistas"), registros: filtrarRegistrosCatalogoActivos("artistas", filtrarRegistrosTemporada(cargarRegistrosArtistas(), kgAnalyticsSeasonId)), campo: "artistaId" },
+    albumes:   { items: coleccionCatalogoActiva("albumes"), registros: filtrarRegistrosCatalogoActivos("albumes", filtrarRegistrosTemporada(cargarRegistrosAlbumes(), kgAnalyticsSeasonId)), campo: "albumId" },
+    bsides:    { items: coleccionCatalogoActiva("bsides"), registros: filtrarRegistrosCatalogoActivos("bsides", filtrarRegistrosTemporada(cargarRegistrosBsides(), kgAnalyticsSeasonId)), campo: "bsideId" },
   };
   const ctx = map[tipo];
   if (!ctx) return null;
   if (tipo === "artistas" && itemEspecifico?.categoria) {
-    const ids = new Set(ARTISTAS.filter(a => a.categoria === itemEspecifico.categoria).map(a => String(a.id)));
+    const ids = new Set(ctx.items.filter(a => a.categoria === itemEspecifico.categoria).map(a => String(a.id)));
     return {
       ...ctx,
-      items: ARTISTAS.filter(a => ids.has(String(a.id))),
+      items: ctx.items.filter(a => ids.has(String(a.id))),
       registros: ctx.registros.filter(r => ids.has(String(r.artistaId))),
     };
   }
@@ -48,7 +48,7 @@ function contextoTipo(tipo, itemEspecifico = null) {
 }
 
 function itemPorTipo(tipo, id) {
-  return coleccionCatalogo(tipo).find(x => String(x.id) === String(id)) || null;
+  return coleccionCatalogoActiva(tipo).find(x => String(x.id) === String(id)) || null;
 }
 
 function subtituloItem(tipo, item) {
@@ -99,12 +99,7 @@ function movimientoTexto(m) {
 }
 
 function todasLasColecciones() {
-  return [
-    { tipo:"canciones", items:CANCIONES, registros:filtrarRegistrosTemporada(cargarRegistros(), kgAnalyticsSeasonId), campo:"cancionId" },
-    { tipo:"artistas", items:ARTISTAS, registros:filtrarRegistrosTemporada(cargarRegistrosArtistas(), kgAnalyticsSeasonId), campo:"artistaId" },
-    { tipo:"albumes", items:ALBUMES, registros:filtrarRegistrosTemporada(cargarRegistrosAlbumes(), kgAnalyticsSeasonId), campo:"albumId" },
-    { tipo:"bsides", items:BSIDES, registros:filtrarRegistrosTemporada(cargarRegistrosBsides(), kgAnalyticsSeasonId), campo:"bsideId" },
-  ];
+  return Object.keys(KG_ANALYTICS).map(tipo => ({ tipo, ...contextoTipo(tipo) }));
 }
 
 function estadisticasGlobales() {
@@ -130,17 +125,16 @@ function topGlobalPorTipo() {
 
 function mayorMovimiento() {
   const candidatos = [];
-  CANCIONES.forEach(x => candidatos.push({tipo:"canciones", item:x, m:metricasItem("canciones",x)}));
-  ALBUMES.forEach(x => candidatos.push({tipo:"albumes", item:x, m:metricasItem("albumes",x)}));
-  BSIDES.forEach(x => candidatos.push({tipo:"bsides", item:x, m:metricasItem("bsides",x)}));
-  ARTISTAS.forEach(x => candidatos.push({tipo:"artistas", item:x, m:metricasItem("artistas",x)}));
+  Object.keys(KG_ANALYTICS).forEach(tipo => {
+    coleccionCatalogoActiva(tipo).forEach(item => candidatos.push({ tipo, item, m:metricasItem(tipo, item) }));
+  });
   return candidatos.filter(x => x.m?.estadoMovimiento === "up").sort((a,b)=>(b.m.movimiento||0)-(a.m.movimiento||0))[0] || null;
 }
 
 function veteranoRanking() {
   const candidatos = [];
   Object.keys(KG_ANALYTICS).forEach(tipo => {
-    coleccionCatalogo(tipo).forEach(item => candidatos.push({tipo,item,m:metricasItem(tipo,item)}));
+    coleccionCatalogoActiva(tipo).forEach(item => candidatos.push({tipo,item,m:metricasItem(tipo,item)}));
   });
   return candidatos.filter(x => x.m?.semanasEnRanking > 0).sort((a,b)=>(b.m.semanasEnRanking||0)-(a.m.semanasEnRanking||0))[0] || null;
 }
@@ -248,7 +242,7 @@ function renderListadoTipo(tipo) {
   const info=KG_ANALYTICS[tipo];
   const ranking=rankingAcumulado(tipo);
   const rankPos=new Map(ranking.map((x,i)=>[String(x.item.id),i+1]));
-  let items=[...coleccionCatalogo(tipo)].filter(x=>!x.archivado || registrosDelItem(tipo,x.id).length);
+  let items=[...coleccionCatalogoActiva(tipo)];
   items.sort((a,b)=>(rankPos.get(String(a.id))??9999)-(rankPos.get(String(b.id))??9999)||String(a.nombre).localeCompare(String(b.nombre),"es"));
   cont.innerHTML=`
     <section class="analytics-section fade-up">
