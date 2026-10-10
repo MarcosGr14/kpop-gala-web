@@ -2,16 +2,16 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { harness } = require('./helpers/harness.cjs');
 
-test('modern scoring: all positions, zero/out of range and 200-play cap', () => {
+test('modern scoring: all positions, zero/out of range and full play count', () => {
   const h = harness();
   for (let p=1;p<=15;p++) assert.equal(h.run('calcularPuntajeEntrada('+p+',0,0)'),16-p);
-  assert.equal(h.run('calcularPuntajeEntrada(1,1,999)'),230);
+  assert.equal(h.run('calcularPuntajeEntrada(1,1,999)'),1029);
   assert.equal(h.run('calcularPuntajeEntrada(16,0,20)'),20);
   assert.equal(h.run('calcularPuntajeEntrada("2","3","10")'),37);
 });
 test('legacy scoring and stored-score fallback', () => {
   const h=harness();
-  assert.equal(h.run('calcularPuntajeEntrada(1,250)'),215);
+  assert.equal(h.run('calcularPuntajeEntrada(1,250)'),265);
   assert.equal(h.run('obtenerPuntajeRegistro({posicion:2,reproducciones:10})'),24);
   assert.equal(h.run('obtenerPuntajeRegistro({puntaje:77})'),77);
   assert.equal(h.run('obtenerPuntajeRegistro({posSpotify:1,reproducciones:5,puntaje:99})'),20);

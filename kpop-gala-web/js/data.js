@@ -338,7 +338,7 @@ function calcularPuntajeEntrada(posSpotify, posInstafest, reproducciones) {
     const viejaPos = Number(posSpotify) || 0;
     const viejaRep = Number(posInstafest) || 0;
     const pts = viejaPos >= 1 && viejaPos <= 15 ? (16 - viejaPos) : 0;
-    return pts + Math.min(viejaRep, 200);
+    return pts + viejaRep;
   }
 
   const pSpotify = Number(posSpotify) || 0;
@@ -346,7 +346,7 @@ function calcularPuntajeEntrada(posSpotify, posInstafest, reproducciones) {
   const reps = Number(reproducciones) || 0;
   const ptsSpot = pSpotify >= 1 && pSpotify <= 15 ? (16 - pSpotify) : 0;
   const ptsInsta = pInstafest >= 1 && pInstafest <= 15 ? (16 - pInstafest) : 0;
-  return ptsSpot + ptsInsta + Math.min(reps, 200);
+  return ptsSpot + ptsInsta + reps;
 }
 
 function obtenerPuntajeRegistro(registro) {

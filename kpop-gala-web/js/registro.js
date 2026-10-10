@@ -190,6 +190,7 @@ function guardarEntrada(pid) {
     mostrarToast("✨ Canción guardada", "success");
   }
   document.getElementById(`form-${pid}`).reset();
+  removerBotonCancelarEdicion(`form-${pid}`);
   actualizarPreview(pid);
   renderHistorial();
 }
@@ -227,6 +228,7 @@ function guardarEntradaAlbum(pid) {
     mostrarToast("💿 Álbum guardado", "success");
   }
   document.getElementById(`form-album-${pid}`).reset();
+  removerBotonCancelarEdicion(`form-album-${pid}`);
   actualizarPreviewAlbum(pid);
   renderHistorialAlbumes();
 }
@@ -260,6 +262,7 @@ function guardarEntradaArtista(pid) {
     mostrarToast("⭐ Artista guardado", "success");
   }
   document.getElementById(`form-artista-${pid}`).reset();
+  removerBotonCancelarEdicion(`form-artista-${pid}`);
   actualizarPreviewArtista(pid);
   renderHistorialArtistas();
 }
@@ -293,10 +296,33 @@ function guardarEntradaBside(pid) {
     mostrarToast("🎧 B-Side guardado", "success");
   }
   document.getElementById(`form-bside-${pid}`).reset();
+  removerBotonCancelarEdicion(`form-bside-${pid}`);
   actualizarPreviewBside(pid);
   renderHistorialBsides();
 }
 
+
+function mostrarBotonCancelarEdicion(formId, onCancel) {
+  const form = document.getElementById(formId);
+  if (!form) return;
+  let btn = form.querySelector(".btn-cancelar-edicion");
+  if (!btn) {
+    btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "btn btn-sm btn-cancelar-edicion";
+    btn.style.cssText = "margin-top:0.4rem;background:transparent;border:1px dashed var(--border);color:var(--text-muted);width:100%;font-size:0.78rem;cursor:pointer;";
+    btn.textContent = "✕ Cancelar edición";
+    form.appendChild(btn);
+  }
+  btn.onclick = () => {
+    btn.remove();
+    onCancel();
+  };
+}
+
+function removerBotonCancelarEdicion(formId) {
+  document.getElementById(formId)?.querySelector(".btn-cancelar-edicion")?.remove();
+}
 
 function asegurarOpcionSeleccionable(select, value, label) {
   if (!select || value === undefined || value === null) return;
@@ -306,6 +332,7 @@ function asegurarOpcionSeleccionable(select, value, label) {
     opt.value = value;
     opt.textContent = `${label} · archivado`;
     select.appendChild(opt);
+    select.dispatchEvent(new CustomEvent("kg-options-changed"));
   }
 }
 
@@ -321,6 +348,12 @@ function cargarEdicion(id) {
   document.getElementById(`reproducciones-${r.personaId}`).value = r.reproducciones ?? 0;
   actualizarPreview(r.personaId);
   document.querySelector(`#form-${r.personaId} button[type="submit"]`).innerHTML = "✏️ Actualizar";
+  mostrarBotonCancelarEdicion(`form-${r.personaId}`, () => {
+    editandoCancionId = null; personaEditando = null;
+    document.getElementById(`form-${r.personaId}`).reset();
+    document.querySelector(`#form-${r.personaId} button[type="submit"]`).innerHTML = "✨ Guardar entrada";
+    actualizarPreview(r.personaId);
+  });
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -336,6 +369,12 @@ function cargarEdicionAlbum(id) {
   document.getElementById(`reproducciones-album-${r.personaId}`).value = r.reproducciones ?? 0;
   actualizarPreviewAlbum(r.personaId);
   document.querySelector(`#form-album-${r.personaId} button[type="submit"]`).innerHTML = "✏️ Actualizar";
+  mostrarBotonCancelarEdicion(`form-album-${r.personaId}`, () => {
+    editandoAlbumId = null; personaEditandoAlbum = null;
+    document.getElementById(`form-album-${r.personaId}`).reset();
+    document.querySelector(`#form-album-${r.personaId} button[type="submit"]`).innerHTML = "💿 Guardar Álbum";
+    actualizarPreviewAlbum(r.personaId);
+  });
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -356,6 +395,12 @@ function cargarEdicionArtista(id) {
   if (repInput) repInput.value = r.reproducciones ?? 0;
   actualizarPreviewArtista(personaEditandoArtista);
   document.querySelector(`#form-artista-${personaEditandoArtista} button[type='submit']`).innerHTML = "✏️ Actualizar";
+  mostrarBotonCancelarEdicion(`form-artista-${personaEditandoArtista}`, () => {
+    editandoArtistaId = null; personaEditandoArtista = null;
+    document.getElementById(`form-artista-${personaEditandoArtista}`).reset();
+    document.querySelector(`#form-artista-${personaEditandoArtista} button[type="submit"]`).innerHTML = "⭐ Guardar Artista";
+    actualizarPreviewArtista(personaEditandoArtista);
+  });
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -371,6 +416,12 @@ function cargarEdicionBside(id) {
   document.getElementById(`reproducciones-bside-${r.personaId}`).value = r.reproducciones ?? 0;
   actualizarPreviewBside(r.personaId);
   document.querySelector(`#form-bside-${r.personaId} button[type="submit"]`).innerHTML = "✏️ Actualizar";
+  mostrarBotonCancelarEdicion(`form-bside-${r.personaId}`, () => {
+    editandoBsideId = null; personaEditandoBside = null;
+    document.getElementById(`form-bside-${r.personaId}`).reset();
+    document.querySelector(`#form-bside-${r.personaId} button[type="submit"]`).innerHTML = "🎧 Guardar B-Side";
+    actualizarPreviewBside(r.personaId);
+  });
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 

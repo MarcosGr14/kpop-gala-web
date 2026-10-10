@@ -80,9 +80,7 @@ Las posiciones de Spotify e Instafest generan puntos utilizando una escala del p
 |       15 |      1 |
 |     > 15 |      0 |
 
-Además, las reproducciones agregan puntos adicionales.
-
-Las reproducciones utilizadas para el cálculo están limitadas a un máximo de **200 puntos por entrada**.
+Además, las reproducciones agregan puntos adicionales de forma directa (1 reproducción = 1 punto).
 
 De forma general:
 
